@@ -21,7 +21,9 @@ type Response struct {
 	LastSeen		string	`json:"last_seen"`
 }
 
-func HandleRequest(ctx context.Context, subject Subject) (string, error) {
+func HandleRequest(ctx context.Context, subject hellarad.Subject) (string, error) {
+	var result hellarad.Result
+
 	response, err := http.Get(fmt.Sprintf("https://api.greynoise.io/v3/community/%s", subject.IP))
 
     if err != nil {
@@ -38,8 +40,9 @@ func HandleRequest(ctx context.Context, subject Subject) (string, error) {
 	json.Unmarshal(responseData, &responseObject)
 	j, _ := json.MarshalIndent(responseObject, "", "\t")
 
-	message := fmt.Sprintf("Details on %s from Greynoise:\n", subject.IP)
-	return message+string(j), nil
+	result.Message = string(j)
+	result.Success = true 
+	return result.stringify(), nil
 }
 
 func main() {

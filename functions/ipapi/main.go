@@ -9,6 +9,7 @@ import (
 	"os"
 	"log"
 	"io/ioutil"
+	"github.com/gyrospectre/hellarad"
 )
 
 type Response struct {
@@ -26,7 +27,7 @@ type Response struct {
 	ASN			string	`json:"as"`
 }
 
-func HandleRequest(ctx context.Context, subject Subject) (string, error) {
+func HandleRequest(ctx context.Context, subject hellarad.Subject) (string, error) {
 	response, err := http.Get(fmt.Sprintf("http://ip-api.com/json/%s", subject.IP))
 
     if err != nil {
