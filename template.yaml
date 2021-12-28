@@ -1,0 +1,18 @@
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  GreynoiseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/greynoise
+      Handler: greynoise
+      Runtime: go1.x
+
+  IPAPIFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/ipapi
+      Handler: ipapi
+      Runtime: go1.x
