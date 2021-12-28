@@ -15,7 +15,7 @@ type Result struct {
 }
 
 func (r *Result) stringify() string {
-	message := fmt.Sprintf("Details on %s from %s:\n", subject.AttributeValue, subject.Source)
+	message := fmt.Sprintf("Details on %s from %s:\n", r.AttributeValue, r.Source)
 
     return message
 }
