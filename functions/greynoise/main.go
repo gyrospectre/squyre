@@ -12,7 +12,7 @@ import (
 	"github.com/gyrospectre/hellarad"
 )
 
-type Response struct {
+type greynoiseResponse struct {
     Noise      		bool	`json:"noise"`
 	Riot			bool	`json:"riot"`
 	Message			string	`json:"message"`
@@ -22,27 +22,27 @@ type Response struct {
 }
 
 func HandleRequest(ctx context.Context, subject hellarad.Subject) (string, error) {
-	var result hellarad.Result
+	var result = hellarad.Result{Source: "GreyNoise", AttributeValue: subject.IP, Success: false}
 
 	response, err := http.Get(fmt.Sprintf("https://api.greynoise.io/v3/community/%s", subject.IP))
 
-    if err != nil {
-        fmt.Print(err.Error())
-        os.Exit(1)
-    }
+	if err == nil {
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err == nil {
+			var responseObject greynoiseResponse
+			json.Unmarshal(responseData, &responseObject)
+			prettyresponse, _ := json.MarshalIndent(responseObject, "", "\t")
+		
+			result.Success = true 		
+			result.Message = string(prettyresponse)
+		}
+	}
 
-	responseData, err := ioutil.ReadAll(response.Body)
-    if err != nil {
-        log.Fatal(err)
-    }
+	if err != nil {
+		result.Message = string(err.Error())
+	}
 
-	var responseObject Response
-	json.Unmarshal(responseData, &responseObject)
-	j, _ := json.MarshalIndent(responseObject, "", "\t")
-
-	result.Message = string(j)
-	result.Success = true 
-	return result.stringify(), nil
+	return result.Prettify(), nil
 }
 
 func main() {
