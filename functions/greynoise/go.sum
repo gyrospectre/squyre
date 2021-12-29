@@ -11,6 +11,8 @@ github.com/gyrospectre/hellarad v0.0.0-20211228235918-ff96239934c6 h1:1/miui2TW1
 github.com/gyrospectre/hellarad v0.0.0-20211228235918-ff96239934c6/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
 github.com/gyrospectre/hellarad v0.0.0-20211229000118-fd80974b38d5 h1:BQGgiRI77pngM8p9rkaUHLtM89GhCG8ZALEQVHcXJrg=
 github.com/gyrospectre/hellarad v0.0.0-20211229000118-fd80974b38d5/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
+github.com/gyrospectre/hellarad v0.0.0-20211229003214-8c46104353c6 h1:wHuw/+CfMs2UxyfslyWQT08CvioLT1mbPIrbX5KzOrw=
+github.com/gyrospectre/hellarad v0.0.0-20211229003214-8c46104353c6/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=

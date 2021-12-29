@@ -1,11 +1,24 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Hella Rad
+
 Globals:
   Function:
     Timeout: 5
 
 Resources:
+  ConductorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-Conductor'
+      CodeUri: conductor
+      Handler: conductor
+      Runtime: go1.x
+
   GreynoiseFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub '${AWS::StackName}-Greynoise'
       CodeUri: functions/greynoise
       Handler: greynoise
       Runtime: go1.x
@@ -13,6 +26,21 @@ Resources:
   IPAPIFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub '${AWS::StackName}-IPapi'
       CodeUri: functions/ipapi
       Handler: ipapi
       Runtime: go1.x
+
+  IPLookupStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub '${AWS::StackName}-IPLookup'
+      DefinitionUri: statemachine/ipLookup.asl.json
+      DefinitionSubstitutions:
+        GreynoiseFunctionArn: !GetAtt GreynoiseFunction.Arn
+        IPAPIFunctionArn: !GetAtt IPAPIFunction.Arn
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref GreynoiseFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref IPAPIFunction
