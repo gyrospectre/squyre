@@ -14,7 +14,7 @@ type Result struct {
 	Success			bool
 }
 
-func (r *Result) stringify() string {
+func (r *Result) Stringify() string {
 	message := fmt.Sprintf("Details on %s from %s:\n", r.AttributeValue, r.Source)
 
     return message
