@@ -15,6 +15,21 @@ Resources:
       Handler: conductor
       Runtime: go1.x
 
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${AWS::StackName}-Alert'
+      Subscription:
+        - Protocol: lambda
+          Endpoint: !GetAtt ConductorFunction.Arn
+
+  ConductorInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref ConductorFunction
+      Principal: sns.amazonaws.com
+
   GreynoiseFunction:
     Type: AWS::Serverless::Function
     Properties:
