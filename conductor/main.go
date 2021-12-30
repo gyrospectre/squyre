@@ -16,10 +16,30 @@ import (
     "github.com/gyrospectre/hellarad"
 )
 
-type AllPurposeAlert struct {
-    Message		string `json:"message"`		// Splunk
-    SearchName	string `json:"search_name"`
-    Alert		string `json:"alert"`		// OpsGenie
+type Alert interface {
+    Normalise() hellarad.Alert
+}
+
+type SplunkAlert struct {
+    Message        string `json:"message"`
+    CorrelationId  string `json:"correlation_id"`
+    SearchName     string `json:"search_name"`
+}
+
+func (alert SplunkAlert) Normalise() Alert {
+    var normalisedAlert hellarad.Alert
+    normalisedAlert.Details = alert.Message
+    normalisedAlert.Id = alert.CorrelationId
+
+	return normalisedAlert
+}
+
+type OpsGenieAlert struct {}
+    Action      strint `json:"action"`
+    Alert  struct {
+        AlertId string `json:"alertId"`
+        Message string `json:"message"`
+    } `json:"alert"`
 }
 
 func getStackResourceArn(svc *cloudformation.CloudFormation, stackName string, resourceName string) (string, error) {
@@ -52,19 +72,20 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 
         log.Printf("Processing message %s\n", snsRecord.MessageID)
 
-        var messageObject AllPurposeAlert
-        json.Unmarshal([]byte(snsRecord.Message), &messageObject)
-
         var details string
 
         if messageObject.SearchName != "" { 			// Source is Splunk
+            var MessageObject SplunkAlert
+            json.Unmarshal([]byte(snsRecord.Message), &MessageObject)
             log.Println("Got Splunk alert")
             details = messageObject.Message
         } else {
+            var MessageObject OpsGenieAlert
+            json.Unmarshal([]byte(snsRecord.Message), &MessageObject)
             log.Println("Got OpsGenie alert")
             details = messageObject.Alert
         }
-        log.Printf("%s\n", details)
+        log.Printf("%s\n", MessageObject.Normalise().Details)
 
         re := regexp.MustCompile(`(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}`)
         submatchall := re.FindAllString(details, -1)

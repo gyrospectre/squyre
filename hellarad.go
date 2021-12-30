@@ -14,6 +14,11 @@ type Result struct {
 	Success			bool
 }
 
+type Alert struct {
+    Details     string
+    Id          string
+}
+
 func (r *Result) Prettify() string {
 	var message string
 	if r.Success == true {
