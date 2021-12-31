@@ -29,3 +29,17 @@ func (r *Result) Prettify() string {
 
     return message
 }
+
+func getSecret(location string) (string, error){
+	svc := secretsmanager.New(session.New())
+	input := &secretsmanager.DescribeSecretInput{
+		SecretId: aws.String(location),
+	}
+
+	result, err := svc.DescribeSecret(input)
+	if err != nil {
+		return "", aerr.Error())
+	}
+
+	return result, nil
+}

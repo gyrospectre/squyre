@@ -34,7 +34,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${AWS::StackName}-Greynoise'
-      CodeUri: functions/greynoise
+      CodeUri: function/greynoise
       Handler: greynoise
       Runtime: go1.x
 
@@ -42,7 +42,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${AWS::StackName}-IPapi'
-      CodeUri: functions/ipapi
+      CodeUri: function/ipapi
       Handler: ipapi
       Runtime: go1.x
 

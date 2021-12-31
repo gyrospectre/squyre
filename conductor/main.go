@@ -93,7 +93,7 @@ func convertSplunkAlert(alertBody string) hellarad.Alert {
 }
 
 func convertOpsGenieAlert(alertBody string) hellarad.Alert {
-	var messageObject SplunkAlert
+	var messageObject OpsGenieAlert
 	json.Unmarshal([]byte(alertBody), &messageObject)
 
 	return messageObject.Normaliser()
@@ -107,6 +107,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		var alert hellarad.Alert
 
 		log.Printf("Processing message %s\n", snsRecord.MessageID)
+        log.Printf("Raw message: %s\n", snsRecord.Message)
 
 		if strings.Contains(snsRecord.Message, "search_name") {
 			log.Println("Auto detected Splunk alert")
