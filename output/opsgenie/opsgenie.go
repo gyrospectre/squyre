@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"bytes"
+	"encoding/json"
 )
 
 const (
@@ -26,7 +27,7 @@ func Send(results hellarad.Result, alertId string) (bool, error) {
 	json.Unmarshal(*smresponse.SecretString, &secret)
 
     url := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
-	auth := fmt.Sprintf("GenieKey %s", *secret.Key)
+	auth := fmt.Sprintf("GenieKey %s", secret.Key)
 
 	var jsonData = []byte(`{
 		"name": "morpheus",
