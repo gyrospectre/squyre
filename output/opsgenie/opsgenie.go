@@ -1,13 +1,12 @@
 package opsgenie
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/gyrospectre/hellarad"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"bytes"
 )
 
 const (
@@ -16,10 +15,10 @@ const (
 )
 
 func Send(results hellarad.Result, alertId string) (bool, error) {
-	apiKey, _ := hellarad.getSecret(SecretLocation)
+	apiKey, _ := hellarad.GetSecret(SecretLocation)
 
     url := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
-	auth := fmt.Sprintf("Authorization: GenieKey %s", apikey)
+	auth := fmt.Sprintf("Authorization: GenieKey %s", apiKey)
 
 	var jsonData = []byte(`{
 		"name": "morpheus",
@@ -27,7 +26,7 @@ func Send(results hellarad.Result, alertId string) (bool, error) {
 	}`)
 	request, error := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	request.Header.Set("Authorization", fmt.Sprintf("GenieKey %s"),apiKey)
+	request.Header.Set("Authorization", fmt.Sprintf("GenieKey %s",apiKey))
 
 	client := &http.Client{}
 	response, error := client.Do(request)
@@ -41,6 +40,6 @@ func Send(results hellarad.Result, alertId string) (bool, error) {
 	body, _ := ioutil.ReadAll(response.Body)
 	fmt.Println("response Body:", string(body))
 
-    return true
+    return true, nil
 }
 

@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/gyrospectre/hellarad"
-	"github.com/gyrospectre/hellarad/output"
+	"github.com/gyrospectre/hellarad/output/opsgenie"
 	"log"
 	"regexp"
 	"strings"
