@@ -30,8 +30,9 @@ func Send(results hellarad.Result, alertId string) (bool, error) {
 	auth := fmt.Sprintf("GenieKey %s", secret.Key)
 
 	var jsonData = []byte(`{
-		"name": "morpheus",
-		"job": "leader"
+		"user": "Hella Rad!",
+		"source": "hellarad",
+		"Note": "Oooh yeah"
 	}`)
 	request, error := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")

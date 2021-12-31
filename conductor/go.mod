@@ -6,5 +6,5 @@ require (
 	github.com/aws/aws-lambda-go v1.27.1
 	github.com/aws/aws-sdk-go v1.42.25
 	github.com/gyrospectre/hellarad v0.0.0-20211231070005-438bdbc92a99
-	github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20211231074109-1df47f2b972d // indirect
+	github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20211231074307-5355426c08f2 // indirect
 )
