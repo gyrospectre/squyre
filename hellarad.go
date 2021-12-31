@@ -35,13 +35,13 @@ func (r *Result) Prettify() string {
     return message
 }
 
-func GetSecret(location string) (string, error){
+func GetSecret(location string) (secretsmanager.GetSecretValueOutput, error){
 	svc := secretsmanager.New(session.New())
 	input := &secretsmanager.DescribeSecretInput{
 		SecretId: aws.String(location),
 	}
 
-	result, err := svc.DescribeSecret(input)
+	result, err := svc.GetSecretValue(input)
 	if err != nil {
 		return "", err
 	}
