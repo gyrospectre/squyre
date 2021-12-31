@@ -16,7 +16,7 @@ const (
 )
 
 func Send(results hellarad.Result, alertId string) (bool, error) {
-	apiKey := ""
+	apiKey, _ := hellarad.getSecret(SecretLocation)
 
     url := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
 	auth := fmt.Sprintf("Authorization: GenieKey %s", apikey)

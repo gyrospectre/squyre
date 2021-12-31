@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/gyrospectre/hellarad"
+	"github.com/gyrospectre/hellarad/output"
 	"log"
 	"regexp"
 	"strings"
@@ -161,7 +162,8 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		log.Printf("Successfully processed %d entries for alert %s!\n\n", len(inputList), alert.Id)
 		log.Printf("Results: %s\n", results)
 	}
-
+    blank := hellarad.Result{}
+    output.opsgenie.Send(blank)
 	return fmt.Sprintf("Processed %d SNS messages.", len(snsEvent.Records)), nil
 }
 
