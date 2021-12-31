@@ -25,7 +25,7 @@ func Send(results hellarad.Result, alertId string) (bool, error) {
 
 	var secret apiKeySecret
 	json.Unmarshal([]byte(*smresponse.SecretString), &secret)
-
+	fmt.Println(secret.Key)
     url := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
 	auth := fmt.Sprintf("GenieKey %s", secret.Key)
 
