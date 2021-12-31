@@ -43,8 +43,8 @@ func GetSecret(location string) (secretsmanager.GetSecretValueOutput, error){
 
 	result, err := svc.GetSecretValue(input)
 	if err != nil {
-		return result, err
+		return *result, err
 	}
 
-	return &result, nil
+	return *result, nil
 }
