@@ -38,7 +38,7 @@ func GetSecret(location string) (string, error){
 
 	result, err := svc.DescribeSecret(input)
 	if err != nil {
-		return "", aerr.Error())
+		return "", aerr.Error()
 	}
 
 	return result, nil
