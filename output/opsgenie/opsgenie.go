@@ -14,11 +14,19 @@ const (
 	BaseURL  = "https://api.opsgenie.com/v2"
 )
 
+type apiKeySecret struct {
+	Key	  string	`json:"apikey"`
+}
+
 func Send(results hellarad.Result, alertId string) (bool, error) {
-	apiKey, _ := hellarad.GetSecret(SecretLocation)
-	fmt.Printf("%s", *apiKey.SecretString)
+	smresponse, _ := hellarad.GetSecret(SecretLocation)
+	//fmt.Printf("%s", *apiKey.SecretString)
+
+	var secret apiKeySecret
+	json.Unmarshal(*smresponse.SecretString, &secret)
+
     url := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
-	auth := fmt.Sprintf("GenieKey %s", *apiKey.SecretString)
+	auth := fmt.Sprintf("GenieKey %s", *secret.Key)
 
 	var jsonData = []byte(`{
 		"name": "morpheus",
