@@ -1,4 +1,4 @@
-module opsgenie
+module github.com/gyrospectre/hellarad/output/opsgenie
 
 go 1.16
 
