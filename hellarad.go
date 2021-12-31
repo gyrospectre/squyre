@@ -37,14 +37,14 @@ func (r *Result) Prettify() string {
 
 func GetSecret(location string) (secretsmanager.GetSecretValueOutput, error){
 	svc := secretsmanager.New(session.New())
-	input := &secretsmanager.DescribeSecretInput{
+	input := &secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(location),
 	}
 
 	result, err := svc.GetSecretValue(input)
 	if err != nil {
-		return "", err
+		return result, err
 	}
 
-	return result, nil
+	return &result, nil
 }
