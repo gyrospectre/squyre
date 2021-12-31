@@ -18,7 +18,7 @@ func Send(results hellarad.Result, alertId string) (bool, error) {
 	apiKey, _ := hellarad.GetSecret(SecretLocation)
 
     url := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
-	auth := fmt.Sprintf("GenieKey %s", apiKey)
+	auth := fmt.Sprintf("GenieKey %s", *apiKey.SecretString)
 
 	var jsonData = []byte(`{
 		"name": "morpheus",

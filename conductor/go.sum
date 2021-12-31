@@ -10,6 +10,10 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gyrospectre/hellarad v0.0.0-20211230074052-97d08f864e8e h1:tWsk/ayYks2CgheRYF3l0adZMlcORZbXORnB/P9qZAU=
 github.com/gyrospectre/hellarad v0.0.0-20211230074052-97d08f864e8e/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
+github.com/gyrospectre/hellarad v0.0.0-20211231070005-438bdbc92a99 h1:bukgcLqqQkspTa5wbUqHJNh87R8l91iW8GYFTrgggo4=
+github.com/gyrospectre/hellarad v0.0.0-20211231070005-438bdbc92a99/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
+github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20211231071646-6a77e817283e h1:RDg9SdsGYt5xeQqxYdOtluCpcf5oeGRjeS28gT6bJfY=
+github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20211231071646-6a77e817283e/go.mod h1:U3TdNVaIitwR19WulWdadhknfjYxRhGFYVjuLrVKxtk=
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=

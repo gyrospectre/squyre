@@ -8,15 +8,15 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
+	//"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/service/sfn"
+	//"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/gyrospectre/hellarad"
 	"github.com/gyrospectre/hellarad/output/opsgenie"
 	"log"
 	"regexp"
 	"strings"
-	"time"
+	//"time"
 )
 
 type Alert interface {
@@ -102,7 +102,7 @@ func convertOpsGenieAlert(alertBody string) hellarad.Alert {
 
 func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error) {
 	var inputList []hellarad.Subject
-	var results string
+	//var results string
 	for _, record := range snsEvent.Records {
 		snsRecord := record.SNS
 		var alert hellarad.Alert
@@ -123,47 +123,48 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 			return "", errors.New("No IP addresses found to process!")
 		}
 
-		inputJson, _ := json.Marshal(inputList)
+		//inputJson, _ := json.Marshal(inputList)
 
-		sesh := session.Must(session.NewSessionWithOptions(session.Options{
-			SharedConfigState: session.SharedConfigEnable,
-		}))
+		//sesh := session.Must(session.NewSessionWithOptions(session.Options{
+		//	SharedConfigState: session.SharedConfigEnable,
+		//}))
 
-		cfnsvc := cloudformation.New(sesh)
-		sfnArn, err := getStackResourceArn(cfnsvc, "hellarad", "IPLookupStateMachine")
+		//cfnsvc := cloudformation.New(sesh)
+		//sfnArn, err := getStackResourceArn(cfnsvc, "hellarad", "IPLookupStateMachine")
 
-		if err != nil {
-			return sfnArn, err
-		}
+		//if err != nil {
+		//	return sfnArn, err
+		//}
 
-		sfnsvc := sfn.New(sesh)
-		result, err := sfnsvc.StartExecution(&sfn.StartExecutionInput{
-			StateMachineArn: &sfnArn,
-			Input:           aws.String(string(inputJson)),
-		})
-		if err != nil {
-			fmt.Print(string(err.Error()))
-			return string(err.Error()), err
-		}
+		//sfnsvc := sfn.New(sesh)
+		//result, err := sfnsvc.StartExecution(&sfn.StartExecutionInput{
+		//	StateMachineArn: &sfnArn,
+		//	Input:           aws.String(string(inputJson)),
+		//})
+		//if err != nil {
+		//	fmt.Print(string(err.Error()))
+		//	return string(err.Error()), err
+		//}
 
-		log.Printf("Started IP Lookup with execution %s\n", aws.StringValue(result.ExecutionArn))
-		iter := 1
-		for iter < 10 {
-			result, _ := sfnsvc.DescribeExecution(&sfn.DescribeExecutionInput{
-				ExecutionArn: result.ExecutionArn,
-			})
-			if aws.StringValue(result.Output) != "" {
-				results = aws.StringValue(result.Output)
-				break
-			}
-			time.Sleep(time.Second)
-			iter += iter
-		}
-		log.Printf("Successfully processed %d entries for alert %s!\n\n", len(inputList), alert.Id)
-		log.Printf("Results: %s\n", results)
+		//log.Printf("Started IP Lookup with execution %s\n", aws.StringValue(result.ExecutionArn))
+		//iter := 1
+		//for iter < 10 {
+		//	result, _ := sfnsvc.DescribeExecution(&sfn.DescribeExecutionInput{
+		//		ExecutionArn: result.ExecutionArn,
+		//	})
+		//	if aws.StringValue(result.Output) != "" {
+		//		results = aws.StringValue(result.Output)
+		//		break
+		//	}
+		//	time.Sleep(time.Second)
+		//	iter += iter
+		//}
+		//log.Printf("Successfully processed %d entries for alert %s!\n\n", len(inputList), alert.Id)
+		//log.Printf("Results: %s\n", results)
 	}
     blank := hellarad.Result{}
-    output.opsgenie.Send(blank)
+	testAlert := "a9ff96ea-3e45-41ee-bffa-b136f7de84d7-1640917932111"
+    opsgenie.Send(blank, testAlert)
 	return fmt.Sprintf("Processed %d SNS messages.", len(snsEvent.Records)), nil
 }
 
