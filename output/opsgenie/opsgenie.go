@@ -32,7 +32,7 @@ func Send(results hellarad.Result, alertId string) (bool, error) {
 	var jsonData = []byte(`{
 		"user": "Hella Rad!",
 		"source": "hellarad",
-		"Note": "Oooh yeah"
+		"note": "Oooh yeah"
 	}`)
 	request, error := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
