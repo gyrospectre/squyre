@@ -21,6 +21,10 @@ import (
 
 var privateBlocks []*net.IPNet
 
+const (
+	StepFunctionTimeout = 15
+)
+
 type Alert interface {
 	Normaliser() hellarad.Alert
 }
@@ -33,8 +37,8 @@ type SplunkAlert struct {
 
 func (alert SplunkAlert) Normaliser() hellarad.Alert {
 	return hellarad.Alert{
-		Details: alert.Message,
-		Id:      alert.CorrelationId,
+		RawMessage: alert.Message,
+		Id:         alert.CorrelationId,
 	}
 }
 
@@ -48,8 +52,8 @@ type OpsGenieAlert struct {
 
 func (alert OpsGenieAlert) Normaliser() hellarad.Alert {
 	return hellarad.Alert{
-		Details: alert.Alert.Message,
-		Id:      alert.Alert.AlertId,
+		RawMessage: alert.Alert.Message,
+		Id:         alert.Alert.AlertId,
 	}
 }
 
@@ -103,18 +107,19 @@ func isPrivateIP(ip_str string) bool {
 }
 
 func removeDuplicateStr(strSlice []string) []string {
-    allKeys := make(map[string]bool)
-    list := []string{}
-    for _, item := range strSlice {
-        if _, value := allKeys[item]; !value {
-            allKeys[item] = true
-            list = append(list, item)
-        }
-    }
-    return list
+	allKeys := make(map[string]bool)
+	list := []string{}
+	for _, item := range strSlice {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
 }
 
-func extractAndAddIPs(details string, subjectList []hellarad.Subject) []hellarad.Subject {
+func extractIPs(details string) []hellarad.Subject {
+	var subjectList []hellarad.Subject
 	re := regexp.MustCompile(`(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}`)
 	submatchall := re.FindAllString(details, -1)
 
@@ -151,41 +156,38 @@ func convertOpsGenieAlert(alertBody string) hellarad.Alert {
 	return messageObject.Normaliser()
 }
 
-func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error) {
-	var inputList []hellarad.Subject
-	var results string
-	for _, record := range snsEvent.Records {
-		snsRecord := record.SNS
-		var alert hellarad.Alert
-
-		log.Printf("Processing message %s\n", snsRecord.MessageID)
-		log.Printf("Raw message: %s\n", snsRecord.Message)
-
-		if strings.Contains(snsRecord.Message, "search_name") {
-			log.Println("Auto detected Splunk alert")
-			alert = convertSplunkAlert(snsRecord.Message)
-		} else {
-			log.Println("Auto detected OpsGenie alert")
-			alert = convertOpsGenieAlert(snsRecord.Message)
+func waitForSfn(svc *sfn.SFN, execArn *string) (bool, error){
+	iter := 1
+	for iter < StepFunctionTimeout {
+		result, _ := svc.DescribeExecution(&sfn.DescribeExecutionInput{
+			ExecutionArn: execArn,
+		})
+		if aws.StringValue(result.Output) != "" {
+			break
 		}
-		inputList = extractAndAddIPs(alert.Details, inputList)
+		time.Sleep(time.Second)
+		iter += iter
+	}
+	if iter < StepFunctionTimeout {
+		return true, nil	
+	} else {
+		return false, errors.New("Timed out waiting for Sfn execution to complete!")
+	}
+}
 
-		if len(inputList) == 0 {
-			return "", errors.New("No public IP addresses found to process!")
-		}
-		
-		alert.Subjects = inputList
+func sendAlertToSfn(alert hellarad.Alert, sfnName string) (string, error) {
+		// Convert alert to a Json string ready to pass to our AWS Step Function
 		alertJson, _ := json.Marshal(alert)
 
+		// Find the Arn of the required step function
 		sesh := session.Must(session.NewSessionWithOptions(session.Options{
 			SharedConfigState: session.SharedConfigEnable,
 		}))
 
 		cfnsvc := cloudformation.New(sesh)
-		sfnArn, err := getStackResourceArn(cfnsvc, "hellarad", "IPLookupStateMachine")
-
+		sfnArn, err := getStackResourceArn(cfnsvc, "hellarad", sfnName)
 		if err != nil {
-			return sfnArn, err
+			return string(err.Error()), err
 		}
 
 		sfnsvc := sfn.New(sesh)
@@ -194,26 +196,44 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 			Input:           aws.String(string(alertJson)),
 		})
 		if err != nil {
-			fmt.Print(string(err.Error()))
 			return string(err.Error()), err
 		}
-
 		log.Printf("Started IP Lookup with execution %s\n", aws.StringValue(result.ExecutionArn))
-		iter := 1
-		for iter < 10 {
-			result, _ := sfnsvc.DescribeExecution(&sfn.DescribeExecutionInput{
-				ExecutionArn: result.ExecutionArn,
-			})
-			if aws.StringValue(result.Output) != "" {
-				results = aws.StringValue(result.Output)
-				break
-			}
-			time.Sleep(time.Second)
-			iter += iter
+		success, err := waitForSfn(sfnsvc, result.ExecutionArn)
+		if success {
+			return aws.StringValue(result.ExecutionArn), nil
+		} else {
+			return string(err.Error()), err
 		}
+}
 
-		log.Printf("Successfully processed %d entries for alert %s!\n\n", len(inputList), alert.Id)
-		log.Printf("Results: %s\n", results)
+func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error) {
+	for _, record := range snsEvent.Records {
+		snsRecord := record.SNS
+		var alert hellarad.Alert
+		var subjects []hellarad.Subject
+
+		log.Printf("Processing message %s\n", snsRecord.MessageID)
+
+		if strings.Contains(snsRecord.Message, "search_name") {
+			log.Println("Auto detected Splunk alert")
+			alert = convertSplunkAlert(snsRecord.Message)
+		} else {
+			log.Println("Auto detected OpsGenie alert")
+			alert = convertOpsGenieAlert(snsRecord.Message)
+		}
+		alert.Subjects = extractIPs(alert.Details)
+
+		if len(alert.Subjects ) == 0 {
+			return "", errors.New("No public IP addresses found to process!")
+		}
+		// Have finished adding the extracted subjects to our alert
+
+		execArn, err := sendAlertToSfn(alert, "IPLookupStateMachine")
+		if err != nil {
+			return string(err.Error()), err
+		}
+		log.Printf("Successfully processed %d entries for alert %s!\n\n", len(alert.Subjects), alert.Id)
 	}
 
 	return fmt.Sprintf("Processed %d SNS messages.", len(snsEvent.Records)), nil

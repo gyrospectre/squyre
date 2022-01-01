@@ -19,10 +19,10 @@ type Result struct {
 }
 
 type Alert struct {
-	Details string
-	Id      string
-	Subjects []Subject
-	Results  []Result
+	RawMessage string
+	Id         string
+	Subjects   []Subject
+	Results    []Result
 }
 
 func GetSecret(location string) (secretsmanager.GetSecretValueOutput, error) {

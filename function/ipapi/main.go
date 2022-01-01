@@ -31,34 +31,41 @@ type ipapiResponse struct {
 	ASN         string `json:"as"`
 }
 
-func HandleRequest(ctx context.Context, subject hellarad.Subject) (string, error) {
-	var result = hellarad.Result{
-		Source:         Provider,
-		AttributeValue: subject.IP,
-		Success:        false,
+func HandleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
+	// Process each subject in the alert we were passed
+	for _, subject := range alert.Subjects {
+
+		// Build a result object to hold our goodies
+		var result = hellarad.Result{
+			Source:         Provider,
+			AttributeValue: subject.IP,
+			Success:        false,
+		}
+
+		response, err := http.Get(fmt.Sprintf("%s/%s", strings.TrimSuffix(BaseURL, "/"), subject.IP))
+
+		if err != nil {
+			return "Error fetching data from IP API!", err
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err == nil {
+			var responseObject ipapiResponse
+			json.Unmarshal(responseData, &responseObject)
+			prettyresponse, _ := json.MarshalIndent(responseObject, "", "    ")
+
+			result.Success = true
+			result.Message = string(prettyresponse)
+		} else {
+			return "Error decoding response from IP API!", err
+		}
+		// Add the enriched details back to the results
+		alert.Results = append(alert.Results, result)
 	}
 
-	response, err := http.Get(fmt.Sprintf("%s/%s", strings.TrimSuffix(BaseURL, "/"), subject.IP))
-
-	if err != nil {
-		return "Error fetching data from IP API!", err
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err == nil {
-		var responseObject ipapiResponse
-		json.Unmarshal(responseData, &responseObject)
-		prettyresponse, _ := json.MarshalIndent(responseObject, "", "    ")
-
-		result.Success = true
-		result.Message = string(prettyresponse)
-	} else {
-		return "Error decoding response from IP API!", err
-	}
-
-	resultJson, _ := json.Marshal(result)
-
-	return string(resultJson), nil
+	// Convert the alert object into Json for the step function
+	finalJson, _ := json.Marshal(alert)
+	return string(finalJson), nil
 }
 
 func main() {
