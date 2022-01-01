@@ -7,6 +7,7 @@ import (
 	"github.com/gyrospectre/hellarad"
 	"log"
 	"net/http"
+    "net/url"
 	"strings"
 )
 
@@ -36,21 +37,21 @@ func Send(message string, alertId string) {
 
 	json.Unmarshal([]byte(*smresponse.SecretString), &secret)
 
-	url := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
+	ogurl := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
 	auth := fmt.Sprintf("GenieKey %s", secret.Key)
 
 	fmt.Printf("%s", message)
 	note := &opsgenieNote{
 		User:   "Hella Rad!",
 		Source: "Alert enrichment",
-		Note:   message,
+		Note:   url.QueryEscape(message),
 	}
 	jsonData, err := json.Marshal(note)
 	if err != nil {
 		log.Fatalf("Could not marshal JSON into Note: %s", err)
 	}
 
-	request, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	request, _ := http.NewRequest("POST", ogurl, bytes.NewBuffer(jsonData))
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	request.Header.Set("Authorization", auth)
 
