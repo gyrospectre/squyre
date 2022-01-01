@@ -1,55 +1,65 @@
 package opsgenie
 
 import (
-	"fmt"
-	"github.com/gyrospectre/hellarad"
-	"io/ioutil"
-	"net/http"
-	"strings"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/gyrospectre/hellarad"
+	"log"
+	"net/http"
+	"strings"
 )
 
 const (
 	SecretLocation = "OpsGenieAPI"
-	BaseURL  = "https://api.opsgenie.com/v2"
+	BaseURL        = "https://api.opsgenie.com/v2"
 )
 
 type apiKeySecret struct {
-	Key	  string	`json:"apikey"`
+	Key string `json:"apikey"`
 }
 
-func Send(results hellarad.Result, alertId string) (bool, error) {
-	smresponse, _ := hellarad.GetSecret(SecretLocation)
-	//fmt.Printf("%s", *apiKey.SecretString)
+type opsgenieNote struct {
+	User   string `json:"user"`
+	Source string `json:"source"`
+	Note   string `json:"note"`
+}
+
+func Send(message string, alertId string) {
 
 	var secret apiKeySecret
+
+	smresponse, err := hellarad.GetSecret(SecretLocation)
+	if err != nil {
+		log.Fatalf("Failed to fetch OpsGenie secret: %s", err)
+	}
+
 	json.Unmarshal([]byte(*smresponse.SecretString), &secret)
-	fmt.Println(secret.Key)
-    url := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
+
+	url := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
 	auth := fmt.Sprintf("GenieKey %s", secret.Key)
 
-	var jsonData = []byte(`{
-		"user": "Hella Rad!",
-		"source": "hellarad",
-		"note": "Oooh yeah"
-	}`)
-	request, error := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	fmt.Printf("%s", message)
+	note := &opsgenieNote{
+		User:   "Hella Rad!",
+		Source: "Alert enrichment",
+		Note:   message,
+	}
+	jsonData, err := json.Marshal(note)
+	if err != nil {
+		log.Fatalf("Could not marshal JSON into Note: %s", err)
+	}
+
+	request, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	request.Header.Set("Authorization", auth)
 
 	client := &http.Client{}
-	response, error := client.Do(request)
-	if error != nil {
-		panic(error)
+	response, err := client.Do(request)
+	if err != nil {
+		log.Fatalf("Error posting data to OpsGenie: %s", err)
 	}
 	defer response.Body.Close()
 
-	fmt.Println("response Status:", response.Status)
-	fmt.Println("response Headers:", response.Header)
-	body, _ := ioutil.ReadAll(response.Body)
-	fmt.Println("response Body:", string(body))
-
-    return true, nil
+	return
 }
-

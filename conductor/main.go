@@ -108,7 +108,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		var alert hellarad.Alert
 
 		log.Printf("Processing message %s\n", snsRecord.MessageID)
-        log.Printf("Raw message: %s\n", snsRecord.Message)
+		log.Printf("Raw message: %s\n", snsRecord.Message)
 
 		if strings.Contains(snsRecord.Message, "search_name") {
 			log.Println("Auto detected Splunk alert")
@@ -162,9 +162,9 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		//log.Printf("Successfully processed %d entries for alert %s!\n\n", len(inputList), alert.Id)
 		//log.Printf("Results: %s\n", results)
 	}
-    blank := hellarad.Result{}
+	blank := hellarad.Result{}
 	testAlert := "a9ff96ea-3e45-41ee-bffa-b136f7de84d7-1640917932111"
-    opsgenie.Send(blank, testAlert)
+	opsgenie.Send(blank, testAlert)
 	return fmt.Sprintf("Processed %d SNS messages.", len(snsEvent.Records)), nil
 }
 
