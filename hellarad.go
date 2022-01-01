@@ -25,11 +25,11 @@ type Alert struct {
 	Id      string
 }
 
-func (r *Result) Prettify() string {
+func (r *Result) Prettify(indent string) string {
 	var message string
 
 	if r.Success == true {
-		prettymsg, _ := json.MarshalIndent(r.Message, "%0A", "    ")
+		prettymsg, _ := json.MarshalIndent(r.Message, "", indent)
 		message = fmt.Sprintf("Details on %s from %s:\n%s", r.AttributeValue, r.Source, prettymsg)
 	} else {
 		message = fmt.Sprintf("Failed to get info from %s! Error: %s", r.Source, r.Message)

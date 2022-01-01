@@ -44,17 +44,15 @@ func HandleRequest(ctx context.Context, outputs [][]string) (string, error) {
 
 	for _, output := range outputs {
 		for _, resultStr := range output {
-			log.Print(resultStr)
 			var result hellarad.Result
 			json.Unmarshal([]byte(resultStr), &result)
-			log.Print(result.Message)
 
 			note := &opsgenieNote{
 				User:   "Hella Rad!",
 				Source: result.Source,
 				Note:   result.Prettify(),
 			}
-
+			log.Print(result.Prettify())
 			jsonData, err := json.Marshal(note)
 			if err != nil {
 				log.Fatalf("Could not marshal JSON into Note: %s", err)
