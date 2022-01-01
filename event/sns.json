@@ -9,7 +9,7 @@
                 "MessageId": "21e2d414-4fe4-5dbb-9662-837e3b52744d",
                 "TopicArn": "arn:aws:sns:ap-southeast-2:111111111111:secbot-messages-topic",
                 "Subject": "",
-                "Message": "{\"search_name\": \"Test Alert\", \"message\": \"202.92.65.254 hi 8.8.8.8 end\", \"correlation_id\": \"1234\"}",
+                "Message": "{\"search_name\": \"Test Alert\", \"message\": \"202.92.65.254 hi 8.8.8.8 172.16.0.1 end\", \"correlation_id\": \"1234\"}",
                 "Timestamp": "2020-06-22T08:57:26.085Z",
                 "SignatureVersion": "1",
                 "Signature": "somesig",

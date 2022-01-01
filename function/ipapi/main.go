@@ -48,9 +48,10 @@ func HandleRequest(ctx context.Context, subject hellarad.Subject) (string, error
 	if err == nil {
 		var responseObject ipapiResponse
 		json.Unmarshal(responseData, &responseObject)
-		apiResponse, _ := json.Marshal(responseObject)
+		prettyresponse, _ := json.MarshalIndent(responseObject, "", "    ")
+
 		result.Success = true
-		result.Message = string(apiResponse)
+		result.Message = string(prettyresponse)
 	} else {
 		return "Error decoding response from IP API!", err
 	}

@@ -13,10 +13,13 @@ import (
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/gyrospectre/hellarad"
 	"log"
+	"net"
 	"regexp"
 	"strings"
 	"time"
 )
+
+var privateBlocks []*net.IPNet
 
 type Alert interface {
 	Normaliser() hellarad.Alert
@@ -72,15 +75,49 @@ func getStackResourceArn(svc *cloudformation.CloudFormation, stackName string, r
 	return "", errors.New("No matching stack resources found!")
 }
 
+func setupIPBlocks() {
+	privateBlockStrs := []string{
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+	}
+
+	privateBlocks = make([]*net.IPNet, len(privateBlockStrs))
+
+	for i, blockStr := range privateBlockStrs {
+		_, block, _ := net.ParseCIDR(blockStr)
+		privateBlocks[i] = block
+	}
+}
+
+func isPrivateIP(ip_str string) bool {
+	ip := net.ParseIP(ip_str)
+
+	for _, priv := range privateBlocks {
+		if priv.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
 func extractAndAddIPs(details string, subjectList []hellarad.Subject) []hellarad.Subject {
 	re := regexp.MustCompile(`(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}`)
 	submatchall := re.FindAllString(details, -1)
+
+	if len(privateBlocks) < 1 {
+		setupIPBlocks()
+	}
 
 	for _, address := range submatchall {
 		var subject = hellarad.Subject{
 			IP: address,
 		}
-		subjectList = append(subjectList, subject)
+
+		// Ignore private IP addresses
+		if isPrivateIP(address) == false {
+			subjectList = append(subjectList, subject)
+		}
 	}
 	return subjectList
 }

@@ -62,8 +62,11 @@ Resources:
       DefinitionSubstitutions:
         GreynoiseFunctionArn: !GetAtt GreynoiseFunction.Arn
         IPAPIFunctionArn: !GetAtt IPAPIFunction.Arn
+        OutputFunctionArn: !GetAtt OutputFunction.Arn
       Policies:
         - LambdaInvokePolicy:
             FunctionName: !Ref GreynoiseFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref IPAPIFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref OutputFunction

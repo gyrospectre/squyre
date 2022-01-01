@@ -2,7 +2,6 @@ package hellarad
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
@@ -23,19 +22,6 @@ type Result struct {
 type Alert struct {
 	Details string
 	Id      string
-}
-
-func (r *Result) Prettify(indent string) string {
-	var message string
-
-	if r.Success == true {
-		prettymsg, _ := json.MarshalIndent(r.Message, "", indent)
-		message = fmt.Sprintf("Details on %s from %s:\n%s", r.AttributeValue, r.Source, prettymsg)
-	} else {
-		message = fmt.Sprintf("Failed to get info from %s! Error: %s", r.Source, r.Message)
-	}
-
-	return message
 }
 
 func GetSecret(location string) (secretsmanager.GetSecretValueOutput, error) {

@@ -39,6 +39,7 @@ func HandleRequest(ctx context.Context, outputs [][]string) (string, error) {
 
 	json.Unmarshal([]byte(*smresponse.SecretString), &secret)
 
+	// https://docs.opsgenie.com/docs/alert-api#add-note-to-alert
 	ogurl := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alertId)
 	auth := fmt.Sprintf("GenieKey %s", secret.Key)
 
@@ -50,9 +51,8 @@ func HandleRequest(ctx context.Context, outputs [][]string) (string, error) {
 			note := &opsgenieNote{
 				User:   "Hella Rad!",
 				Source: result.Source,
-				Note:   result.Prettify(),
+				Note:   fmt.Sprintf("Additional information on %s from %s:\n\n%s", result.AttributeValue, result.Source, result.Message),
 			}
-			log.Print(result.Prettify())
 			jsonData, err := json.Marshal(note)
 			if err != nil {
 				log.Fatalf("Could not marshal JSON into Note: %s", err)
