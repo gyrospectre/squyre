@@ -54,11 +54,11 @@ Resources:
       Handler: opsgenie
       Runtime: go1.x
 
-  IPLookupStateMachine:
+  EnrichIPStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
-      Name: !Sub '${AWS::StackName}-IPLookup'
-      DefinitionUri: statemachine/ipLookup.asl.json
+      Name: !Sub '${AWS::StackName}-EnrichIP'
+      DefinitionUri: statemachine/enrichIP.asl.json
       DefinitionSubstitutions:
         GreynoiseFunctionArn: !GetAtt GreynoiseFunction.Arn
         IPAPIFunctionArn: !GetAtt IPAPIFunction.Arn

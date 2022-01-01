@@ -80,6 +80,7 @@ func setupIPBlocks() {
 		"10.0.0.0/8",
 		"172.16.0.0/12",
 		"192.168.0.0/16",
+		"127.0.0.0/8",
 	}
 
 	privateBlocks = make([]*net.IPNet, len(privateBlockStrs))
@@ -101,6 +102,18 @@ func isPrivateIP(ip_str string) bool {
 	return false
 }
 
+func removeDuplicateStr(strSlice []string) []string {
+    allKeys := make(map[string]bool)
+    list := []string{}
+    for _, item := range strSlice {
+        if _, value := allKeys[item]; !value {
+            allKeys[item] = true
+            list = append(list, item)
+        }
+    }
+    return list
+}
+
 func extractAndAddIPs(details string, subjectList []hellarad.Subject) []hellarad.Subject {
 	re := regexp.MustCompile(`(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}`)
 	submatchall := re.FindAllString(details, -1)
@@ -108,6 +121,8 @@ func extractAndAddIPs(details string, subjectList []hellarad.Subject) []hellarad
 	if len(privateBlocks) < 1 {
 		setupIPBlocks()
 	}
+
+	submatchall = removeDuplicateStr(submatchall)
 
 	for _, address := range submatchall {
 		var subject = hellarad.Subject{
@@ -156,7 +171,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		inputList = extractAndAddIPs(alert.Details, inputList)
 
 		if len(inputList) == 0 {
-			return "", errors.New("No IP addresses found to process!")
+			return "", errors.New("No public IP addresses found to process!")
 		}
 
 		inputJson, _ := json.Marshal(inputList)
