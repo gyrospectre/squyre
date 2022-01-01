@@ -173,8 +173,9 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		if len(inputList) == 0 {
 			return "", errors.New("No public IP addresses found to process!")
 		}
-
-		inputJson, _ := json.Marshal(inputList)
+		
+		alert.Subjects = inputList
+		alertJson, _ := json.Marshal(alert)
 
 		sesh := session.Must(session.NewSessionWithOptions(session.Options{
 			SharedConfigState: session.SharedConfigEnable,
@@ -190,7 +191,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		sfnsvc := sfn.New(sesh)
 		result, err := sfnsvc.StartExecution(&sfn.StartExecutionInput{
 			StateMachineArn: &sfnArn,
-			Input:           aws.String(string(inputJson)),
+			Input:           aws.String(string(alertJson)),
 		})
 		if err != nil {
 			fmt.Print(string(err.Error()))
