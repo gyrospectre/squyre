@@ -29,9 +29,9 @@ type greynoiseResponse struct {
 
 func HandleRequest(ctx context.Context, subject hellarad.Subject) (string, error) {
 	var result = hellarad.Result{
-		Source: Provider,
+		Source:         Provider,
 		AttributeValue: subject.IP,
-		Success: false,
+		Success:        false,
 	}
 
 	response, err := http.Get(fmt.Sprintf("%s/%s", strings.TrimSuffix(BaseURL, "/"), subject.IP))
