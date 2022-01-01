@@ -159,6 +159,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 			time.Sleep(time.Second)
 			iter += iter
 		}
+		
 		log.Printf("Successfully processed %d entries for alert %s!\n\n", len(inputList), alert.Id)
 		log.Printf("Results: %s\n", results)
 	}
