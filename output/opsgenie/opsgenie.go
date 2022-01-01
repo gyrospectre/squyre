@@ -30,7 +30,7 @@ func Send(result hellarad.Result, alertId string) {
 	var secret apiKeySecret
 
 	message, _ := json.Marshal(result.Message)
-
+	fmt.Printf("Debug: Message is - %s", message)
 	smresponse, err := hellarad.GetSecret(SecretLocation)
 	if err != nil {
 		log.Fatalf("Failed to fetch OpsGenie secret: %s", err)
