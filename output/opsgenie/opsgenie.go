@@ -7,7 +7,6 @@ import (
 	"github.com/gyrospectre/hellarad"
 	"log"
 	"net/http"
-    "net/url"
 	"strings"
 )
 
@@ -26,9 +25,11 @@ type opsgenieNote struct {
 	Note   string `json:"note"`
 }
 
-func Send(message string, alertId string) {
+func Send(result hellarad.Result, alertId string) {
 
 	var secret apiKeySecret
+
+	message, _ := json.Marshal(result.Message)
 
 	smresponse, err := hellarad.GetSecret(SecretLocation)
 	if err != nil {
@@ -43,9 +44,10 @@ func Send(message string, alertId string) {
 	fmt.Printf("%s", message)
 	note := &opsgenieNote{
 		User:   "Hella Rad!",
-		Source: "Alert enrichment",
-		Note:   url.QueryEscape(message),
+		Source: result.Source,
+		Note:   string(message),
 	}
+	note.Note = string(message)
 	jsonData, err := json.Marshal(note)
 	if err != nil {
 		log.Fatalf("Could not marshal JSON into Note: %s", err)
