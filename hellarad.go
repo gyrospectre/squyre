@@ -29,7 +29,7 @@ func (r *Result) Prettify() string {
 	var message string
 
 	if r.Success == true {
-		prettymsg, err := json.MarshalIndent(r.Message, "", "    ")
+		prettymsg, _ := json.MarshalIndent(r.Message, "", "    ")
 		message = fmt.Sprintf("Details on %s from %s:\n%s", r.AttributeValue, r.Source, prettymsg)
 	} else {
 		message = fmt.Sprintf("Failed to get info from %s! Error: %s", r.Source, r.Message)
