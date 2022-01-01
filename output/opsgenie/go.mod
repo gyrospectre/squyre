@@ -1,8 +1,9 @@
-module github.com/gyrospectre/hellarad/output/opsgenie
+module opsgenie
 
 go 1.16
 
 require (
+	github.com/aws/aws-lambda-go v1.27.1 // indirect
 	github.com/aws/aws-sdk-go v1.42.25 // indirect
 	github.com/gyrospectre/hellarad v0.0.0-20211231070005-438bdbc92a99
 )

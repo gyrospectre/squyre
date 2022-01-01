@@ -46,6 +46,14 @@ Resources:
       Handler: ipapi
       Runtime: go1.x
 
+  OutputFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-Output'
+      CodeUri: output/opsgenie
+      Handler: opsgenie
+      Runtime: go1.x
+
   IPLookupStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:

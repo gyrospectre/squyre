@@ -32,6 +32,8 @@ github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20220101011219-44907d519d
 github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20220101011219-44907d519d7a/go.mod h1:U3TdNVaIitwR19WulWdadhknfjYxRhGFYVjuLrVKxtk=
 github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20220101012326-1490d1d7681f h1:9VwEPsxWvWD/Bag1f8ZYp+3wAQqg8gjHTn11zooWnv4=
 github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20220101012326-1490d1d7681f/go.mod h1:U3TdNVaIitwR19WulWdadhknfjYxRhGFYVjuLrVKxtk=
+github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20220101012817-88353f086249 h1:6UeW+OihWcHwtDFF1oYNY8TRdVVsmBch7k2SK90jIcc=
+github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20220101012817-88353f086249/go.mod h1:U3TdNVaIitwR19WulWdadhknfjYxRhGFYVjuLrVKxtk=
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=
