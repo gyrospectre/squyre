@@ -21,7 +21,7 @@ There are a couple of ways you can deploy, either directing between your alert s
 
 Pattern 1 is the out of the box configuration as it's the most generic. If you are using Splunk and Jira, but don't already have something in place to create tickets automatically when alerts fire, then this is for you.
 
-Pattern 2 however, is a more scalable pattern. If you are already using Opsgenie in your alert pipeline, you can just add HellaRad right in. This allows you to have add as many alert sources as you like, without having to change anything on the Hellarad side.
+Pattern 2 however, is a more scalable pattern. If you are already using Opsgenie in your alert pipeline, this is a better option. This allows you to add as many alert sources as you like, without having to change anything on the Hellarad side.
 
 
 ## Getting Started - Pattern 1: Splunk to Jira Deployment
