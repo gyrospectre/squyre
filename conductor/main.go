@@ -156,62 +156,66 @@ func convertOpsGenieAlert(alertBody string) hellarad.Alert {
 	return messageObject.Normaliser()
 }
 
-func waitForSfn(svc *sfn.SFN, execArn *string) (bool, error){
+func waitForSfn(svc *sfn.SFN, execArn *string) error {
 	iter := 1
+	var execStatus string
+
 	for iter < StepFunctionTimeout {
 		result, _ := svc.DescribeExecution(&sfn.DescribeExecutionInput{
 			ExecutionArn: execArn,
 		})
-		if aws.StringValue(result.Output) != "" {
+		execStatus = aws.StringValue(result.Status)
+		if execStatus != "RUNNING" {
 			break
 		}
 		time.Sleep(time.Second)
 		iter += iter
 	}
-	if iter < StepFunctionTimeout {
-		return true, nil	
+	if execStatus == "SUCCEEDED" {
+		return nil
 	} else {
-		return false, errors.New("Timed out waiting for Sfn execution to complete!")
+		if execStatus == "RUNNING" {
+			execStatus = "TIMED_OUT"
+		}
+		log.Printf("Step function exec failed with status %s!", execStatus)
+		return errors.New("Step function failed or timed out!")
 	}
 }
 
-func sendAlertToSfn(alert hellarad.Alert, sfnName string) (string, error) {
-		// Convert alert to a Json string ready to pass to our AWS Step Function
-		alertJson, _ := json.Marshal(alert)
+func sendAlertToSfn(alert hellarad.Alert, sfnName string) error {
+	// Convert alert to a Json string ready to pass to our AWS Step Function
+	alertJson, _ := json.Marshal(alert)
 
-		// Find the Arn of the required step function
-		sesh := session.Must(session.NewSessionWithOptions(session.Options{
-			SharedConfigState: session.SharedConfigEnable,
-		}))
+	// Find the Arn of the required step function
+	sesh := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
 
-		cfnsvc := cloudformation.New(sesh)
-		sfnArn, err := getStackResourceArn(cfnsvc, "hellarad", sfnName)
-		if err != nil {
-			return string(err.Error()), err
-		}
+	cfnsvc := cloudformation.New(sesh)
 
-		sfnsvc := sfn.New(sesh)
-		result, err := sfnsvc.StartExecution(&sfn.StartExecutionInput{
-			StateMachineArn: &sfnArn,
-			Input:           aws.String(string(alertJson)),
-		})
-		if err != nil {
-			return string(err.Error()), err
-		}
-		log.Printf("Started IP Lookup with execution %s\n", aws.StringValue(result.ExecutionArn))
-		success, err := waitForSfn(sfnsvc, result.ExecutionArn)
-		if success {
-			return aws.StringValue(result.ExecutionArn), nil
-		} else {
-			return string(err.Error()), err
-		}
+	sfnArn, err := getStackResourceArn(cfnsvc, "hellarad", sfnName)
+	if err != nil {
+		return err
+	}
+
+	sfnsvc := sfn.New(sesh)
+	result, err := sfnsvc.StartExecution(&sfn.StartExecutionInput{
+		StateMachineArn: &sfnArn,
+		Input:           aws.String(string(alertJson)),
+	})
+	if err != nil {
+		return err
+	}
+	log.Printf("Started IP Lookup with execution %s\n", aws.StringValue(result.ExecutionArn))
+	err = waitForSfn(sfnsvc, result.ExecutionArn)
+
+	return err
 }
 
 func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error) {
 	for _, record := range snsEvent.Records {
 		snsRecord := record.SNS
 		var alert hellarad.Alert
-		var subjects []hellarad.Subject
 
 		log.Printf("Processing message %s\n", snsRecord.MessageID)
 
@@ -222,14 +226,14 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 			log.Println("Auto detected OpsGenie alert")
 			alert = convertOpsGenieAlert(snsRecord.Message)
 		}
-		alert.Subjects = extractIPs(alert.Details)
+		alert.Subjects = extractIPs(alert.RawMessage)
 
-		if len(alert.Subjects ) == 0 {
+		if len(alert.Subjects) == 0 {
 			return "", errors.New("No public IP addresses found to process!")
 		}
 		// Have finished adding the extracted subjects to our alert
 
-		execArn, err := sendAlertToSfn(alert, "IPLookupStateMachine")
+		err := sendAlertToSfn(alert, "EnrichIPStateMachine")
 		if err != nil {
 			return string(err.Error()), err
 		}

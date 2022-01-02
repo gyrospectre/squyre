@@ -16,6 +16,8 @@ github.com/gyrospectre/hellarad v0.0.0-20220101022651-e6d037e98e82 h1:C7/3g8oxqY
 github.com/gyrospectre/hellarad v0.0.0-20220101022651-e6d037e98e82/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
 github.com/gyrospectre/hellarad v0.0.0-20220101023023-f1e66a36cb4c h1:mCYAF8VmWsLLMRnDT+nrlHbUaBXIDt6wCaX2l/AymF8=
 github.com/gyrospectre/hellarad v0.0.0-20220101023023-f1e66a36cb4c/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
+github.com/gyrospectre/hellarad v0.0.0-20220101080419-a5d5bd5d64c7 h1:iBPf0vCzb/jaBID6+7vCWVFy7yc0KvAj7UqqU9dlq5s=
+github.com/gyrospectre/hellarad v0.0.0-20220101080419-a5d5bd5d64c7/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=
