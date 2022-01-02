@@ -26,25 +26,26 @@ Pattern 2 however, is a more scalable pattern. If you are already using Opsgenie
 
 ## Getting Started - Pattern 1: Splunk to Jira Deployment
 1. Clone this repo.
-2. Update the consts at the top of `output/jira/main.go` with your destination Jira instance URL (`BaseURL`) and Project name (`Project`).
-3. With appropriate AWS credentials in your terminal session, build and deploy the stack.
+2. Install the AWS SAM CLI. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
+3. Update the consts at the top of `output/jira/main.go` with your destination Jira instance URL (`BaseURL`) and Project name (`Project`).
+4. With appropriate AWS credentials in your terminal session, build and deploy the stack.
 ```
 sam build
 sam deploy --guided
 ```
-4. Over on Splunk, install the Splunk Add-on for AWS (https://splunkbase.splunk.com/app/1876/), to give you an SNS alert action. 
-5. Configure the app with some AWS creds. The IAM user or role must have SNS Publish/Get/List perms to SNS topic `hellarad-Alert`. See https://docs.splunk.com/Documentation/AddOns/released/AWS/Setuptheadd-on
+5. Over on Splunk, install the Splunk Add-on for AWS (https://splunkbase.splunk.com/app/1876/), to give you an SNS alert action. 
+6. Configure the app with some AWS creds. The IAM user or role must have SNS Publish/Get/List perms to SNS topic `hellarad-Alert`. See https://docs.splunk.com/Documentation/AddOns/released/AWS/Setuptheadd-on
 https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
 
-6. Create a Jira API key (https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)
-7. In AWS, create a new Secrets Manager secret called `JiraApi` in the same account/region as HellaRad is deployed. Use the following content, obviously substituting your key and email.
+7. Create a Jira API key (https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)
+8. In AWS, create a new Secrets Manager secret called `JiraApi` in the same account/region as HellaRad is deployed. Use the following content, obviously substituting your key and email.
 ```
 {
   "apikey": <the API key you just created>,
   "user": <the email address of the Jira account the key is associated with>
 }
 ```
-8. Almost there! Update one of your Splunk saved searches, adding a `strcat` at the end to combine all the fields you think are of use to a new field called `interesting`.
+9. Almost there! Update one of your Splunk saved searches, adding a `strcat` at the end to combine all the fields you think are of use to a new field called `interesting`.
 
 `<awesome detection logic> | stats values(src_ip) as src_ip by dest_user | eval Detection="A test alert" | strcat src_ip "," dest_user interesting`
 
@@ -55,25 +56,26 @@ Next time this alert fires, the details will be sent to HellaRad, which will cre
 
 ## Getting Started - Pattern 2: OpsGenie Deployment
 1. Clone this repo.
-2. Edit `template.yaml` to use OpsGenie instead of Jira. In the `OutputFunction` definition, change the `CodeUri` value to `output/opsgenie`.
-3. With appropriate AWS credentials in your terminal session, build and deploy the stack.
+2. Install the AWS SAM CLI. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
+3. Edit `template.yaml` to use OpsGenie instead of Jira. In the `OutputFunction` definition, change the `CodeUri` value to `output/opsgenie`.
+4. With appropriate AWS credentials in your terminal session, build and deploy the stack.
 ```
 sam build
 sam deploy --guided
 ```
-4. Create an OpsGenie integration API key. See https://support.atlassian.com/opsgenie/docs/create-a-default-api-integration/
-5. In AWS, create a new Secrets Manager secret called `OpsGenieAPI` in the same account/region as HellaRad is deployed. Use the following content, obviously substituting your key and email.
+5. Create an OpsGenie integration API key. See https://support.atlassian.com/opsgenie/docs/create-a-default-api-integration/
+6. In AWS, create a new Secrets Manager secret called `OpsGenieAPI` in the same account/region as HellaRad is deployed. Use the following content, obviously substituting your key and email.
 ```
 {
   "apikey": <the API key you just created>
 }
 ```
-6. Setup OpsGenie to send SNS messages to topic `hellarad-Alert` on alert creation only. See https://support.atlassian.com/opsgenie/docs/integrate-opsgenie-with-outgoing-amazon-sns/
+7. Setup OpsGenie to send SNS messages to topic `hellarad-Alert` on alert creation only. See https://support.atlassian.com/opsgenie/docs/integrate-opsgenie-with-outgoing-amazon-sns/
 
 ## Enrichment Functions
 It's easy to add enrichment functions, and more will be added over time. Feel free to PR and contribute!
 
-Currently supports:
+Currently supported:
 - Greynoise (https://www.greynoise.io/) : Tells security analysts what not to worry about. Indicator types: IP
 - IP API (https://ip-api.com/) : IP address geolocation information. Indicator types: IP
 
