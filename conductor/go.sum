@@ -18,6 +18,8 @@ github.com/gyrospectre/hellarad v0.0.0-20220101061726-c8b302245e5b h1:Tfqr5eYQDi
 github.com/gyrospectre/hellarad v0.0.0-20220101061726-c8b302245e5b/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
 github.com/gyrospectre/hellarad v0.0.0-20220101080419-a5d5bd5d64c7 h1:iBPf0vCzb/jaBID6+7vCWVFy7yc0KvAj7UqqU9dlq5s=
 github.com/gyrospectre/hellarad v0.0.0-20220101080419-a5d5bd5d64c7/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
+github.com/gyrospectre/hellarad v0.0.0-20220102014826-5712fb19f727 h1:f6vARv1f3KrjSTGM8j0q65c0czAxUr44LLMZ7eNp1Lk=
+github.com/gyrospectre/hellarad v0.0.0-20220102014826-5712fb19f727/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
 github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20211231071646-6a77e817283e h1:RDg9SdsGYt5xeQqxYdOtluCpcf5oeGRjeS28gT6bJfY=
 github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20211231071646-6a77e817283e/go.mod h1:U3TdNVaIitwR19WulWdadhknfjYxRhGFYVjuLrVKxtk=
 github.com/gyrospectre/hellarad/output/opsgenie v0.0.0-20211231072903-6b8f0d9e4c6c h1:DGzFl8HkGfHIXZ+QPapJPqrZqWL9qcs7IuOyzkWCxxY=

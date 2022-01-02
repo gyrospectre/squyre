@@ -111,14 +111,14 @@ func extractIPs(details string) []hellarad.Subject {
 }
 
 func convertSplunkAlert(alertBody string) hellarad.Alert {
-	var messageObject SplunkAlert
+	var messageObject hellarad.SplunkAlert
 	json.Unmarshal([]byte(alertBody), &messageObject)
 
 	return messageObject.Normaliser()
 }
 
 func convertOpsGenieAlert(alertBody string) hellarad.Alert {
-	var messageObject OpsGenieAlert
+	var messageObject hellarad.OpsGenieAlert
 	json.Unmarshal([]byte(alertBody), &messageObject)
 
 	return messageObject.Normaliser()

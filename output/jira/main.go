@@ -23,11 +23,11 @@ type apiKeySecret struct {
 	Key  string `json:"apikey"`
 }
 
-func createIssue(client *jira.Client, summary string, description string) (string, error) {
+func createIssueForAlert(client *jira.Client, alert hellarad.Alert) (string, error) {
 	i := jira.Issue{
 		Fields: &jira.IssueFields{
-			Description: description,
-			Summary:     summary,
+			Description: fmt.Sprintf("For full details: %s", alert.Url),
+			Summary:     fmt.Sprintf("Alert - %s", alert.Name),
 			Type: jira.IssueType{
 				Name: TicketType,
 			},
@@ -59,25 +59,32 @@ func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 		Password: secret.Key,
 	}
 
+	// Connect to Jira Cloud
 	jiraClient, err := jira.NewClient(tp.Client(), BaseURL)
-
 	if err != nil {
 		panic(err)
 	}
-	var ticketnumber string
-	if CreateTicket {
-		ticketnumber, err = createIssue(jiraClient, "Test Ticket", "Just testing.")
-		if err != nil {
-			panic(err)
-		}
-		log.Printf("Created ticket number %s", ticketnumber)
-	}
+
 	// Process enrichment result list
+	firstIter := true
+	var ticketnumber string
 	for _, alertStr := range rawAlerts {
 		var alert hellarad.Alert
 		json.Unmarshal([]byte(alertStr), &alert)
 
-		log.Printf("Sending results of successful enrichment for alert %s", alert.Id)
+		if firstIter {
+			if CreateTicket {
+				ticketnumber, err = createIssueForAlert(jiraClient, alert)
+				if err != nil {
+					panic(err)
+				}
+				log.Printf("Created ticket number %s", ticketnumber)
+			} else {
+				ticketnumber = alert.Id
+			}
+		
+		}
+		log.Printf("Sending results of successful enrichments to %s", ticketnumber)
 
 		for _, result := range alert.Results {
 			// Only send the output of successful enrichments
@@ -85,18 +92,15 @@ func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 				comment := jira.Comment{
 					Body: fmt.Sprintf("Additional information on %s from %s:\n\n%s", result.AttributeValue, result.Source, result.Message),
 				}
-				if !CreateTicket {
-					ticketnumber = alert.Id
-				}
 				_, _, err := jiraClient.Issue.AddComment(ticketnumber, &comment)
 				if err != nil {
 					panic(err)
 				}
-				log.Printf("Added comment to ticket number %s", ticketnumber)
 			} else {
 				log.Printf("Skipping failed enrichment from %s for alert %s", result.Source, alert.Id)
 			}
 		}
+		firstIter = false
 	}
 
 	return "Success", nil

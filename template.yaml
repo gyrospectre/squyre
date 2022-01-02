@@ -14,6 +14,7 @@ Resources:
       CodeUri: conductor
       Handler: conductor
       Runtime: go1.x
+      Role: !GetAtt ConductorRole.Arn
 
   AlertTopic:
     Type: AWS::SNS::Topic
@@ -53,6 +54,7 @@ Resources:
       CodeUri: output/jira
       Handler: jira
       Runtime: go1.x
+      Role: !GetAtt OutputRole.Arn
 
   EnrichIPStateMachine:
     Type: AWS::Serverless::StateMachine
@@ -70,3 +72,68 @@ Resources:
             FunctionName: !Ref IPAPIFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref OutputFunction
+
+  ConductorRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: !Sub '${AWS::StackName}-ConductorRole'
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - 
+              Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        Path: /
+        Policies:
+        - 
+          PolicyName: !Sub '${AWS::StackName}-ConductorPolicy'
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - states:DescribeExecution
+                  - states:StartExecution
+                Resource:
+                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:hellarad-*'
+              - Effect: Allow
+                Action:
+                  - cloudformation:ListStackResources
+                Resource:
+                  - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/hellarad/*'
+
+  OutputRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: !Sub '${AWS::StackName}-OutputRole'
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - 
+              Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        Path: /
+        Policies:
+        - 
+          PolicyName: !Sub '${AWS::StackName}-OutputPolicy'
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:JiraApi-*'
+                  - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:OpsGenieAPI-*'
