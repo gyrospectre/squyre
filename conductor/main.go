@@ -25,38 +25,6 @@ const (
 	StepFunctionTimeout = 15
 )
 
-type Alert interface {
-	Normaliser() hellarad.Alert
-}
-
-type SplunkAlert struct {
-	Message       string `json:"message"`
-	CorrelationId string `json:"correlation_id"`
-	SearchName    string `json:"search_name"`
-}
-
-func (alert SplunkAlert) Normaliser() hellarad.Alert {
-	return hellarad.Alert{
-		RawMessage: alert.Message,
-		Id:         alert.CorrelationId,
-	}
-}
-
-type OpsGenieAlert struct {
-	Action string `json:"action"`
-	Alert  struct {
-		AlertId string `json:"alertId"`
-		Message string `json:"message"`
-	} `json:"alert"`
-}
-
-func (alert OpsGenieAlert) Normaliser() hellarad.Alert {
-	return hellarad.Alert{
-		RawMessage: alert.Alert.Message,
-		Id:         alert.Alert.AlertId,
-	}
-}
-
 func getStackResourceArn(svc *cloudformation.CloudFormation, stackName string, resourceName string) (string, error) {
 	req := cloudformation.ListStackResourcesInput{
 		StackName: aws.String(stackName),
@@ -221,6 +189,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 
 		if strings.Contains(snsRecord.Message, "search_name") {
 			log.Println("Auto detected Splunk alert")
+			log.Println(snsRecord.Message)
 			alert = convertSplunkAlert(snsRecord.Message)
 		} else {
 			log.Println("Auto detected OpsGenie alert")

@@ -19,10 +19,65 @@ type Result struct {
 }
 
 type Alert struct {
+	Timestamp  string
+	Name       string
 	RawMessage string
+	Url        string
 	Id         string
 	Subjects   []Subject
 	Results    []Result
+}
+
+type Alerter interface {
+	Normaliser() Alert
+}
+
+type SplunkAlert struct {
+	Message       string `json:"message"`
+	CorrelationId string `json:"correlation_id"`
+	SearchName    string `json:"search_name"`
+	Timestamp     string `json:"timestamp"`
+	Entity        string `json:"entity"`
+	Source        string `json:"source"`
+	Event         string `json:"event"`
+	ResultsLink   string `json:"results_link"`
+	App           string `json:"app"`
+	Owner         string `json:"owner"`
+}
+
+func (alert SplunkAlert) Normaliser() Alert {
+	return Alert{
+		RawMessage: alert.Message,
+		Id:         alert.CorrelationId,
+		Name:       alert.SearchName,
+		Url:        alert.ResultsLink,
+		Timestamp:  alert.Timestamp,
+	}
+}
+
+// See https://support.atlassian.com/opsgenie/docs/opsgenie-edge-connector-alert-action-data/
+type OpsGenieAlert struct {
+	Action          string `json:"action"`
+	IntegrationId   string `json:"integrationId"`
+	IntegrationName string `json:"integrationName"`
+	Source          struct {
+		Name string `json:"name"`
+		Type string `json:"type"`
+	} `json:"source"`
+	Alert struct {
+		AlertId   string `json:"alertId"`
+		Message   string `json:"message"`
+		CreatedAt string `json:"createdAt"`
+	} `json:"alert"`
+}
+
+func (alert OpsGenieAlert) Normaliser() Alert {
+	return Alert{
+		RawMessage: alert.Alert.Message,
+		Id:         alert.Alert.AlertId,
+		Name:       alert.Alert.AlertId,
+		Timestamp:  alert.Alert.CreatedAt,
+	}
 }
 
 func GetSecret(location string) (secretsmanager.GetSecretValueOutput, error) {

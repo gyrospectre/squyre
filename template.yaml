@@ -50,8 +50,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${AWS::StackName}-Output'
-      CodeUri: output/opsgenie
-      Handler: opsgenie
+      CodeUri: output/jira
+      Handler: jira
       Runtime: go1.x
 
   EnrichIPStateMachine:

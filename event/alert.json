@@ -1,0 +1,11 @@
+{
+    "RawMessage": "127.0.0.1 172.17.0.1 202.92.65.254,_audit",
+    "Id": "a9ff96ea-3e45-41ee-bffa-b136f7de84d7-1640917932111",
+    "Subjects": [
+      {
+        "domain": "",
+        "address": "202.92.65.254"
+      }
+    ],
+    "Results": null
+  }
