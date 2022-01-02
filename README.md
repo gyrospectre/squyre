@@ -6,7 +6,9 @@ Easy alert enrichment for overworked security teams!
 
 Designed to be modular and extensible, it will consume your alerts, enrich them with information that helps you triage quicker, and then feed the juicy results back into your alert pipeline (or ticketing system).
 
-The only pre-requisite is that you must have an AWS account to host HellaRad. Currently, we support Splunk or OpsGenie as alert sources, and Jira or OpsGenie as output providers.
+The only pre-requisite is that you must have an AWS account to host HellaRad - it runs solely in AWS using serverless services (lambdas and step functions).
+
+Currently, we support Splunk or OpsGenie as alert sources, and Jira or OpsGenie as output providers, but let me know if you need something else to make this work for you. Even better, build it yourself and contribute to the project!
 
 ## How can I use this?
 
@@ -78,6 +80,24 @@ It's easy to add enrichment functions, and more will be added over time. Feel fr
 Currently supported:
 - Greynoise (https://www.greynoise.io/) : Tells security analysts what not to worry about. Indicator types: IP
 - IP API (https://ip-api.com/) : IP address geolocation information. Indicator types: IP
+
+## Developing
+
+### Data Structures
+`hellarad.Alert`   - The main data structure used by Hella Rad. It encapsulates everything about an alert, it's details and the enrichment results. `Alerts` are the standard way data is passed around between components.
+`hellarad.Subject` - Any collection of data points which can be used for enrichment. At the time of writing, either an IP address or a domain name. `Subjects` are stored within `Alerts`.
+`hellarad.Result`  - Stores Enrichment results, the subject used, and the source of the data. `Results` are also stored within `Alerts`.
+
+### Enrichment Functions
+An enrichment function is a Go lambda that takes a `hellarad.Alert` as input (see `hellarad.go`), performs some analysis, adds the results (as a slice of `hellarad.Result` objects) to the Alert object, and returns a Json string representation of the updated Alert.
+
+Have a look at any of the existing functions (in the `function`) folder, you should be able to copy paste a fair amount and get started pretty quick. If you need to work with API keys, please use AWS Secrets Manager to store your secrets; there is a built in function to fetch keys as required! For E.g. https://github.com/gyrospectre/hellarad/blob/0ad801155f278d0e02894bd312eb4f0da2387341/output/jira/main.go#L49
+
+Once you have something working, add the new function to the template.yaml (again copy one of the other stanzas) and then test:
+```
+sam local invoke MyNewFunction --event event/alert.json
+```
+If all is working, then add the new function to the `statemachine/enrichIP.asl.json` file, so that it executes as part of the main workflow. Then you can `sam deploy` and try it out!
 
 ## Testing
 
