@@ -15,7 +15,7 @@ As an example, let's say that your security team uses Splunk for alerting and in
 Woot. Enjoy all that sweet, sweet extra time back in your day.
 
 ## Suggested Deployment Patterns
-![ooh so rad](https://github.com/gyrpspectre/hellarad/blob/main/diagram.png)
+![diagram](https://github.com/gyrospectre/hellarad/raw/main/diagram.png)
 
 ## Getting Started - Splunk to Jira Deployment
 This is the out of the box configuration, as it's the most generic. If you are using Splunk and Jira, but don't already have something in place to create tickets automatically when alerts fire, this is for you.
