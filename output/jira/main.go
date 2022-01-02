@@ -12,7 +12,7 @@ import (
 
 const (
 	SecretLocation = "JiraApi"
-	BaseURL        = "https://gyrospectre-jira.atlassian.net"
+	BaseURL        = "https://your-jira.atlassian.net"
 	Project        = "SEC"
 	TicketType     = "Task"
 	CreateTicket   = true
