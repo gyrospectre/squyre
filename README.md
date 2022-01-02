@@ -15,11 +15,16 @@ As an example, let's say that your security team uses Splunk for alerting and in
 Woot. Enjoy all that sweet, sweet extra time back in your day.
 
 ## Suggested Deployment Patterns
+There are a couple of ways you can deploy, either directing between your alert source and ticketing system (pattern 1), or using an incident management platform like OpsGenie (pattern 2).
+
 ![diagram](https://github.com/gyrospectre/hellarad/raw/main/diagram.png)
 
-## Getting Started - Splunk to Jira Deployment
-This is the out of the box configuration, as it's the most generic. If you are using Splunk and Jira, but don't already have something in place to create tickets automatically when alerts fire, this is for you.
+Pattern 1 is the out of the box configuration as it's the most generic. If you are using Splunk and Jira, but don't already have something in place to create tickets automatically when alerts fire, then this is for you.
 
+Pattern 2 however, is a more scalable pattern. If you are already using Opsgenie in your alert pipeline, you can just add HellaRad right in. This allows you to have add as many alert sources as you like, without having to change anything on the Hellarad side.
+
+
+## Getting Started - Pattern 1: Splunk to Jira Deployment
 1. Clone this repo.
 2. Update the consts at the top of `output/jira/main.go` with your destination Jira instance URL (`BaseURL`) and Project name (`Project`).
 3. With appropriate AWS credentials in your terminal session, build and deploy the stack.
@@ -48,9 +53,7 @@ https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-
 
 Next time this alert fires, the details will be sent to HellaRad, which will create a Jira ticket for you, adding enrichment details for all extracted IP address to the same ticket as comments.
 
-## Getting Started - OpsGenie Deployment
-A more scalable pattern. If you are already using OpsGenie in your alert pipeline, you can just add HellaRad in. It doesn't matter what is creating the OpsGenie alerts in this case, and you can let OG take care of ticket creation, Slack messages etc as normal.
-
+## Getting Started - Pattern 2: OpsGenie Deployment
 1. Clone this repo.
 2. Edit `template.yaml` to use OpsGenie instead of Jira. In the `OutputFunction` definition, change the `CodeUri` value to `output/opsgenie`.
 3. With appropriate AWS credentials in your terminal session, build and deploy the stack.
