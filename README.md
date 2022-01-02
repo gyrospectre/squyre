@@ -8,11 +8,14 @@ Designed to be modular and extensible, it will consume your alerts, enrich them 
 
 The only pre-requisite is that you must have an AWS account to host HellaRad. Currently, we support Splunk or OpsGenie as alert sources, and Jira or OpsGenie as output providers.
 
-## How could I use this?
+## How can I use this?
 
 As an example, let's say that your security team uses Splunk for alerting and investigation, and Atlassian Jira for ticketing. By using the SNS alert action in the free Splunk Add-on for AWS, you can set your alerts to send to Hella Rad, which will take the results you define as interesting, extract any public IP addresses from them, and then run them through a bunch of services to get information about then. Helle Rad will then create a Jira ticket for your alert, and add this information as comments.
 
 Woot. Enjoy all that sweet, sweet extra time back in your day.
+
+## Suggested Deployment Patterns
+![ooh so rad](https://github.com/gyrpspectre/hellarad/blob/main/diagram.png)
 
 ## Getting Started - Splunk to Jira Deployment
 This is the out of the box configuration, as it's the most generic. If you are using Splunk and Jira, but don't already have something in place to create tickets automatically when alerts fire, this is for you.
@@ -49,7 +52,7 @@ Next time this alert fires, the details will be sent to HellaRad, which will cre
 A more scalable pattern. If you are already using OpsGenie in your alert pipeline, you can just add HellaRad in. It doesn't matter what is creating the OpsGenie alerts in this case, and you can let OG take care of ticket creation, Slack messages etc as normal.
 
 1. Clone this repo.
-2. Edit `template.yaml` to use OpsGenie instead of Jira. In the `OutputFunction` definition, change the `CodeUri` valye to `output/opsgenie`.
+2. Edit `template.yaml` to use OpsGenie instead of Jira. In the `OutputFunction` definition, change the `CodeUri` value to `output/opsgenie`.
 3. With appropriate AWS credentials in your terminal session, build and deploy the stack.
 ```
 sam build
@@ -64,6 +67,12 @@ sam deploy --guided
 ```
 6. Setup OpsGenie to send SNS messages to topic `hellarad-Alert` on alert creation only. See https://support.atlassian.com/opsgenie/docs/integrate-opsgenie-with-outgoing-amazon-sns/
 
+## Enrichment Functions
+It's easy to add enrichment functions, and more will be added over time. Feel free to PR and contribute!
+
+Currently supports:
+- Greynoise (https://www.greynoise.io/) : Tells security analysts what not to worry about. Indicator types: IP
+- IP API (https://ip-api.com/) : IP address geolocation information. Indicator types: IP
 
 ## Testing
 
