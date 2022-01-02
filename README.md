@@ -1,6 +1,6 @@
 # Hella Rad!
 
-![ooh so rad](https://giphy.com/embed/l0MYylLtnC1ADCGys)
+![ooh so rad](https://media.giphy.com/media/l0MYylLtnC1ADCGys/giphy.gif)
 
 Easy alert enrichment for overworked security teams! Designed to be modular and extensible, it will consume your alerts, enrich them with information that helps you triage quicker, and then feed the juicy results back into your alert pipeline (or ticketing system).
 
