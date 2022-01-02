@@ -29,7 +29,7 @@ sam deploy --guided
 https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
 
 6. Create a Jira API key (https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)
-7. In AWS, create a new Secrets Manager secret (in the same account/region as HellaRad is deployed), with the following content. Obviously, substitute your key and email.
+7. In AWS, create a new Secrets Manager secret called `JiraApi` in the same account/region as HellaRad is deployed. Use the following content, obviously substituting your key and email.
 ```
 {
   "apikey": <the API key you just created>,
@@ -44,6 +44,26 @@ https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-
 5. Also fill out the Account and Region fields per the doco for the AWS Tech Add-on. The topic should be set to `hellarad-Alert`.
 
 Next time this alert fires, the details will be sent to HellaRad, which will create a Jira ticket for you, adding enrichment details for all extracted IP address to the same ticket as comments.
+
+## Getting Started - OpsGenie Deployment
+A more scalable pattern. If you are already using OpsGenie in your alert pipeline, you can just add HellaRad in. It doesn't matter what is creating the OpsGenie alerts in this case, and you can let OG take care of ticket creation, Slack messages etc as normal.
+
+1. Clone this repo.
+2. Edit `template.yaml` to use OpsGenie instead of Jira. In the `OutputFunction` definition, change the `CodeUri` valye to `output/opsgenie`.
+3. With appropriate AWS credentials in your terminal session, build and deploy the stack.
+```
+sam build
+sam deploy --guided
+```
+4. Create an OpsGenie integration API key. See https://support.atlassian.com/opsgenie/docs/create-a-default-api-integration/
+5. In AWS, create a new Secrets Manager secret called `OpsGenieAPI` in the same account/region as HellaRad is deployed. Use the following content, obviously substituting your key and email.
+```
+{
+  "apikey": <the API key you just created>
+}
+```
+6. Setup OpsGenie to send SNS messages to topic `hellarad-Alert` on alert creation only. See https://support.atlassian.com/opsgenie/docs/integrate-opsgenie-with-outgoing-amazon-sns/
+
 
 ## Testing
 
