@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	Provider = "GreyNoise"
-	BaseURL  = "https://api.greynoise.io/v3/community"
+	provider = "GreyNoise"
+	baseURL  = "https://api.greynoise.io/v3/community"
 )
 
 type greynoiseResponse struct {
@@ -27,18 +27,18 @@ type greynoiseResponse struct {
 	Message        string `json:"message"`
 }
 
-func HandleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
+func handleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
 
 		// Build a result object to hold our goodies
 		var result = hellarad.Result{
-			Source:         Provider,
+			Source:         provider,
 			AttributeValue: subject.IP,
 			Success:        false,
 		}
 
-		response, err := http.Get(fmt.Sprintf("%s/%s", strings.TrimSuffix(BaseURL, "/"), subject.IP))
+		response, err := http.Get(fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.IP))
 
 		if err != nil {
 			return "Error fetching data from Greynoise API!", err
@@ -60,10 +60,10 @@ func HandleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
 	}
 
 	// Convert the alert object into Json for the step function
-	finalJson, _ := json.Marshal(alert)
-	return string(finalJson), nil
+	finalJSON, _ := json.Marshal(alert)
+	return string(finalJSON), nil
 }
 
 func main() {
-	lambda.Start(HandleRequest)
+	lambda.Start(handleRequest)
 }

@@ -22,7 +22,7 @@ import (
 var privateBlocks []*net.IPNet
 
 const (
-	StepFunctionTimeout = 15
+	stepFunctionTimeout = 15
 )
 
 func getStackResourceArn(svc *cloudformation.CloudFormation, stackName string, resourceName string) (string, error) {
@@ -44,7 +44,7 @@ func getStackResourceArn(svc *cloudformation.CloudFormation, stackName string, r
 			break
 		}
 	}
-	return "", errors.New("No matching stack resources found!")
+	return "", errors.New("No matching stack resources found")
 }
 
 func setupIPBlocks() {
@@ -63,8 +63,8 @@ func setupIPBlocks() {
 	}
 }
 
-func isPrivateIP(ip_str string) bool {
-	ip := net.ParseIP(ip_str)
+func isPrivateIP(ipStr string) bool {
+	ip := net.ParseIP(ipStr)
 
 	for _, priv := range privateBlocks {
 		if priv.Contains(ip) {
@@ -128,7 +128,7 @@ func waitForSfn(svc *sfn.SFN, execArn *string) error {
 	iter := 1
 	var execStatus string
 
-	for iter < StepFunctionTimeout {
+	for iter < stepFunctionTimeout {
 		result, _ := svc.DescribeExecution(&sfn.DescribeExecutionInput{
 			ExecutionArn: execArn,
 		})
@@ -141,18 +141,18 @@ func waitForSfn(svc *sfn.SFN, execArn *string) error {
 	}
 	if execStatus == "SUCCEEDED" {
 		return nil
-	} else {
-		if execStatus == "RUNNING" {
-			execStatus = "TIMED_OUT"
-		}
-		log.Printf("Step function exec failed with status %s!", execStatus)
-		return errors.New("Step function failed or timed out!")
 	}
+	if execStatus == "RUNNING" {
+		execStatus = "TIMED_OUT"
+	}
+	log.Printf("Step function exec failed with status %s!", execStatus)
+	return errors.New("Step function failed or timed out")
+
 }
 
 func sendAlertToSfn(alert hellarad.Alert, sfnName string) error {
 	// Convert alert to a Json string ready to pass to our AWS Step Function
-	alertJson, _ := json.Marshal(alert)
+	alertJSON, _ := json.Marshal(alert)
 
 	// Find the Arn of the required step function
 	sesh := session.Must(session.NewSessionWithOptions(session.Options{
@@ -169,7 +169,7 @@ func sendAlertToSfn(alert hellarad.Alert, sfnName string) error {
 	sfnsvc := sfn.New(sesh)
 	result, err := sfnsvc.StartExecution(&sfn.StartExecutionInput{
 		StateMachineArn: &sfnArn,
-		Input:           aws.String(string(alertJson)),
+		Input:           aws.String(string(alertJSON)),
 	})
 	if err != nil {
 		return err
@@ -180,7 +180,7 @@ func sendAlertToSfn(alert hellarad.Alert, sfnName string) error {
 	return err
 }
 
-func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error) {
+func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error) {
 	for _, record := range snsEvent.Records {
 		snsRecord := record.SNS
 		var alert hellarad.Alert
@@ -198,7 +198,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		alert.Subjects = extractIPs(alert.RawMessage)
 
 		if len(alert.Subjects) == 0 {
-			return "", errors.New("No public IP addresses found to process!")
+			return "", errors.New("No public IP addresses found to process")
 		}
 		// Have finished adding the extracted subjects to our alert
 
@@ -213,5 +213,5 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 }
 
 func main() {
-	lambda.Start(HandleRequest)
+	lambda.Start(handleRequest)
 }

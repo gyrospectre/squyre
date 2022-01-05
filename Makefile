@@ -1,0 +1,46 @@
+GO ?= go
+GOFMT ?= gofmt "-s"
+TEST_TIMEOUT=-timeout 5m
+GOFILES := $(shell find . -name "*.go")
+PACKAGES = `grep -Ri "module " * | cut -f2 -d' '`
+GODIRS = `find . -name '*.go' | xargs dirname | sort -u`
+
+build:
+	sam build
+
+test:
+	@echo "go test SDK and vendor packages"
+	go test ${TEST_TIMEOUT} -v -count=1
+
+.PHONY: lint
+lint:
+	@echo "go lint all packages"
+	@hash golint > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+		$(GO) get -u golang.org/x/lint/golint; \
+	fi
+	@for DIR in $(GODIRS); do `go list -f {{.Target}} golang.org/x/lint/golint` -set_exit_status $$DIR || exit 1; done;
+	
+
+.PHONY: fmt
+fmt:
+	$(GOFMT) -w $(GOFILES)
+
+.PHONY: fmt-check
+fmt-check:
+	@diff=$$($(GOFMT) -d $(GOFILES)); \
+	if [ -n "$$diff" ]; then \
+		echo "Please run 'make fmt' and commit the result:"; \
+		echo "$${diff}"; \
+		exit 1; \
+	fi;
+
+vet:
+	$(GO) vet $(VETPACKAGES)
+
+################
+# Dependencies #
+################
+
+get-deps-verify:
+	@echo "go get verification utilities"
+	go get golang.org/x/lint/golint

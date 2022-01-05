@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	Provider = "IP API"
-	BaseURL  = "http://ip-api.com/json"
+	provider = "IP API"
+	baseURL  = "http://ip-api.com/json"
 )
 
 type ipapiResponse struct {
@@ -31,18 +31,18 @@ type ipapiResponse struct {
 	ASN         string `json:"as"`
 }
 
-func HandleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
+func handleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
 
 		// Build a result object to hold our goodies
 		var result = hellarad.Result{
-			Source:         Provider,
+			Source:         provider,
 			AttributeValue: subject.IP,
 			Success:        false,
 		}
 
-		response, err := http.Get(fmt.Sprintf("%s/%s", strings.TrimSuffix(BaseURL, "/"), subject.IP))
+		response, err := http.Get(fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.IP))
 
 		if err != nil {
 			return "Error fetching data from IP API!", err
@@ -64,10 +64,10 @@ func HandleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
 	}
 
 	// Convert the alert object into Json for the step function
-	finalJson, _ := json.Marshal(alert)
-	return string(finalJson), nil
+	finalJSON, _ := json.Marshal(alert)
+	return string(finalJSON), nil
 }
 
 func main() {
-	lambda.Start(HandleRequest)
+	lambda.Start(handleRequest)
 }

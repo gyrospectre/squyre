@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	SecretLocation = "JiraApi"
-	BaseURL        = "https://your-jira.atlassian.net"
-	Project        = "SEC"
-	TicketType     = "Task"
-	CreateTicket   = true
+	secretLocation = "JiraApi"
+	baseURL        = "https://your-jira.atlassian.net"
+	project        = "SEC"
+	ticketType     = "Task"
+	createTicket   = true
 )
 
 type apiKeySecret struct {
@@ -26,13 +26,13 @@ type apiKeySecret struct {
 func createIssueForAlert(client *jira.Client, alert hellarad.Alert) (string, error) {
 	i := jira.Issue{
 		Fields: &jira.IssueFields{
-			Description: fmt.Sprintf("For full details: %s", alert.Url),
+			Description: fmt.Sprintf("For full details: %s", alert.URL),
 			Summary:     fmt.Sprintf("Alert - %s", alert.Name),
 			Type: jira.IssueType{
-				Name: TicketType,
+				Name: ticketType,
 			},
 			Project: jira.Project{
-				Key: Project,
+				Key: project,
 			},
 		},
 	}
@@ -45,9 +45,9 @@ func createIssueForAlert(client *jira.Client, alert hellarad.Alert) (string, err
 	return issue.Key, nil
 }
 
-func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
+func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 	// Fetch API key from Secrets Manager
-	smresponse, err := hellarad.GetSecret(SecretLocation)
+	smresponse, err := hellarad.GetSecret(secretLocation)
 	if err != nil {
 		log.Fatalf("Failed to fetch Jira secret: %s", err)
 	}
@@ -60,7 +60,7 @@ func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 	}
 
 	// Connect to Jira Cloud
-	jiraClient, err := jira.NewClient(tp.Client(), BaseURL)
+	jiraClient, err := jira.NewClient(tp.Client(), baseURL)
 	if err != nil {
 		panic(err)
 	}
@@ -73,16 +73,16 @@ func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 		json.Unmarshal([]byte(alertStr), &alert)
 
 		if firstIter {
-			if CreateTicket {
+			if createTicket {
 				ticketnumber, err = createIssueForAlert(jiraClient, alert)
 				if err != nil {
 					panic(err)
 				}
 				log.Printf("Created ticket number %s", ticketnumber)
 			} else {
-				ticketnumber = alert.Id
+				ticketnumber = alert.ID
 			}
-		
+
 		}
 		log.Printf("Sending results of successful enrichments to %s", ticketnumber)
 
@@ -97,7 +97,7 @@ func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 					panic(err)
 				}
 			} else {
-				log.Printf("Skipping failed enrichment from %s for alert %s", result.Source, alert.Id)
+				log.Printf("Skipping failed enrichment from %s for alert %s", result.Source, alert.ID)
 			}
 		}
 		firstIter = false
@@ -107,5 +107,5 @@ func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 }
 
 func main() {
-	lambda.Start(HandleRequest)
+	lambda.Start(handleRequest)
 }

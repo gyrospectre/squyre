@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	SecretLocation = "OpsGenieAPI"
-	BaseURL        = "https://api.opsgenie.com/v2"
+	secretLocation = "OpsGenieAPI"
+	baseURL        = "https://api.opsgenie.com/v2"
 )
 
 type apiKeySecret struct {
@@ -28,9 +28,9 @@ type opsgenieNote struct {
 	Note   string `json:"note"`
 }
 
-func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
+func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 	// Fetch API key from Secrets Manager
-	smresponse, err := hellarad.GetSecret(SecretLocation)
+	smresponse, err := hellarad.GetSecret(secretLocation)
 	if err != nil {
 		log.Fatalf("Failed to fetch OpsGenie secret: %s", err)
 	}
@@ -45,7 +45,7 @@ func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 		log.Printf("Sending results of successful enrichment for alert %s", alert.Id)
 
 		// https://docs.opsgenie.com/docs/alert-api#add-note-to-alert
-		ogurl := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(BaseURL, "/"), alert.Id)
+		ogurl := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(baseURL, "/"), alert.Id)
 		auth := fmt.Sprintf("GenieKey %s", secret.Key)
 
 		for _, result := range alert.Results {
@@ -73,9 +73,9 @@ func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 				respBody, _ := ioutil.ReadAll(response.Body)
 				if response.StatusCode != 202 {
 					return string(respBody), err
-				} else {
-					log.Printf("Sent note to OpsGenie with result %s", respBody)
 				}
+				log.Printf("Sent note to OpsGenie with result %s", respBody)
+
 				defer response.Body.Close()
 			} else {
 				log.Printf("Skipping failed enrichment from %s for alert %s", result.Source, alert.Id)
@@ -88,5 +88,5 @@ func HandleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 }
 
 func main() {
-	lambda.Start(HandleRequest)
+	lambda.Start(handleRequest)
 }
