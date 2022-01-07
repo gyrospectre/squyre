@@ -16,6 +16,16 @@ const (
 	baseURL  = "http://ip-api.com/json"
 )
 
+var (
+	// Client defines an abstracted HTTP client to allow for tests
+	Client HTTPClient
+)
+
+// HTTPClient interface
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type ipapiResponse struct {
 	Status      string `json:"status"`
 	Country     string `json:"country"`
@@ -31,6 +41,10 @@ type ipapiResponse struct {
 	ASN         string `json:"as"`
 }
 
+func init() {
+	Client = &http.Client{}
+}
+
 func handleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
@@ -42,7 +56,8 @@ func handleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
 			Success:        false,
 		}
 
-		response, err := http.Get(fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.IP))
+		request, _ := http.NewRequest("GET", fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.IP), nil)
+		response, err := Client.Do(request)
 
 		if err != nil {
 			return "Error fetching data from IP API!", err

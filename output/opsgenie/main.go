@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/gyrospectre/hellarad"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -17,6 +18,19 @@ const (
 	secretLocation = "OpsGenieAPI"
 	baseURL        = "https://api.opsgenie.com/v2"
 )
+
+var (
+	// InitClient abstracts this function to allow for tests
+	InitClient = InitOpsgenieClient
+	// AddComment abstracts this function to allow for tests
+	AddComment = AddNoteToAlert
+)
+
+// OpsGenieClient wraps a HTTP client with the token used to auth to Opsgenie
+type OpsGenieClient struct {
+	client   *http.Client
+	apiToken string
+}
 
 type apiKeySecret struct {
 	Key string `json:"apikey"`
@@ -28,7 +42,20 @@ type opsgenieNote struct {
 	Note   string `json:"note"`
 }
 
-func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
+// Post wraps a standard http Post call with the required auth headers
+func (opsgenie *OpsGenieClient) Post(url, contentType string, body io.Reader) (resp *http.Response, err error) {
+	req, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("Authorization", fmt.Sprintf("GenieKey %s", opsgenie.apiToken))
+
+	return opsgenie.client.Do(req)
+}
+
+// InitOpsgenieClient initialises an Opsgenie client using credentials from AWS Secrets Manager
+func InitOpsgenieClient() (*OpsGenieClient, error) {
 	// Fetch API key from Secrets Manager
 	smresponse, err := hellarad.GetSecret(secretLocation)
 	if err != nil {
@@ -37,16 +64,51 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 	var secret apiKeySecret
 	json.Unmarshal([]byte(*smresponse.SecretString), &secret)
 
+	return &OpsGenieClient{
+		client:   &http.Client{},
+		apiToken: secret.Key,
+	}, nil
+}
+
+// AddNoteToAlert adds a comment to an existing Opsgenie alert
+func AddNoteToAlert(client *OpsGenieClient, note *opsgenieNote, id string) error {
+	// https://docs.opsgenie.com/docs/alert-api#add-note-to-alert
+	ogurl := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(baseURL, "/"), id)
+
+	jsonData, err := json.Marshal(note)
+	if err != nil {
+		return err
+	}
+
+	response, err := client.Post(ogurl, "application/json; charset=UTF-8", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != 202 {
+		return errors.New("Unexpected response code")
+	}
+
+	return nil
+}
+
+func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
+	client, err := InitClient()
+	if err != nil {
+		panic(err)
+	}
+
+	var alerts []string
 	// Process enrichment result list
 	for _, alertStr := range rawAlerts {
 		var alert hellarad.Alert
 		json.Unmarshal([]byte(alertStr), &alert)
 
-		log.Printf("Sending results of successful enrichment for alert %s", alert.Id)
+		if len(alert.Results) == 0 {
+			return "No results found to process", nil
+		}
 
-		// https://docs.opsgenie.com/docs/alert-api#add-note-to-alert
-		ogurl := fmt.Sprintf("%s/alerts/%s/notes", strings.TrimSuffix(baseURL, "/"), alert.Id)
-		auth := fmt.Sprintf("GenieKey %s", secret.Key)
+		log.Printf("Sending results of successful enrichment for alert %s", alert.ID)
 
 		for _, result := range alert.Results {
 			// Only send the output of successful enrichments
@@ -56,35 +118,20 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 					Source: result.Source,
 					Note:   fmt.Sprintf("Additional information on %s from %s:\n\n%s", result.AttributeValue, result.Source, result.Message),
 				}
-				jsonData, err := json.Marshal(note)
+
+				err := AddComment(client, note, alert.ID)
 				if err != nil {
-					log.Fatalf("Could not marshal Note into JSON: %s", err)
+					panic(err)
 				}
-
-				request, _ := http.NewRequest("POST", ogurl, bytes.NewBuffer(jsonData))
-				request.Header.Set("Content-Type", "application/json; charset=UTF-8")
-				request.Header.Set("Authorization", auth)
-
-				client := &http.Client{}
-				response, err := client.Do(request)
-				if err != nil {
-					log.Fatalf("Error posting data to OpsGenie: %s", err)
-				}
-				respBody, _ := ioutil.ReadAll(response.Body)
-				if response.StatusCode != 202 {
-					return string(respBody), err
-				}
-				log.Printf("Sent note to OpsGenie with result %s", respBody)
-
-				defer response.Body.Close()
+				log.Print("Successfully adding note to OpsGenie")
 			} else {
-				log.Printf("Skipping failed enrichment from %s for alert %s", result.Source, alert.Id)
+				log.Printf("Skipping failed enrichment from %s for alert %s", result.Source, alert.ID)
 			}
 
 		}
+		alerts = append(alerts, alert.ID)
 	}
-
-	return "Success", nil
+	return fmt.Sprintf("Success: %d alerts processed. Updated alerts: %s", len(rawAlerts), alerts), nil
 }
 
 func main() {

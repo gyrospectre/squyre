@@ -2,15 +2,15 @@ GO ?= go
 GOFMT ?= gofmt "-s"
 TEST_TIMEOUT=-timeout 5m
 GOFILES := $(shell find . -name "*.go")
-PACKAGES = `grep -Ri "module " * | cut -f2 -d' '`
-GODIRS = `find . -name '*.go' | xargs dirname | sort -u`
+PACKAGES := $(shell grep -Ri "module " * | cut -f2 -d' ')
+GODIRS := $(shell find . -name '*.go' | xargs dirname | sort -u)
 
 build:
 	sam build
 
 test:
-	@echo "go test SDK and vendor packages"
-	go test ${TEST_TIMEOUT} -v -count=1
+	@echo "go test all packages"
+	@for DIR in $(GODIRS); do cd $$DIR; go test ${TEST_TIMEOUT} -v -count=1; cd - > /dev/null ; done;
 
 .PHONY: lint
 lint:
@@ -18,7 +18,7 @@ lint:
 	@hash golint > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		$(GO) get -u golang.org/x/lint/golint; \
 	fi
-	@for DIR in $(GODIRS); do `go list -f {{.Target}} golang.org/x/lint/golint` -set_exit_status $$DIR || exit 1; done;
+	@for DIR in $(GODIRS); do echo $$DIR; `go list -f {{.Target}} golang.org/x/lint/golint` -set_exit_status $$DIR || exit 1; done;
 	
 
 .PHONY: fmt

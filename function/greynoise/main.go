@@ -16,6 +16,16 @@ const (
 	baseURL  = "https://api.greynoise.io/v3/community"
 )
 
+var (
+	// Client defines an abstracted HTTP client to allow for tests
+	Client HTTPClient
+)
+
+// HTTPClient interface
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type greynoiseResponse struct {
 	IP             string `json:"ip"`
 	Noise          bool   `json:"noise"`
@@ -25,6 +35,10 @@ type greynoiseResponse struct {
 	Link           string `json:"link"`
 	LastSeen       string `json:"last_seen"`
 	Message        string `json:"message"`
+}
+
+func init() {
+	Client = &http.Client{}
 }
 
 func handleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
@@ -38,13 +52,14 @@ func handleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
 			Success:        false,
 		}
 
-		response, err := http.Get(fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.IP))
+		request, _ := http.NewRequest("GET", fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.IP), nil)
+		response, err := Client.Do(request)
 
 		if err != nil {
 			return "Error fetching data from Greynoise API!", err
 		}
-
 		responseData, err := ioutil.ReadAll(response.Body)
+
 		if err == nil {
 			var responseObject greynoiseResponse
 			json.Unmarshal(responseData, &responseObject)
