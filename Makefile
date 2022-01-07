@@ -10,7 +10,7 @@ build:
 
 test:
 	@echo "go test all packages"
-	@for DIR in $(GODIRS); do cd $$DIR; go test ${TEST_TIMEOUT} -v -count=1; cd - > /dev/null ; done;
+	@for DIR in $(GODIRS); do cd $$DIR; go test ${TEST_TIMEOUT} -cover -v -count=1; cd - > /dev/null ; done;
 
 .PHONY: lint
 lint:

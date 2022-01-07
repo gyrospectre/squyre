@@ -131,7 +131,10 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 		}
 		alerts = append(alerts, alert.ID)
 	}
-	return fmt.Sprintf("Success: %d alerts processed. Updated alerts: %s", len(rawAlerts), alerts), nil
+	finalResult := fmt.Sprintf("Success: %d alerts processed. Updated alerts: %s", len(rawAlerts), alerts)
+	log.Print(finalResult)
+
+	return finalResult, nil
 }
 
 func main() {

@@ -95,14 +95,24 @@ Have a look at any of the existing functions (in the `function`) folder, you sho
 
 Once you have something working, add the new function to the template.yaml (again copy one of the other stanzas) and then test:
 ```
+make fmt
+make lint
+make test
+make build
 sam local invoke MyNewFunction --event event/alert.json
 ```
 If all is working, then add the new function to the `statemachine/enrichIP.asl.json` file, so that it executes as part of the main workflow. Then you can `sam deploy` and try it out!
 
 ## Testing
 
+Run Go unit tests
 ```
-sam build
+make test
+```
+
+Integration tests (requires AWS credentials in session, live calls)
+```
+make build
 sam local invoke IPAPIFunction --event event/alert.json
 sam local invoke GreynoiseFunction --event event/alert.json
 sam local invoke ConductorFunction --event event/sns.json 

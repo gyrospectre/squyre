@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Hella Rad
+Description: Hella Rad!
 
 Globals:
   Function:
@@ -99,7 +99,6 @@ Resources:
               - Effect: Allow
                 Action:
                   - states:DescribeExecution
-                  - states:StartExecution
                 Resource:
                   - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:hellarad-*'
               - Effect: Allow
@@ -107,6 +106,16 @@ Resources:
                   - cloudformation:ListStackResources
                 Resource:
                   - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/hellarad/*'
+              - Effect: Allow
+                Action:
+                  - states:StartExecution
+                Resource:
+                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stack/hellarad/*'
+              - Effect: Allow
+                Action:
+                  - states:StartExecution
+                Resource:
+                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:hellarad-*'
 
   OutputRole:
       Type: 'AWS::IAM::Role'

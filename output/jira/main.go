@@ -13,7 +13,7 @@ import (
 const (
 	secretLocation = "JiraApi"
 	baseURL        = "https://your-jira.atlassian.net"
-	project        = "SEC"
+	project        = "SECURITY"
 	ticketType     = "Task"
 )
 
@@ -90,21 +90,42 @@ func InitJiraClient() (*jira.Client, error) {
 	return jiraClient, nil
 }
 
+func combineResultsbyAlertID(raw []string) map[string]hellarad.Alert {
+	resultsmap := make(map[string][]hellarad.Result)
+	alerts := make(map[string]hellarad.Alert)
+
+	for _, alertStr := range raw {
+		var alert hellarad.Alert
+		json.Unmarshal([]byte(alertStr), &alert)
+		for _, result := range alert.Results {
+			resultsmap[alert.ID] = append(resultsmap[alert.ID], result)
+		}
+		alert.Results = nil
+		alerts[alert.ID] = alert
+	}
+	for id, results := range resultsmap {
+		temp := alerts[id]
+		temp.Results = results
+		alerts[id] = temp
+	}
+	return alerts
+}
+
 func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 	jiraClient, err := InitClient()
 	if err != nil {
 		panic(err)
 	}
 
+	// We have separate alerts by source, combine them first to prevent creating duplicate tickets
+	mergedAlerts := combineResultsbyAlertID(rawAlerts)
+
 	// Process enrichment result list
 	var ticketnumber string
 	var ticketnumbers []string
 	var action string
 
-	for _, alertStr := range rawAlerts {
-		var alert hellarad.Alert
-		json.Unmarshal([]byte(alertStr), &alert)
-
+	for _, alert := range mergedAlerts {
 		if CreateTicket {
 			ticketnumber, err = CreateTicketForAlert(jiraClient, alert)
 			if err != nil {
@@ -135,10 +156,12 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 				log.Printf("Skipping failed enrichment from %s for alert %s", result.Source, alert.ID)
 			}
 		}
-		fmt.Println(ticketnumber)
 		ticketnumbers = append(ticketnumbers, ticketnumber)
 	}
-	return fmt.Sprintf("Success: %d alerts processed. %sd alerts: %s", len(rawAlerts), action, ticketnumbers), nil
+	finalResult := fmt.Sprintf("Success: %d alerts processed. %sd alerts: %s", len(mergedAlerts), action, ticketnumbers)
+	log.Print(finalResult)
+
+	return finalResult, nil
 }
 
 func main() {

@@ -10,7 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 	"github.com/aws/aws-sdk-go/service/sfn"
+	"github.com/aws/aws-sdk-go/service/sfn/sfniface"
 	"github.com/gyrospectre/hellarad"
 	"log"
 	"net"
@@ -19,18 +21,33 @@ import (
 	"time"
 )
 
-var privateBlocks []*net.IPNet
+var (
+	privateBlocks []*net.IPNet
+	// HellaRadStack defines the main stack in use
+	HellaRadStack Stack
+	// SendAlert abstracts the sendAlertToSfn function to allow for testing
+	SendAlert = sendAlertToSfn
+	// BuildDestination abstracts the BuildStateMachine function to allow for testing
+	BuildDestination = BuildStateMachine
+)
 
 const (
 	stepFunctionTimeout = 15
 )
 
-func getStackResourceArn(svc *cloudformation.CloudFormation, stackName string, resourceName string) (string, error) {
+// Stack abstracts AWS Cloudformation stacks
+type Stack struct {
+	Client    cloudformationiface.CloudFormationAPI
+	StackName string
+}
+
+func (s *Stack) getStackResourceArn(resourceName string) (string, error) {
 	req := cloudformation.ListStackResourcesInput{
-		StackName: aws.String(stackName),
+		StackName: aws.String(s.StackName),
 	}
+
 	for {
-		resp, err := svc.ListStackResources(&req)
+		resp, err := s.Client.ListStackResources(&req)
 		if err != nil {
 			return "", err
 		}
@@ -47,6 +64,60 @@ func getStackResourceArn(svc *cloudformation.CloudFormation, stackName string, r
 	return "", errors.New("No matching stack resources found")
 }
 
+// StateMachine abstracts AWS Step Functions
+type StateMachine struct {
+	Client      sfniface.SFNAPI
+	FunctionArn string
+}
+
+// Execute starts a step function execution with the provided input data
+func (s *StateMachine) Execute(input string) (*sfn.StartExecutionOutput, error) {
+	result, err := s.Client.StartExecution(&sfn.StartExecutionInput{
+		StateMachineArn: aws.String(s.FunctionArn),
+		Input:           aws.String(input),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return result, err
+}
+
+// WaitForExecCompletion waits for a given step function execution to complete
+func (s *StateMachine) WaitForExecCompletion(execArn *string) error {
+	iter := 1
+	var execStatus string
+
+	for iter <= stepFunctionTimeout {
+		result, err := s.Client.DescribeExecution(&sfn.DescribeExecutionInput{
+			ExecutionArn: execArn,
+		})
+		if err != nil {
+			return err
+		}
+
+		execStatus = aws.StringValue(result.Status)
+
+		if execStatus == "SUCCEEDED" {
+			log.Printf("Step function exec succeeded after %d seconds.", iter)
+			return nil
+		}
+		if execStatus == "FAILED" {
+			log.Printf("Step function exec failed. Full details: %s", result.GoString())
+			return errors.New("Step function execution failed")
+		}
+		if execStatus == "TIMED_OUT" || execStatus == "ABORTED" {
+			break
+		}
+
+		time.Sleep(time.Second)
+		iter++
+	}
+
+	log.Printf("Step function exec timed out after %d seconds.", iter)
+	return errors.New("Step function timed out")
+}
+
 func setupIPBlocks() {
 	privateBlockStrs := []string{
 		"10.0.0.0/8",
@@ -60,6 +131,15 @@ func setupIPBlocks() {
 	for i, blockStr := range privateBlockStrs {
 		_, block, _ := net.ParseCIDR(blockStr)
 		privateBlocks[i] = block
+	}
+}
+
+func init() {
+	sess := session.Must(session.NewSession())
+
+	HellaRadStack = Stack{
+		Client:    cloudformation.New(sess),
+		StackName: "hellarad",
 	}
 }
 
@@ -124,89 +204,66 @@ func convertOpsGenieAlert(alertBody string) hellarad.Alert {
 	return messageObject.Normaliser()
 }
 
-func waitForSfn(svc *sfn.SFN, execArn *string) error {
-	iter := 1
-	var execStatus string
-
-	for iter < stepFunctionTimeout {
-		result, _ := svc.DescribeExecution(&sfn.DescribeExecutionInput{
-			ExecutionArn: execArn,
-		})
-		execStatus = aws.StringValue(result.Status)
-		if execStatus != "RUNNING" {
-			break
-		}
-		time.Sleep(time.Second)
-		iter += iter
+// BuildStateMachine builds a connection to the Step Function at the provided arn
+func BuildStateMachine(arn string) StateMachine {
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
+	return StateMachine{
+		Client:      sfn.New(sess),
+		FunctionArn: arn,
 	}
-	if execStatus == "SUCCEEDED" {
-		return nil
-	}
-	if execStatus == "RUNNING" {
-		execStatus = "TIMED_OUT"
-	}
-	log.Printf("Step function exec failed with status %s!", execStatus)
-	return errors.New("Step function failed or timed out")
-
 }
-
 func sendAlertToSfn(alert hellarad.Alert, sfnName string) error {
 	// Convert alert to a Json string ready to pass to our AWS Step Function
 	alertJSON, _ := json.Marshal(alert)
 
 	// Find the Arn of the required step function
-	sesh := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-
-	cfnsvc := cloudformation.New(sesh)
-
-	sfnArn, err := getStackResourceArn(cfnsvc, "hellarad", sfnName)
+	sfnArn, err := HellaRadStack.getStackResourceArn(sfnName)
 	if err != nil {
 		return err
 	}
+	stepFunction := BuildDestination(sfnArn)
+	result, err := stepFunction.Execute(string(alertJSON))
 
-	sfnsvc := sfn.New(sesh)
-	result, err := sfnsvc.StartExecution(&sfn.StartExecutionInput{
-		StateMachineArn: &sfnArn,
-		Input:           aws.String(string(alertJSON)),
-	})
 	if err != nil {
 		return err
 	}
-	log.Printf("Started IP Lookup with execution %s\n", aws.StringValue(result.ExecutionArn))
-	err = waitForSfn(sfnsvc, result.ExecutionArn)
+	log.Printf("Started %s with execution %s\n", sfnName, aws.StringValue(result.ExecutionArn))
+	err = stepFunction.WaitForExecCompletion(result.ExecutionArn)
 
 	return err
 }
 
 func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error) {
+	if len(snsEvent.Records) == 0 {
+		return "Aborted", errors.New("No records in SNS event to process")
+	}
 	for _, record := range snsEvent.Records {
 		snsRecord := record.SNS
 		var alert hellarad.Alert
-
 		log.Printf("Processing message %s\n", snsRecord.MessageID)
 
 		if strings.Contains(snsRecord.Message, "search_name") {
 			log.Println("Auto detected Splunk alert")
-			log.Println(snsRecord.Message)
 			alert = convertSplunkAlert(snsRecord.Message)
 		} else {
 			log.Println("Auto detected OpsGenie alert")
 			alert = convertOpsGenieAlert(snsRecord.Message)
 		}
 		alert.Subjects = extractIPs(alert.RawMessage)
-
 		if len(alert.Subjects) == 0 {
 			return "", errors.New("No public IP addresses found to process")
 		}
+		log.Printf("Extracted %d public IP addresses from the alert message", len(alert.Subjects))
+
 		// Have finished adding the extracted subjects to our alert
 
-		err := sendAlertToSfn(alert, "EnrichIPStateMachine")
+		err := SendAlert(alert, "EnrichIPStateMachine")
 		if err != nil {
 			return string(err.Error()), err
 		}
-		log.Printf("Successfully processed %d entries for alert %s!\n\n", len(alert.Subjects), alert.Id)
+		log.Printf("Successfully processed %d entries for alert %s!\n\n", len(alert.Subjects), alert.ID)
 	}
 
 	return fmt.Sprintf("Processed %d SNS messages.", len(snsEvent.Records)), nil

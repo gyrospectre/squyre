@@ -31,6 +31,7 @@ func TestGetSecret(t *testing.T) {
 		Client:   mockedSecretValue{Resp: resp},
 		SecretID: "testsecret",
 	}
+
 	value, err := s.getValue()
 
 	if err != nil {

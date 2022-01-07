@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/gyrospectre/hellarad"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -18,7 +19,8 @@ const (
 
 var (
 	// Client defines an abstracted HTTP client to allow for tests
-	Client HTTPClient
+	Client         HTTPClient
+	responseObject ipapiResponse
 )
 
 // HTTPClient interface
@@ -46,6 +48,8 @@ func init() {
 }
 
 func handleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
+	log.Printf("Starting %s run for alert %s", provider, alert.ID)
+
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
 
@@ -60,23 +64,28 @@ func handleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
 		response, err := Client.Do(request)
 
 		if err != nil {
-			return "Error fetching data from IP API!", err
+			log.Printf("Failed to fetch data from %s", provider)
+			return "Error fetching data from API!", err
 		}
-
 		responseData, err := ioutil.ReadAll(response.Body)
+
 		if err == nil {
-			var responseObject ipapiResponse
+			log.Printf("Received %s response for %s", provider, subject.IP)
+
 			json.Unmarshal(responseData, &responseObject)
 			prettyresponse, _ := json.MarshalIndent(responseObject, "", "    ")
 
 			result.Success = true
 			result.Message = string(prettyresponse)
 		} else {
-			return "Error decoding response from IP API!", err
+			log.Printf("Unexpected response from %s for %s", provider, subject.IP)
+			return "Error decoding response from API!", err
 		}
 		// Add the enriched details back to the results
 		alert.Results = append(alert.Results, result)
+		log.Printf("Added %s to result set", subject.IP)
 	}
+	log.Printf("Successfully ran %s. Yielded %d results for %d subjects.", provider, len(alert.Results), len(alert.Subjects))
 
 	// Convert the alert object into Json for the step function
 	finalJSON, _ := json.Marshal(alert)
