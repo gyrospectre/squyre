@@ -69,23 +69,6 @@ Next time this alert fires, the details will be sent to Squyre, which will creat
 ```
 sam build
 sam deploy --guided
-
-Configuring SAM deploy
-======================
-
-	Looking for config file [samconfig.toml] :  Not found
-
-	Setting default arguments for 'sam deploy'
-	=========================================
-	Stack Name [sam-app]: sqyre
-	AWS Region [ap-southeast-2]:
-	#Shows you resources changes to be deployed and require a 'Y' to initiate deploy
-	Confirm changes before deploy [y/N]:
-	#SAM needs permission to be able to create roles to connect to the resources in your template
-	Allow SAM CLI IAM role creation [Y/n]:
-	Save arguments to configuration file [Y/n]:
-	SAM configuration file [samconfig.toml]:
-	SAM configuration environment [default]:
 ```
 5. Create an OpsGenie integration API key. See https://support.atlassian.com/opsgenie/docs/create-a-default-api-integration/
 6. In AWS, create a new Secrets Manager secret called `OpsGenieAPI` in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email.
