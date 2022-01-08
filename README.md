@@ -1,7 +1,6 @@
 # Squyre
 
-Easy alert enrichment for overworked security teams! Squyre will help you deal with threats more effectively but, unlike the ![historic role it was named after](https://en.wikipedia.org/wiki/Squire), it's unlikely to scrub your armour.
-
+Easy alert enrichment for overworked security teams! Squyre will help you deal with threats more effectively but, unlike the [historic role it was named after](https://en.wikipedia.org/wiki/Squire), it's has a rad 'y' instead of an 'i' and is unlikely to scrub your armour.
 
 ![ooh so rad](https://media.giphy.com/media/l0MYylLtnC1ADCGys/giphy.gif)
 
@@ -16,6 +15,11 @@ Currently, we support Splunk or OpsGenie as alert sources, and Jira or OpsGenie 
 As an example, let's say that your security team uses Splunk for alerting and investigation, and Atlassian Jira for ticketing. By using the SNS alert action in the free Splunk Add-on for AWS, you can set your alerts to send to Squyre, which will take the results you define as interesting, extract any public IP addresses from them, and then run them through a bunch of services to get information about then. Squyre will then create a Jira ticket for your alert, and add this information as comments.
 
 Woot. Enjoy all that sweet, sweet extra time back in your day.
+
+## Warnings
+- Consider OpSec, some of your indicators may be sensitive, and you may not want them sent to the public service used by Squyre. Don't send things like this to it.
+- This is not yet in Production use. It's been tested pretty extensively in a test environment, but probably still has plenty of bugs.
+- This is my first foray into Go. I'm still learning, the code is not awesome. If you are a Go expert, I would love your feedback on how I can do better!
 
 ## Suggested Deployment Patterns
 There are a couple of ways you can deploy, either directing between your alert source and ticketing system (pattern 1), or using an incident management platform like OpsGenie (pattern 2).
