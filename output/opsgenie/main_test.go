@@ -58,7 +58,7 @@ func makeTestAlerts(number int, prefix string, includeResults bool, sameId bool)
 	var alertlist []string
 	for i := 1; i <= number; i++ {
 		if sameId {
-			alert.ID = fmt.Sprintf("%s%d", prefix, i)
+			alert.ID = fmt.Sprintf("%s1", prefix)
 		} else {
 			alert.ID = fmt.Sprintf("%s%d", prefix, i)
 		}
@@ -116,14 +116,14 @@ func TestHandlerSameIds(t *testing.T) {
 	output, err := handleRequest(Ctx, alerts)
 
 	var alertList []string
-	alertList = append(alertList, "CREATED-1")
+	alertList = append(alertList, "EXISTING-1")
 
 	if err != nil {
 		t.Fatalf("unexpected error %s", err)
 	}
 	have := string(output)
 
-	want := fmt.Sprintf("Success: 1 alerts processed. Created alerts: %s", alertList)
+	want := fmt.Sprintf("Success: 1 alerts processed. Updated alerts: %s", alertList)
 
 	if have != want {
 		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)

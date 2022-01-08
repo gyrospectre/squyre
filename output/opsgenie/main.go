@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -101,6 +102,7 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 
 	// We have separate alerts by source, combine them first to prevent creating duplicate tickets
 	mergedAlerts := squyre.CombineResultsbyAlertID(rawAlerts)
+	log.Printf("Merged alerts. Was %d alerts, now %d.", len(rawAlerts), len(mergedAlerts))
 
 	var alerts []string
 	// Process enrichment result list
@@ -133,7 +135,8 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 		}
 		alerts = append(alerts, alert.ID)
 	}
-	finalResult := fmt.Sprintf("Success: %d alerts processed. Updated alerts: %s", len(rawAlerts), alerts)
+	sort.Strings(alerts)
+	finalResult := fmt.Sprintf("Success: %d alerts processed. Updated alerts: %s", len(mergedAlerts), alerts)
 	log.Print(finalResult)
 
 	return finalResult, nil
