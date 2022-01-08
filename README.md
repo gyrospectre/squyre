@@ -39,6 +39,23 @@ Pattern 2 however, is a more scalable pattern. If you are already using Opsgenie
 ```
 sam build
 sam deploy --guided
+
+Configuring SAM deploy
+======================
+
+	Looking for config file [samconfig.toml] :  Not found
+
+	Setting default arguments for 'sam deploy'
+	=========================================
+	Stack Name [sam-app]: sqyre
+	AWS Region [ap-southeast-2]:
+	#Shows you resources changes to be deployed and require a 'Y' to initiate deploy
+	Confirm changes before deploy [y/N]:
+	#SAM needs permission to be able to create roles to connect to the resources in your template
+	Allow SAM CLI IAM role creation [Y/n]:
+	Save arguments to configuration file [Y/n]:
+	SAM configuration file [samconfig.toml]:
+	SAM configuration environment [default]:
 ```
 5. Over on Splunk, install the Splunk Add-on for AWS (https://splunkbase.splunk.com/app/1876/), to give you an SNS alert action. 
 6. Configure the app with some AWS creds. The IAM user or role must have SNS Publish/Get/List perms to SNS topic `squyre-Alert`. See https://docs.splunk.com/Documentation/AddOns/released/AWS/Setuptheadd-on
@@ -69,6 +86,23 @@ Next time this alert fires, the details will be sent to Squyre, which will creat
 ```
 sam build
 sam deploy --guided
+
+Configuring SAM deploy
+======================
+
+	Looking for config file [samconfig.toml] :  Not found
+
+	Setting default arguments for 'sam deploy'
+	=========================================
+	Stack Name [sam-app]: sqyre
+	AWS Region [ap-southeast-2]:
+	#Shows you resources changes to be deployed and require a 'Y' to initiate deploy
+	Confirm changes before deploy [y/N]:
+	#SAM needs permission to be able to create roles to connect to the resources in your template
+	Allow SAM CLI IAM role creation [Y/n]:
+	Save arguments to configuration file [Y/n]:
+	SAM configuration file [samconfig.toml]:
+	SAM configuration environment [default]:
 ```
 5. Create an OpsGenie integration API key. See https://support.atlassian.com/opsgenie/docs/create-a-default-api-integration/
 6. In AWS, create a new Secrets Manager secret called `OpsGenieAPI` in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email.
