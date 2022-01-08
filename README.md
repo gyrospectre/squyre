@@ -17,18 +17,18 @@ As an example, let's say that your security team uses Splunk for alerting and in
 Woot. Enjoy all that sweet, sweet extra time back in your day.
 
 ## Warnings
-- Consider OpSec, some of your indicators may be sensitive, and you may not want them sent to the public service used by Squyre. Don't send things like this to it.
+- Consider OpSec; some of your indicators may be sensitive, and you may not want them sent to the public services used by Squyre. Don't send sensitive things to Squyre if this worries you!
 - This is not yet in Production use. It's been tested pretty extensively in a test environment, but probably still has plenty of bugs.
 - This is my first foray into Go. I'm still learning, the code is not awesome. If you are a Go expert, I would love your feedback on how I can do better!
 
 ## Suggested Deployment Patterns
-There are a couple of ways you can deploy, either directing between your alert source and ticketing system (pattern 1), or using an incident management platform like OpsGenie (pattern 2).
+There are a couple of ways you can deploy, either directly between your alert source and ticketing system (pattern 1), or using an incident management platform like OpsGenie (pattern 2).
 
 ![diagram](https://github.com/gyrospectre/squyre/raw/main/diagram.png)
 
 Pattern 1 is the out of the box configuration as it's the most generic. If you are using Splunk and Jira, but don't already have something in place to create tickets automatically when alerts fire, then this is for you.
 
-Pattern 2 however, is a more scalable pattern. If you are already using Opsgenie in your alert pipeline, this is a better option. This allows you to add as many alert sources as you like, without having to change anything on the Squyre side.
+Pattern 2 however, is more scalable. If you are already using Opsgenie in your alert pipeline, this is a better option. This allows you to add as many alert sources as you like, without having to change anything on the Squyre side.
 
 
 ## Getting Started - Pattern 1: Splunk to Jira Deployment
@@ -41,7 +41,7 @@ sam build
 sam deploy --guided
 ```
 5. Over on Splunk, install the Splunk Add-on for AWS (https://splunkbase.splunk.com/app/1876/), to give you an SNS alert action. 
-6. Configure the app with some AWS creds. The IAM user or role must have SNS Publish/Get/List perms to SNS topic `squyre-Alert`. See https://docs.splunk.com/Documentation/AddOns/released/AWS/Setuptheadd-on
+6. Configure the app with some AWS credentials. The IAM user or role must have SNS Publish/Get/List perms to SNS topic `squyre-Alert`. See https://docs.splunk.com/Documentation/AddOns/released/AWS/Setuptheadd-on
 https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
 
 7. Create a Jira API key (https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)
@@ -57,9 +57,9 @@ https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-
 `<awesome detection logic> | stats values(src_ip) as src_ip by dest_user | eval Detection="A test alert" | strcat src_ip "," dest_user interesting`
 
 4. Add an 'AWS SNS Alert' action to your scheduled search (https://docs.splunk.com/Documentation/AddOns/released/AWS/ModularAlert), updating the 'Message' field of the action to `$result.interesting$`.
-5. Also fill out the Account and Region fields per the doco for the AWS Tech Add-on. The topic should be set to `squyre-Alert`.
+5. Also fill out the Account and Region fields per the AWS Tech Add-on documentation. The topic should be set to `squyre-Alert`.
 
-Next time this alert fires, the details will be sent to Squyre, which will create a Jira ticket for you, adding enrichment details for all extracted IP address to the same ticket as comments.
+Next time this alert fires, the details will be sent to Squyre, which will create a Jira ticket for you, adding enrichment details for all extracted IP addresses to the same ticket, in the form of comments.
 
 ## Getting Started - Pattern 2: OpsGenie Deployment
 1. Clone this repo.
@@ -83,8 +83,8 @@ sam deploy --guided
 It's easy to add enrichment functions, and more will be added over time. Feel free to PR and contribute!
 
 Currently supported:
-- Greynoise (https://www.greynoise.io/) : Tells security analysts what not to worry about. Indicator types: IP
-- IP API (https://ip-api.com/) : IP address geolocation information. Indicator types: IP
+- Greynoise (https://www.greynoise.io/) : Tells security analysts what not to worry about. (Indicator types: IP)
+- IP API (https://ip-api.com/) : IP address geolocation information. (Indicator types: IP)
 
 ## Developing
 
@@ -93,7 +93,7 @@ Currently supported:
 
 `squyre.Subject` - Any collection of data points which can be used for enrichment. At the time of writing, either an IP address or a domain name. `Subjects` are stored within `Alerts`.
 
-`squyre.Result`  - Stores Enrichment results, the subject used, and the source of the data. `Results` are also stored within `Alerts`.
+`squyre.Result`  - Stores enrichment results, the subject used, and the source of the data. `Results` are also stored within `Alerts`.
 
 ### Enrichment Functions
 An enrichment function is a Go lambda that takes a `squyre.Alert` as input (see `squyre.go`), performs some analysis, adds the results (as a slice of `squyre.Result` objects) to the Alert object, and returns a Json string representation of the updated Alert.
