@@ -35,27 +35,10 @@ Pattern 2 however, is a more scalable pattern. If you are already using Opsgenie
 1. Clone this repo.
 2. Install the AWS SAM CLI. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
 3. Update the consts at the top of `output/jira/main.go` with your destination Jira instance URL (`BaseURL`) and Project name (`Project`).
-4. With appropriate AWS credentials in your terminal session, build and deploy the stack.
+4. With appropriate AWS credentials in your terminal session, build and deploy the stack. Name the stack `sqyre`.
 ```
 sam build
 sam deploy --guided
-
-Configuring SAM deploy
-======================
-
-	Looking for config file [samconfig.toml] :  Not found
-
-	Setting default arguments for 'sam deploy'
-	=========================================
-	Stack Name [sam-app]: sqyre
-	AWS Region [ap-southeast-2]:
-	#Shows you resources changes to be deployed and require a 'Y' to initiate deploy
-	Confirm changes before deploy [y/N]:
-	#SAM needs permission to be able to create roles to connect to the resources in your template
-	Allow SAM CLI IAM role creation [Y/n]:
-	Save arguments to configuration file [Y/n]:
-	SAM configuration file [samconfig.toml]:
-	SAM configuration environment [default]:
 ```
 5. Over on Splunk, install the Splunk Add-on for AWS (https://splunkbase.splunk.com/app/1876/), to give you an SNS alert action. 
 6. Configure the app with some AWS creds. The IAM user or role must have SNS Publish/Get/List perms to SNS topic `squyre-Alert`. See https://docs.splunk.com/Documentation/AddOns/released/AWS/Setuptheadd-on
@@ -82,7 +65,7 @@ Next time this alert fires, the details will be sent to Squyre, which will creat
 1. Clone this repo.
 2. Install the AWS SAM CLI. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
 3. Edit `template.yaml` to use OpsGenie instead of Jira. In the `OutputFunction` definition, change the `CodeUri` value to `output/opsgenie`.
-4. With appropriate AWS credentials in your terminal session, build and deploy the stack.
+4. With appropriate AWS credentials in your terminal session, build and deploy the stack. Name the stack `sqyre`.
 ```
 sam build
 sam deploy --guided
