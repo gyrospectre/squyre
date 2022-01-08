@@ -50,7 +50,7 @@ func mockAddComment(client *jira.Client, ticket string, rawComment string) error
 	return nil
 }
 
-func makeTestAlerts(number int, prefix string, includeResults bool, sameId bool) ([]string, []string) {
+func makeTestAlerts(number int, prefix string, includeResults bool, sameID bool) ([]string, []string) {
 	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
@@ -68,7 +68,7 @@ func makeTestAlerts(number int, prefix string, includeResults bool, sameId bool)
 	var alerts []string
 	var alertlist []string
 	for i := 1; i <= number; i++ {
-		if sameId {
+		if sameID {
 			alert.ID = fmt.Sprintf("%s1", prefix)
 		} else {
 			alert.ID = fmt.Sprintf("%s%d", prefix, i)
