@@ -1,6 +1,6 @@
 # Squyre
 
-Easy alert enrichment for overworked security teams! Squyre will help you deal with threats more effectively but, unlike the ![historic role it was named after](https://media.giphy.com/media/l0MYylLtnC1ADCGys/giphy.gif), it's unlikely to scrub your armour.
+Easy alert enrichment for overworked security teams! Squyre will help you deal with threats more effectively but, unlike the ![historic role it was named after](https://en.wikipedia.org/wiki/Squire), it's unlikely to scrub your armour.
 
 
 ![ooh so rad](https://media.giphy.com/media/l0MYylLtnC1ADCGys/giphy.gif)
