@@ -91,27 +91,6 @@ func InitJiraClient() (*jira.Client, error) {
 	return jiraClient, nil
 }
 
-func combineResultsbyAlertID(raw []string) map[string]squyre.Alert {
-	resultsmap := make(map[string][]squyre.Result)
-	alerts := make(map[string]squyre.Alert)
-
-	for _, alertStr := range raw {
-		var alert squyre.Alert
-		json.Unmarshal([]byte(alertStr), &alert)
-		for _, result := range alert.Results {
-			resultsmap[alert.ID] = append(resultsmap[alert.ID], result)
-		}
-		alert.Results = nil
-		alerts[alert.ID] = alert
-	}
-	for id, results := range resultsmap {
-		temp := alerts[id]
-		temp.Results = results
-		alerts[id] = temp
-	}
-	return alerts
-}
-
 func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 	jiraClient, err := InitClient()
 	if err != nil {
@@ -119,7 +98,7 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 	}
 
 	// We have separate alerts by source, combine them first to prevent creating duplicate tickets
-	mergedAlerts := combineResultsbyAlertID(rawAlerts)
+	mergedAlerts := squyre.CombineResultsbyAlertID(rawAlerts)
 
 	// Process enrichment result list
 	var ticketnumber string

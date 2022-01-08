@@ -8,7 +8,6 @@ import (
 	"log"
 	"net"
 	"regexp"
-	"squyre"
 	"strings"
 	"time"
 
@@ -20,6 +19,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/aws/aws-sdk-go/service/sfn/sfniface"
+	"github.com/gyrospectre/squyre"
 )
 
 var (
@@ -37,13 +37,13 @@ const (
 	stackName           = "squyre"
 )
 
-// Stack abstracts AWS Cloudformation stacks
+// CloudformationStack abstracts AWS Cloudformation stacks
 type CloudformationStack struct {
 	Client    cloudformationiface.CloudFormationAPI
 	StackName string
 }
 
-func (s *Stack) getStackResourceArn(resourceName string) (string, error) {
+func (s *CloudformationStack) getStackResourceArn(resourceName string) (string, error) {
 	req := cloudformation.ListStackResourcesInput{
 		StackName: aws.String(s.StackName),
 	}

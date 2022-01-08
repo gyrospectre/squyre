@@ -39,7 +39,7 @@ func mockAddComment(client *OpsGenieClient, note *opsgenieNote, id string) error
 	return nil
 }
 
-func makeTestAlerts(number int, prefix string, includeResults bool) ([]string, []string) {
+func makeTestAlerts(number int, prefix string, includeResults bool, sameId bool) ([]string, []string) {
 	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
@@ -57,7 +57,11 @@ func makeTestAlerts(number int, prefix string, includeResults bool) ([]string, [
 	var alerts []string
 	var alertlist []string
 	for i := 1; i <= number; i++ {
-		alert.ID = fmt.Sprintf("%s%d", prefix, i)
+		if sameId {
+			alert.ID = fmt.Sprintf("%s%d", prefix, i)
+		} else {
+			alert.ID = fmt.Sprintf("%s%d", prefix, i)
+		}
 
 		alertlist = append(alertlist, alert.ID)
 		alertJSON, _ := json.Marshal(alert)
@@ -71,7 +75,7 @@ func makeTestAlerts(number int, prefix string, includeResults bool) ([]string, [
 func TestHandlerSuccess(t *testing.T) {
 	setup()
 
-	alerts, alertList := makeTestAlerts(5, "EXISTING-", true)
+	alerts, alertList := makeTestAlerts(5, "EXISTING-", true, false)
 	output, err := handleRequest(Ctx, alerts)
 
 	if err != nil {
@@ -89,7 +93,7 @@ func TestHandlerSuccess(t *testing.T) {
 func TestHandlerNoResults(t *testing.T) {
 	setup()
 
-	alerts, _ := makeTestAlerts(3, "EXISTING-", false)
+	alerts, _ := makeTestAlerts(3, "EXISTING-", false, false)
 
 	output, err := handleRequest(Ctx, alerts)
 
@@ -102,5 +106,26 @@ func TestHandlerNoResults(t *testing.T) {
 
 	if have != want {
 		t.Fatalf("unexpected output. \nHave: %s\nWant: %s", have, want)
+	}
+}
+
+func TestHandlerSameIds(t *testing.T) {
+	setup()
+
+	alerts, _ := makeTestAlerts(5, "EXISTING-", true, true)
+	output, err := handleRequest(Ctx, alerts)
+
+	var alertList []string
+	alertList = append(alertList, "CREATED-1")
+
+	if err != nil {
+		t.Fatalf("unexpected error %s", err)
+	}
+	have := string(output)
+
+	want := fmt.Sprintf("Success: 1 alerts processed. Created alerts: %s", alertList)
+
+	if have != want {
+		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)
 	}
 }

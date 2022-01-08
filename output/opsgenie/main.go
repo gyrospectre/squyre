@@ -9,10 +9,10 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"squyre"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/gyrospectre/squyre"
 )
 
 const (
@@ -99,11 +99,12 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 		panic(err)
 	}
 
+	// We have separate alerts by source, combine them first to prevent creating duplicate tickets
+	mergedAlerts := squyre.CombineResultsbyAlertID(rawAlerts)
+
 	var alerts []string
 	// Process enrichment result list
-	for _, alertStr := range rawAlerts {
-		var alert squyre.Alert
-		json.Unmarshal([]byte(alertStr), &alert)
+	for _, alert := range mergedAlerts {
 
 		if len(alert.Results) == 0 {
 			return "No results found to process", nil

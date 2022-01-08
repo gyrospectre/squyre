@@ -1,6 +1,8 @@
 package squyre
 
 import (
+	"encoding/json"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
@@ -116,4 +118,26 @@ func GetSecret(location string) (secretsmanager.GetSecretValueOutput, error) {
 	output, err := s.getValue()
 
 	return *output, err
+}
+
+// CombineResultsbyAlertID merges a slice of alerts for the same Id into one
+func CombineResultsbyAlertID(raw []string) map[string]Alert {
+	resultsmap := make(map[string][]Result)
+	alerts := make(map[string]Alert)
+
+	for _, alertStr := range raw {
+		var alert Alert
+		json.Unmarshal([]byte(alertStr), &alert)
+		for _, result := range alert.Results {
+			resultsmap[alert.ID] = append(resultsmap[alert.ID], result)
+		}
+		alert.Results = nil
+		alerts[alert.ID] = alert
+	}
+	for id, results := range resultsmap {
+		temp := alerts[id]
+		temp.Results = results
+		alerts[id] = temp
+	}
+	return alerts
 }
