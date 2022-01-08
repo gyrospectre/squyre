@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/gyrospectre/hellarad"
-	//"net/http"
+	"github.com/gyrospectre/squyre"
 	"testing"
 )
 
@@ -41,11 +40,11 @@ func mockAddComment(client *OpsGenieClient, note *opsgenieNote, id string) error
 }
 
 func makeTestAlerts(number int, prefix string, includeResults bool) ([]string, []string) {
-	alert := hellarad.Alert{
+	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
 	if includeResults {
-		alert.Results = []hellarad.Result{
+		alert.Results = []squyre.Result{
 			{
 				Source:         "Gyro",
 				AttributeValue: "127.0.0.1",

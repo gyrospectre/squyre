@@ -1,12 +1,13 @@
-package hellarad
+package squyre
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
 	"github.com/google/go-cmp/cmp"
-	"testing"
 )
 
 type mockedSecretValue struct {

@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Hella Rad!
+Description: Security alert enrichment!
 
 Globals:
   Function:
@@ -100,22 +100,22 @@ Resources:
                 Action:
                   - states:DescribeExecution
                 Resource:
-                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:hellarad-*'
+                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${AWS::StackName}-*'
               - Effect: Allow
                 Action:
                   - cloudformation:ListStackResources
                 Resource:
-                  - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/hellarad/*'
+                  - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*'
               - Effect: Allow
                 Action:
                   - states:StartExecution
                 Resource:
-                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stack/hellarad/*'
+                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*'
               - Effect: Allow
                 Action:
                   - states:StartExecution
                 Resource:
-                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:hellarad-*'
+                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${AWS::StackName}-*'
 
   OutputRole:
       Type: 'AWS::IAM::Role'

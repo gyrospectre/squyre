@@ -1,4 +1,4 @@
-package hellarad
+package squyre
 
 import (
 	"github.com/aws/aws-sdk-go/aws"

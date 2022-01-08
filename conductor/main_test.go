@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/aws/aws-sdk-go/service/sfn/sfniface"
-	"github.com/gyrospectre/hellarad"
+	"github.com/gyrospectre/squyre"
 	"testing"
 )
 
@@ -59,7 +59,7 @@ func (m mockedSfnValue) StartExecution(*sfn.StartExecutionInput) (*sfn.StartExec
 	return &sfnresp, nil
 }
 
-func mockSendAlert(alert hellarad.Alert, sfnName string) error {
+func mockSendAlert(alert squyre.Alert, sfnName string) error {
 	return nil
 }
 
@@ -114,12 +114,12 @@ func TestSendAlertSuccess(t *testing.T) {
 		},
 	}
 
-	HellaRadStack = Stack{
+	Stack = CloudformationStack{
 		Client:    mockedStackValue{Resp: resp},
 		StackName: "teststack",
 	}
 
-	alert := hellarad.Alert{
+	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
 	FunctionResult = "SUCCEEDED"
@@ -144,12 +144,12 @@ func TestSendAlertFailed(t *testing.T) {
 		},
 	}
 
-	HellaRadStack = Stack{
+	Stack = CloudformationStack{
 		Client:    mockedStackValue{Resp: resp},
 		StackName: "teststack",
 	}
 
-	alert := hellarad.Alert{
+	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
 	FunctionResult = "FAILED"
@@ -180,12 +180,12 @@ func TestSendAlertTimedOut(t *testing.T) {
 		},
 	}
 
-	HellaRadStack = Stack{
+	Stack = CloudformationStack{
 		Client:    mockedStackValue{Resp: resp},
 		StackName: "teststack",
 	}
 
-	alert := hellarad.Alert{
+	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
 	FunctionResult = "TIMED_OUT"

@@ -6,8 +6,7 @@ import (
 	"fmt"
 	"github.com/andygrunwald/go-jira"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/gyrospectre/hellarad"
-	//"net/http"
+	"github.com/gyrospectre/squyre"
 	"testing"
 )
 
@@ -41,7 +40,7 @@ func mockGetSecret(location string) (secretsmanager.GetSecretValueOutput, error)
 	}, nil
 }
 
-func mockCreateTicketForAlert(client *jira.Client, alert hellarad.Alert) (string, error) {
+func mockCreateTicketForAlert(client *jira.Client, alert squyre.Alert) (string, error) {
 	ticketnumber := fmt.Sprintf("CREATED-%d", MockTicket)
 	MockTicket = MockTicket + 1
 	return ticketnumber, nil
@@ -52,11 +51,11 @@ func mockAddComment(client *jira.Client, ticket string, rawComment string) error
 }
 
 func makeTestAlerts(number int, prefix string, includeResults bool) ([]string, []string) {
-	alert := hellarad.Alert{
+	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
 	if includeResults {
-		alert.Results = []hellarad.Result{
+		alert.Results = []squyre.Result{
 			{
 				Source:         "Gyro",
 				AttributeValue: "127.0.0.1",

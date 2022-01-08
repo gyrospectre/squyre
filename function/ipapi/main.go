@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/gyrospectre/hellarad"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/gyrospectre/squyre"
 )
 
 const (
@@ -47,14 +48,14 @@ func init() {
 	Client = &http.Client{}
 }
 
-func handleRequest(ctx context.Context, alert hellarad.Alert) (string, error) {
+func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	log.Printf("Starting %s run for alert %s", provider, alert.ID)
 
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
 
 		// Build a result object to hold our goodies
-		var result = hellarad.Result{
+		var result = squyre.Result{
 			Source:         provider,
 			AttributeValue: subject.IP,
 			Success:        false,

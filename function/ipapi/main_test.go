@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/google/go-cmp/cmp"
-	"github.com/gyrospectre/hellarad"
+	"github.com/gyrospectre/squyre"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -49,14 +49,14 @@ func TestHandlerSuccess(t *testing.T) {
 		}, nil
 	}
 
-	alert := hellarad.Alert{
+	alert := squyre.Alert{
 		RawMessage: "Testing",
 		ID:         "1234-1234",
 		Name:       "Test Search",
 		URL:        "https://127.0.0.1/test.html",
 		Timestamp:  "2022-12-12 18:00:00",
 	}
-	alert.Subjects = []hellarad.Subject{
+	alert.Subjects = []squyre.Subject{
 		{
 			IP: "8.8.8.8",
 		},
@@ -69,18 +69,18 @@ func TestHandlerSuccess(t *testing.T) {
 	}
 
 	prettyresponse, _ := json.MarshalIndent(ipapiResp, "", "    ")
-	expected, _ := json.Marshal(hellarad.Alert{
+	expected, _ := json.Marshal(squyre.Alert{
 		RawMessage: "Testing",
 		ID:         "1234-1234",
 		Name:       "Test Search",
 		URL:        "https://127.0.0.1/test.html",
 		Timestamp:  "2022-12-12 18:00:00",
-		Subjects: []hellarad.Subject{
+		Subjects: []squyre.Subject{
 			{
 				IP: "8.8.8.8",
 			},
 		},
-		Results: []hellarad.Result{
+		Results: []squyre.Result{
 			{
 				Source:         "IP API",
 				AttributeValue: "8.8.8.8",
@@ -101,8 +101,8 @@ func TestHandlerError(t *testing.T) {
 		return nil, errors.New("Greynoise failed")
 	}
 
-	alert := hellarad.Alert{}
-	alert.Subjects = []hellarad.Subject{
+	alert := squyre.Alert{}
+	alert.Subjects = []squyre.Subject{
 		{
 			IP: "8.8.8.8",
 		},

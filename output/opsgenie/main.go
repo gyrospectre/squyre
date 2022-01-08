@@ -6,12 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/gyrospectre/hellarad"
 	"io"
 	"log"
 	"net/http"
+	"squyre"
 	"strings"
+
+	"github.com/aws/aws-lambda-go/lambda"
 )
 
 const (
@@ -57,7 +58,7 @@ func (opsgenie *OpsGenieClient) Post(url, contentType string, body io.Reader) (r
 // InitOpsgenieClient initialises an Opsgenie client using credentials from AWS Secrets Manager
 func InitOpsgenieClient() (*OpsGenieClient, error) {
 	// Fetch API key from Secrets Manager
-	smresponse, err := hellarad.GetSecret(secretLocation)
+	smresponse, err := squyre.GetSecret(secretLocation)
 	if err != nil {
 		log.Fatalf("Failed to fetch OpsGenie secret: %s", err)
 	}
@@ -101,7 +102,7 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 	var alerts []string
 	// Process enrichment result list
 	for _, alertStr := range rawAlerts {
-		var alert hellarad.Alert
+		var alert squyre.Alert
 		json.Unmarshal([]byte(alertStr), &alert)
 
 		if len(alert.Results) == 0 {
@@ -114,7 +115,7 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 			// Only send the output of successful enrichments
 			if result.Success {
 				note := &opsgenieNote{
-					User:   "Hella Rad!",
+					User:   "Squyre",
 					Source: result.Source,
 					Note:   fmt.Sprintf("Additional information on %s from %s:\n\n%s", result.AttributeValue, result.Source, result.Message),
 				}

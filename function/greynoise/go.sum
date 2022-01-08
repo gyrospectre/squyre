@@ -13,10 +13,6 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/google/go-cmp v0.5.6 h1:BKbKCqvP6I+rmFHt06ZmyQtvB8xAkWdhFyr0ZUNZcxQ=
 github.com/google/go-cmp v0.5.6/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
-github.com/gyrospectre/hellarad v0.0.0-20220102014826-5712fb19f727 h1:f6vARv1f3KrjSTGM8j0q65c0czAxUr44LLMZ7eNp1Lk=
-github.com/gyrospectre/hellarad v0.0.0-20220102014826-5712fb19f727/go.mod h1:492Aast2CjY3UnaN5gHt9qFCG15IrrTrF1JZ8ik6qnw=
-github.com/gyrospectre/hellarad v0.0.0-20220105002248-bb8eed7ec294 h1:x9ttSF4ybdKWUvN885R8UFJUh7LIP907q9APftbwEW4=
-github.com/gyrospectre/hellarad v0.0.0-20220105002248-bb8eed7ec294/go.mod h1:7BFUyGPGpTVdI4xqIpLJFe3frJZHvOAsGhpPZBCs/y0=
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=

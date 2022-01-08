@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+
 	"github.com/andygrunwald/go-jira"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/gyrospectre/hellarad"
-	"log"
+	"github.com/gyrospectre/squyre"
 )
 
 const (
@@ -34,7 +35,7 @@ type apiKeySecret struct {
 }
 
 // CreateJiraIssueForAlert creates a Jira issue with details of the supplied alert object
-func CreateJiraIssueForAlert(client *jira.Client, alert hellarad.Alert) (string, error) {
+func CreateJiraIssueForAlert(client *jira.Client, alert squyre.Alert) (string, error) {
 	i := jira.Issue{
 		Fields: &jira.IssueFields{
 			Description: fmt.Sprintf("For full details: %s", alert.URL),
@@ -68,7 +69,7 @@ func AddJiraComment(client *jira.Client, ticket string, rawComment string) error
 // InitJiraClient initialises a Jira client using credentials from AWS Secrets Manager
 func InitJiraClient() (*jira.Client, error) {
 	// Fetch API key from Secrets Manager
-	smresponse, err := hellarad.GetSecret(secretLocation)
+	smresponse, err := squyre.GetSecret(secretLocation)
 	if err != nil {
 		log.Fatalf("Failed to fetch Jira secret: %s", err)
 	}
@@ -90,12 +91,12 @@ func InitJiraClient() (*jira.Client, error) {
 	return jiraClient, nil
 }
 
-func combineResultsbyAlertID(raw []string) map[string]hellarad.Alert {
-	resultsmap := make(map[string][]hellarad.Result)
-	alerts := make(map[string]hellarad.Alert)
+func combineResultsbyAlertID(raw []string) map[string]squyre.Alert {
+	resultsmap := make(map[string][]squyre.Result)
+	alerts := make(map[string]squyre.Alert)
 
 	for _, alertStr := range raw {
-		var alert hellarad.Alert
+		var alert squyre.Alert
 		json.Unmarshal([]byte(alertStr), &alert)
 		for _, result := range alert.Results {
 			resultsmap[alert.ID] = append(resultsmap[alert.ID], result)

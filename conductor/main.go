@@ -5,6 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"net"
+	"regexp"
+	"squyre"
+	"strings"
+	"time"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
@@ -13,18 +20,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/aws/aws-sdk-go/service/sfn/sfniface"
-	"github.com/gyrospectre/hellarad"
-	"log"
-	"net"
-	"regexp"
-	"strings"
-	"time"
 )
 
 var (
 	privateBlocks []*net.IPNet
-	// HellaRadStack defines the main stack in use
-	HellaRadStack Stack
+	// Stack defines the main stack in use
+	Stack CloudformationStack
 	// SendAlert abstracts the sendAlertToSfn function to allow for testing
 	SendAlert = sendAlertToSfn
 	// BuildDestination abstracts the BuildStateMachine function to allow for testing
@@ -33,10 +34,11 @@ var (
 
 const (
 	stepFunctionTimeout = 15
+	stackName           = "squyre"
 )
 
 // Stack abstracts AWS Cloudformation stacks
-type Stack struct {
+type CloudformationStack struct {
 	Client    cloudformationiface.CloudFormationAPI
 	StackName string
 }
@@ -137,9 +139,9 @@ func setupIPBlocks() {
 func init() {
 	sess := session.Must(session.NewSession())
 
-	HellaRadStack = Stack{
+	Stack = CloudformationStack{
 		Client:    cloudformation.New(sess),
-		StackName: "hellarad",
+		StackName: stackName,
 	}
 }
 
@@ -166,8 +168,8 @@ func removeDuplicateStr(strSlice []string) []string {
 	return list
 }
 
-func extractIPs(details string) []hellarad.Subject {
-	var subjectList []hellarad.Subject
+func extractIPs(details string) []squyre.Subject {
+	var subjectList []squyre.Subject
 	re := regexp.MustCompile(`(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}`)
 	submatchall := re.FindAllString(details, -1)
 
@@ -178,7 +180,7 @@ func extractIPs(details string) []hellarad.Subject {
 	submatchall = removeDuplicateStr(submatchall)
 
 	for _, address := range submatchall {
-		var subject = hellarad.Subject{
+		var subject = squyre.Subject{
 			IP: address,
 		}
 
@@ -190,15 +192,15 @@ func extractIPs(details string) []hellarad.Subject {
 	return subjectList
 }
 
-func convertSplunkAlert(alertBody string) hellarad.Alert {
-	var messageObject hellarad.SplunkAlert
+func convertSplunkAlert(alertBody string) squyre.Alert {
+	var messageObject squyre.SplunkAlert
 	json.Unmarshal([]byte(alertBody), &messageObject)
 
 	return messageObject.Normaliser()
 }
 
-func convertOpsGenieAlert(alertBody string) hellarad.Alert {
-	var messageObject hellarad.OpsGenieAlert
+func convertOpsGenieAlert(alertBody string) squyre.Alert {
+	var messageObject squyre.OpsGenieAlert
 	json.Unmarshal([]byte(alertBody), &messageObject)
 
 	return messageObject.Normaliser()
@@ -214,12 +216,12 @@ func BuildStateMachine(arn string) StateMachine {
 		FunctionArn: arn,
 	}
 }
-func sendAlertToSfn(alert hellarad.Alert, sfnName string) error {
+func sendAlertToSfn(alert squyre.Alert, sfnName string) error {
 	// Convert alert to a Json string ready to pass to our AWS Step Function
 	alertJSON, _ := json.Marshal(alert)
 
 	// Find the Arn of the required step function
-	sfnArn, err := HellaRadStack.getStackResourceArn(sfnName)
+	sfnArn, err := Stack.getStackResourceArn(sfnName)
 	if err != nil {
 		return err
 	}
@@ -241,7 +243,7 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 	}
 	for _, record := range snsEvent.Records {
 		snsRecord := record.SNS
-		var alert hellarad.Alert
+		var alert squyre.Alert
 		log.Printf("Processing message %s\n", snsRecord.MessageID)
 
 		if strings.Contains(snsRecord.Message, "search_name") {

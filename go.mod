@@ -1,4 +1,4 @@
-module github.com/gyrospectre/hellarad
+module squyre
 
 go 1.16
 
