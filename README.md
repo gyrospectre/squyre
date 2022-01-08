@@ -1,10 +1,10 @@
 # Squyre
 
-Easy alert enrichment for overworked security teams! Squyre will help you deal with threats more effectively but, unlike the [historic role it was named after](https://en.wikipedia.org/wiki/Squire), it's has a rad 'y' instead of an 'i' and is unlikely to scrub your armour.
+Easy alert enrichment for overworked security teams! Squyre will help you deal with threats more effectively but, unlike the [historic role it was named after](https://en.wikipedia.org/wiki/Squire), it has a rad 'y' instead of an 'i' and is unlikely to scrub your armour.
 
 ![ooh so rad](https://media.giphy.com/media/l0MYylLtnC1ADCGys/giphy.gif)
 
-Designed to be modular and extensible, it will consume your alerts, enrich them with information that helps you triage quicker, and then feed the juicy results back into your alert pipeline (or ticketing system).
+Designed to be modular and extensible, it will consume your alerts, enrich them with information that helps with triage, and then feed the juicy results back into your alert pipeline (or ticketing system).
 
 The only pre-requisite is that you must have an AWS account to host Squyre - it runs solely in AWS using serverless services (lambdas and step functions).
 
