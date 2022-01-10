@@ -78,21 +78,21 @@ type OpsGenieAlert struct {
 		AlertID   string `json:"alertId"`
 		Message   string `json:"message"`
 		CreatedAt string `json:"createdAt"`
+		Details   struct {
+			ResultsLink   string `json:"Results Link"`
+			ResultsObject string `json:"Results Object"`
+		} `json:"details"`
 	} `json:"alert"`
-	Details struct {
-		ResultsLink   string `json:"Results Link"`
-		ResultsObject string `json:"Results Object"`
-	} `json:"details"`
 }
 
 // Normaliser comverts an OpsGenie alert to our standard form
 func (alert OpsGenieAlert) Normaliser() Alert {
 	return Alert{
-		RawMessage: alert.Details.ResultsObject,
+		RawMessage: alert.Alert.Details.ResultsObject,
 		ID:         alert.Alert.AlertID,
 		Name:       alert.Alert.Message,
 		Timestamp:  alert.Alert.CreatedAt,
-		URL:        alert.Details.ResultsLink,
+		URL:        alert.Alert.Details.ResultsLink,
 	}
 }
 
