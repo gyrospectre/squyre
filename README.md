@@ -12,7 +12,7 @@ Currently, we support Splunk or OpsGenie as alert sources, and Jira or OpsGenie 
 
 ## How can I use this?
 
-As an example, let's say that your security team uses Splunk for alerting and investigation, and Atlassian Jira for ticketing. By using the SNS alert action in the free Splunk Add-on for AWS, you can set your alerts to send to Squyre, which will take the results you define as interesting, extract any public IP addresses from them, and then run them through a bunch of services to get information about then. Squyre will then create a Jira ticket for your alert, and add this information as comments.
+As an example, let's say that your security team uses Splunk for alerting and investigation, and Atlassian Jira for ticketing. By using the SNS alert action in the free Splunk Add-on for AWS, you can set your alerts to send to Squyre, which will take the results you define as interesting, extract any public IP addresses from them, and then run them through a bunch of services to get information about them. Squyre will then create a Jira ticket for your alert, and add this information as comments.
 
 Woot. Enjoy all that sweet, sweet extra time back in your day.
 
@@ -65,6 +65,24 @@ Next time this alert fires, the details will be sent to Squyre, which will creat
 1. Clone this repo.
 2. Install the AWS SAM CLI. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
 3. Edit `template.yaml` to use OpsGenie instead of Jira. In the `OutputFunction` definition, change the `CodeUri` value to `output/opsgenie`.
+4. While you're at it, add a second snippet to `template.yaml`, to allow Opsgenie to send to the SNS topic.
+```
+  AlertTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Id: AlertTopicPolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: OpsGenie-Publish
+            Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::089311581210:root
+            Action: sns:Publish
+            Resource: "*"
+      Topics:
+        - !Ref AlertTopic
+```
 4. With appropriate AWS credentials in your terminal session, build and deploy the stack. Name the stack `sqyre`.
 ```
 sam build
@@ -120,8 +138,14 @@ make test
 Integration tests (requires AWS credentials in session, live calls)
 ```
 make build
+# Test enrichment functions
 sam local invoke IPAPIFunction --event event/alert.json
 sam local invoke GreynoiseFunction --event event/alert.json
-sam local invoke ConductorFunction --event event/sns.json 
-sam local invoke OutputFunction --event event/output.json 
+
+# Test Conductor from both potential sources of the SNS
+sam local invoke ConductorFunction --event event/sns_from_splunk.json
+sam local invoke ConductorFunction --event event/sns_from_opsgenie.json
+
+# Test whichever output function you're using (either Jira or Opsgenie)
+sam local invoke OutputFunction --event event/output.json
 ```

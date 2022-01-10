@@ -51,7 +51,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${AWS::StackName}-Output'
-      CodeUri: output/jira
+      CodeUri: output/opsgenie
       Handler: jira
       Runtime: go1.x
       Role: !GetAtt OutputRole.Arn

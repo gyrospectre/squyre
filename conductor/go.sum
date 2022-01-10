@@ -15,6 +15,8 @@ github.com/gyrospectre/squyre v0.0.0-20220108021322-a2347621a016 h1:sN0Yo3gm1mLQ
 github.com/gyrospectre/squyre v0.0.0-20220108021322-a2347621a016/go.mod h1:ta4zgWwwTTnu7AMwiCxOpIKn3uzprWLVL/nuN63Jd8Y=
 github.com/gyrospectre/squyre v0.0.0-20220108031545-ae8121c0f6d6 h1:cQgA5LR9hxDbCjpjyslavj5oDWPGgeJd/d5XqTNYw5Y=
 github.com/gyrospectre/squyre v0.0.0-20220108031545-ae8121c0f6d6/go.mod h1:zUosYk7FoBBTsRrXh0Rr/taLrvPt1GBfp8D62yREwXA=
+github.com/gyrospectre/squyre v0.0.0-20220110051018-09783cd6d0ad h1:DHmzH2vx6+dzSeSvBIFwMG2FURGQUOHijFnLANPpp/c=
+github.com/gyrospectre/squyre v0.0.0-20220110051018-09783cd6d0ad/go.mod h1:zUosYk7FoBBTsRrXh0Rr/taLrvPt1GBfp8D62yREwXA=
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=
