@@ -249,9 +249,11 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		if strings.Contains(snsRecord.Message, "search_name") {
 			log.Println("Auto detected Splunk alert")
 			alert = convertSplunkAlert(snsRecord.Message)
-		} else {
+		} else if strings.Contains(snsRecord.Message, "integrationName") {
 			log.Println("Auto detected OpsGenie alert")
 			alert = convertOpsGenieAlert(snsRecord.Message)
+		} else {
+			return "", errors.New("Could not determine alert type")
 		}
 		alert.Subjects = extractIPs(alert.RawMessage)
 		if len(alert.Subjects) == 0 {

@@ -72,11 +72,12 @@ func TestNormaliseOGAlert(t *testing.T) {
 	opsgenie.Alert.AlertID = "1234-1234"
 	opsgenie.Alert.Message = "Testing"
 	opsgenie.Alert.CreatedAt = "2022-12-12 18:00:00"
+	opsgenie.Details.ResultsObject = "{ 8.8.8.8 }"
 
 	expected, _ := json.Marshal(Alert{
-		RawMessage: "Testing",
+		RawMessage: "{ 8.8.8.8 }",
 		ID:         "1234-1234",
-		Name:       "1234-1234",
+		Name:       "Testing",
 		Timestamp:  "2022-12-12 18:00:00",
 	})
 	output, _ := json.Marshal(opsgenie.Normaliser())
