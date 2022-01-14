@@ -58,7 +58,8 @@ func TestHandlerSuccess(t *testing.T) {
 	}
 	alert.Subjects = []squyre.Subject{
 		{
-			IP: "8.8.8.8",
+			Type:  "ipv4",
+			Value: "8.8.8.8",
 		},
 	}
 	var ctx context.Context
@@ -77,7 +78,8 @@ func TestHandlerSuccess(t *testing.T) {
 		Timestamp:  "2022-12-12 18:00:00",
 		Subjects: []squyre.Subject{
 			{
-				IP: "8.8.8.8",
+				Type:  "ipv4",
+				Value: "8.8.8.8",
 			},
 		},
 		Results: []squyre.Result{
@@ -104,7 +106,8 @@ func TestHandlerError(t *testing.T) {
 	alert := squyre.Alert{}
 	alert.Subjects = []squyre.Subject{
 		{
-			IP: "8.8.8.8",
+			Type:  "ipv4",
+			Value: "8.8.8.8",
 		},
 	}
 	var ctx context.Context

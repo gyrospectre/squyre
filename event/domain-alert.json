@@ -6,8 +6,8 @@
     "Id": "d37dd17e-8886-4add-85c1-38f6cfeb0aa3-1641081155358",
     "Subjects": [
       {
-        "domain": "google.com",
-        "address": ""
+        "Type": "domain",
+        "Value": "google.com"
       }
     ],
     "Results": null

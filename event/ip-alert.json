@@ -6,8 +6,8 @@
     "Id": "d37dd17e-8886-4add-85c1-38f6cfeb0aa3-1641081155358",
     "Subjects": [
       {
-        "domain": "",
-        "address": "202.92.65.254"
+        "Type": "ipv4",
+        "Value": "202.92.65.254"
       }
     ],
     "Results": null
