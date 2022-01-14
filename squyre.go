@@ -11,8 +11,8 @@ import (
 
 // Subject defines attributes about a thing that we want to know about
 type Subject struct {
-	Domain string
-	IP     string
+	Type  string // ipv4, domain, sha256 or hostname
+	Value string
 }
 
 // Result holds enrichment results, and where they came from

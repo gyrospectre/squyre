@@ -181,7 +181,8 @@ func extractIPs(details string) []squyre.Subject {
 
 	for _, address := range submatchall {
 		var subject = squyre.Subject{
-			IP: address,
+			Type:  "ipv4",
+			Value: address,
 		}
 
 		// Ignore private IP addresses
