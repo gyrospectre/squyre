@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	provider = "IP API"
-	baseURL  = "http://ip-api.com/json"
+	provider       = "IP API"
+	baseURL        = "http://ip-api.com/json"
+	supportsIP     = true
+	supportsDomain = false
 )
 
 var (
@@ -23,6 +25,10 @@ var (
 	Client         HTTPClient
 	responseObject ipapiResponse
 )
+
+func init() {
+	Client = &http.Client{}
+}
 
 // HTTPClient interface
 type HTTPClient interface {
@@ -44,8 +50,15 @@ type ipapiResponse struct {
 	ASN         string `json:"as"`
 }
 
-func init() {
-	Client = &http.Client{}
+func isSupported(sub squyre.Subject) bool {
+	supported := false
+	if sub.IP != "" && supportsIP {
+		supported = true
+	}
+	if sub.Domain != "" && supportsDomain {
+		supported = true
+	}
+	return supported
 }
 
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
@@ -53,38 +66,42 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
+		if isSupported(subject) {
 
-		// Build a result object to hold our goodies
-		var result = squyre.Result{
-			Source:         provider,
-			AttributeValue: subject.IP,
-			Success:        false,
-		}
+			// Build a result object to hold our goodies
+			var result = squyre.Result{
+				Source:         provider,
+				AttributeValue: subject.IP,
+				Success:        false,
+			}
 
-		request, _ := http.NewRequest("GET", fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.IP), nil)
-		response, err := Client.Do(request)
+			request, _ := http.NewRequest("GET", fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.IP), nil)
+			response, err := Client.Do(request)
 
-		if err != nil {
-			log.Printf("Failed to fetch data from %s", provider)
-			return "Error fetching data from API!", err
-		}
-		responseData, err := ioutil.ReadAll(response.Body)
+			if err != nil {
+				log.Printf("Failed to fetch data from %s", provider)
+				return "Error fetching data from API!", err
+			}
+			responseData, err := ioutil.ReadAll(response.Body)
 
-		if err == nil {
-			log.Printf("Received %s response for %s", provider, subject.IP)
+			if err == nil {
+				log.Printf("Received %s response for %s", provider, subject.IP)
 
-			json.Unmarshal(responseData, &responseObject)
-			prettyresponse, _ := json.MarshalIndent(responseObject, "", "    ")
+				json.Unmarshal(responseData, &responseObject)
+				prettyresponse, _ := json.MarshalIndent(responseObject, "", "    ")
 
-			result.Success = true
-			result.Message = string(prettyresponse)
+				result.Success = true
+				result.Message = string(prettyresponse)
+			} else {
+				log.Printf("Unexpected response from %s for %s", provider, subject.IP)
+				return "Error decoding response from API!", err
+			}
+			// Add the enriched details back to the results
+			alert.Results = append(alert.Results, result)
+			log.Printf("Added %s to result set", subject.IP)
 		} else {
-			log.Printf("Unexpected response from %s for %s", provider, subject.IP)
-			return "Error decoding response from API!", err
+			log.Printf("Subject not supported by this provider. Skipping.")
 		}
-		// Add the enriched details back to the results
-		alert.Results = append(alert.Results, result)
-		log.Printf("Added %s to result set", subject.IP)
 	}
 	log.Printf("Successfully ran %s. Yielded %d results for %d subjects.", provider, len(alert.Results), len(alert.Subjects))
 

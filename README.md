@@ -139,8 +139,8 @@ Integration tests (requires AWS credentials in session, live calls)
 ```
 make build
 # Test enrichment functions
-sam local invoke IPAPIFunction --event event/alert.json
-sam local invoke GreynoiseFunction --event event/alert.json
+sam local invoke IPAPIFunction --event event/ip-domain-alert.json
+sam local invoke GreynoiseFunction --event event/ip-domain-alert.json
 
 # Test Conductor from both potential sources of the SNS
 sam local invoke ConductorFunction --event event/sns_from_splunk.json

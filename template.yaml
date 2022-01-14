@@ -110,11 +110,6 @@ Resources:
                 Action:
                   - states:StartExecution
                 Resource:
-                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*'
-              - Effect: Allow
-                Action:
-                  - states:StartExecution
-                Resource:
                   - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${AWS::StackName}-*'
 
   OutputRole:

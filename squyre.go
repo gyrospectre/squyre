@@ -11,8 +11,8 @@ import (
 
 // Subject defines attributes about a thing that we want to know about
 type Subject struct {
-	Domain string `json:"domain"`
-	IP     string `json:"address"`
+	Domain string
+	IP     string
 }
 
 // Result holds enrichment results, and where they came from
