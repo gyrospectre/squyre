@@ -1,0 +1,30 @@
+{
+    "Timestamp": "",
+    "Name": "Test Alert",
+    "RawMessage": "127.0.0.1 172.17.0.1 202.92.65.254,_audit",
+    "Url": "http://127.0.0.1:8000/app/search/@go?sid=scheduler_blah",
+    "Id": "d37dd17e-8886-4add-85c1-38f6cfeb0aa3-1641081155358",
+    "Subjects": [
+      {
+        "Type": "ipv4",
+        "Value": "45.77.251.118"
+      },
+      {
+        "Type": "domain",
+        "Value": "guiadenegocioss.com"
+      },
+      {
+        "Type": "hostname",
+        "Value": "A-hostname"
+      },
+      {
+        "Type": "sha256",
+        "Value": "ee6703b5a3b8a9af292f6dac4edcc36ec050e045c4e9445498a888f6ef637ba9"
+      },
+      {
+        "Type": "hostname",
+        "Value": "ATH-C02YR0PTLVDN"
+      }
+    ],
+    "Results": null
+}

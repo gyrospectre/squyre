@@ -2,11 +2,6 @@ package squyre
 
 import (
 	"encoding/json"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
 )
 
 // Subject defines attributes about a thing that we want to know about
@@ -32,6 +27,7 @@ type Alert struct {
 	ID         string
 	Subjects   []Subject
 	Results    []Result
+	Scope      string
 }
 
 // Alerter defines common functions for all alert types
@@ -94,35 +90,6 @@ func (alert OpsGenieAlert) Normaliser() Alert {
 		Timestamp:  alert.Alert.CreatedAt,
 		URL:        alert.Alert.Details.ResultsLink,
 	}
-}
-
-// Secret abstracts AWS Secrets Manager secrets
-type Secret struct {
-	Client   secretsmanageriface.SecretsManagerAPI
-	SecretID string
-}
-
-func (s *Secret) getValue() (*secretsmanager.GetSecretValueOutput, error) {
-
-	input := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(s.SecretID),
-	}
-	output, err := s.Client.GetSecretValue(input)
-
-	return output, err
-}
-
-// GetSecret fetches a secret value from AWS Secrets Manager given a secret location
-func GetSecret(location string) (secretsmanager.GetSecretValueOutput, error) {
-	sess := session.Must(session.NewSession())
-
-	s := Secret{
-		Client:   secretsmanager.New(sess),
-		SecretID: location,
-	}
-	output, err := s.getValue()
-
-	return *output, err
 }
 
 // CombineResultsbyAlertID merges a slice of alerts for the same Id into one
