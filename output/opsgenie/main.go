@@ -94,7 +94,7 @@ func AddNoteToAlert(client *OpsGenieClient, note *opsgenieNote, id string) error
 	return nil
 }
 
-func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
+func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 	client, err := InitClient()
 	if err != nil {
 		panic(err)

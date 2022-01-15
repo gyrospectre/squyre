@@ -93,11 +93,16 @@ func (alert OpsGenieAlert) Normaliser() Alert {
 }
 
 // CombineResultsbyAlertID merges a slice of alerts for the same Id into one
-func CombineResultsbyAlertID(raw []string) map[string]Alert {
+func CombineResultsbyAlertID(raw [][]string) map[string]Alert {
 	resultsmap := make(map[string][]Result)
 	alerts := make(map[string]Alert)
 
-	for _, alertStr := range raw {
+	mergedGroups := []string{}
+	for _, group := range raw {
+		mergedGroups = append(mergedGroups, group...)
+	}
+
+	for _, alertStr := range mergedGroups {
 		var alert Alert
 		json.Unmarshal([]byte(alertStr), &alert)
 		for _, result := range alert.Results {
