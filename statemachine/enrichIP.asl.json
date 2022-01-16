@@ -1,31 +1,60 @@
 {
-  "Comment": "Performs lookups on a given IP address",
-  "StartAt": "Parallel",
+  "Comment": "Performs lookups on a given subjects",
+  "StartAt": "Enrich",
   "States": {
-    "Parallel": {
+    "Enrich": {
       "Type": "Parallel",
+      "Next": "Output Results",
       "Branches": [
         {
-          "StartAt": "Lookup Greynoise",
+          "StartAt": "Domains to process?",
           "States": {
-            "Lookup Greynoise": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::lambda:invoke",
-              "OutputPath": "$.Payload",
-              "Parameters": {
-                "FunctionName": "${GreynoiseFunctionArn}",
-                "Payload.$": "$"
-              },
-              "Retry": [
+            "Domains to process?": {
+              "Type": "Choice",
+              "Choices": [
                 {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException"
-                  ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
+                  "Variable": "$.Scope",
+                  "StringMatches": "*domain*",
+                  "Next": "Enrich by Domain"
+                }
+              ],
+              "Default": "Don't process domains",
+              "Comment": "Only run domain functions if we have domains to process."
+            },
+            "Don't process domains": {
+              "Type": "Pass",
+              "End": true,
+              "Result": []
+            },
+            "Enrich by Domain": {
+              "Type": "Parallel",
+              "Branches": [
+                {
+                  "StartAt": "CrowdStrike Falcon - Domain",
+                  "States": {
+                    "CrowdStrike Falcon - Domain": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "OutputPath": "$.Payload",
+                      "Parameters": {
+                        "Payload.$": "$",
+                        "FunctionName": "${CrowdStrikeFalconFunctionArn}"
+                      },
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException"
+                          ],
+                          "IntervalSeconds": 2,
+                          "MaxAttempts": 6,
+                          "BackoffRate": 2
+                        }
+                      ],
+                      "End": true
+                    }
+                  }
                 }
               ],
               "End": true
@@ -33,34 +62,88 @@
           }
         },
         {
-          "StartAt": "Lookup IP API",
+          "StartAt": "IPv4s to process?",
           "States": {
-            "Lookup IP API": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::lambda:invoke",
-              "OutputPath": "$.Payload",
-              "Parameters": {
-                "FunctionName": "${IPAPIFunctionArn}",
-                "Payload.$": "$"
-              },
-              "Retry": [
+            "IPv4s to process?": {
+              "Type": "Choice",
+              "Choices": [
                 {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException"
-                  ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
+                  "Variable": "$.Scope",
+                  "StringMatches": "*ipv4*",
+                  "Next": "Enrich by IPv4"
+                }
+              ],
+              "Default": "Don't process IPv4s",
+              "Comment": "Only run ipv4 functions if we have IPv4s to process."
+            },
+            "Don't process IPv4s": {
+              "Type": "Pass",
+              "End": true,
+              "Result": []
+            },
+            "Enrich by IPv4": {
+              "Type": "Parallel",
+              "Branches": [
+                {
+                  "StartAt": "Greynoise - IPv4",
+                  "States": {
+                    "Greynoise - IPv4": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "OutputPath": "$.Payload",
+                      "Parameters": {
+                        "FunctionName": "${GreynoiseFunctionArn}",
+                        "Payload.$": "$"
+                      },
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException"
+                          ],
+                          "IntervalSeconds": 2,
+                          "MaxAttempts": 6,
+                          "BackoffRate": 2
+                        }
+                      ],
+                      "End": true
+                    }
+                  }
+                },
+                {
+                  "StartAt": "IP API - IPv4",
+                  "States": {
+                    "IP API - IPv4": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "OutputPath": "$.Payload",
+                      "Parameters": {
+                        "FunctionName": "${IPAPIFunctionArn}",
+                        "Payload.$": "$"
+                      },
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException"
+                          ],
+                          "IntervalSeconds": 2,
+                          "MaxAttempts": 6,
+                          "BackoffRate": 2
+                        }
+                      ],
+                      "End": true
+                    }
+                  }
                 }
               ],
               "End": true
             }
           }
         }
-      ],
-      "Next": "Output Results"
+      ]
     },
     "Output Results": {
       "Type": "Task",

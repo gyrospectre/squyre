@@ -7,6 +7,7 @@ import (
 	"github.com/andygrunwald/go-jira"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/gyrospectre/squyre"
+	"sort"
 	"testing"
 )
 
@@ -50,7 +51,7 @@ func mockAddComment(client *jira.Client, ticket string, rawComment string) error
 	return nil
 }
 
-func makeTestAlerts(number int, prefix string, includeResults bool, sameID bool) ([]string, []string) {
+func makeTestAlerts(number int, groups int, prefix string, includeResults bool, sameID bool) ([][]string, []string) {
 	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
@@ -65,40 +66,47 @@ func makeTestAlerts(number int, prefix string, includeResults bool, sameID bool)
 		}
 	}
 
+	var grouplist [][]string
 	var alerts []string
 	var alertlist []string
-	for i := 1; i <= number; i++ {
-		if sameID {
-			alert.ID = fmt.Sprintf("%s1", prefix)
-		} else {
-			alert.ID = fmt.Sprintf("%s%d", prefix, i)
+	for j := 0; j < groups; j++ {
+		for i := 1; i <= number; i++ {
+			if sameID {
+				alert.ID = fmt.Sprintf("%s1", prefix)
+			} else {
+				alert.ID = fmt.Sprintf("%s%d", prefix, i+(j*number))
+			}
+
+			alertlist = append(alertlist, alert.ID)
+			alertJSON, _ := json.Marshal(alert)
+			alerts = append(alerts, string(alertJSON))
 		}
-
-		alertlist = append(alertlist, alert.ID)
-		alertJSON, _ := json.Marshal(alert)
-		alerts = append(alerts, string(alertJSON))
+		grouplist = append(grouplist, alerts)
 	}
-
-	return alerts, alertlist
+	return grouplist, alertlist
 }
 
 // tests Handler when Create is set
 func TestHandlerCreateSuccess(t *testing.T) {
 	setup()
+	numgroups := 2
+	numalerts := 5
 
-	alerts, _ := makeTestAlerts(5, "EXISTING-", true, false)
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, false)
+
 	output, err := handleRequest(Ctx, alerts)
-
-	var alertList []string
-	for i := 1; i <= 5; i++ {
-		alertList = append(alertList, fmt.Sprintf("%s-%d", "CREATED", i))
-	}
 	if err != nil {
 		t.Fatalf("unexpected error %s", err)
 	}
-	have := string(output)
 
-	want := fmt.Sprintf("Success: %d alerts processed. Created alerts: %s", len(alerts), alertList)
+	var alertList []string
+	for i := 1; i <= numalerts*numgroups; i++ {
+		alertList = append(alertList, fmt.Sprintf("%s-%d", "CREATED", i))
+	}
+	sort.Strings(alertList)
+
+	have := string(output)
+	want := fmt.Sprintf("Success: %d alerts processed (%d groups). Created alerts: %s", numalerts*numgroups, numgroups, alertList)
 
 	if have != want {
 		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)
@@ -109,15 +117,18 @@ func TestHandlerCreateSuccess(t *testing.T) {
 func TestHandlerNoCreateSuccess(t *testing.T) {
 	setup()
 	CreateTicket = false
+	numgroups := 1
+	numalerts := 3
 
-	alerts, alertlist := makeTestAlerts(3, "EXISTING-", true, false)
+	alerts, alertlist := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, false)
+
 	output, err := handleRequest(Ctx, alerts)
-
 	if err != nil {
 		t.Fatalf("unexpected error %s", err)
 	}
+
 	have := string(output)
-	want := fmt.Sprintf("Success: %d alerts processed. Updated alerts: %s", len(alerts), alertlist)
+	want := fmt.Sprintf("Success: %d alerts processed (%d groups). Updated alerts: %s", numalerts*numgroups, numgroups, alertlist)
 
 	if have != want {
 		t.Fatalf("unexpected output. \nHave: %s\nWant: %s", have, want)
@@ -127,10 +138,12 @@ func TestHandlerNoCreateSuccess(t *testing.T) {
 func TestHandlerNoResults(t *testing.T) {
 	setup()
 
-	alerts, _ := makeTestAlerts(3, "EXISTING-", false, false)
+	numgroups := 1
+	numalerts := 3
+
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", false, false)
 
 	output, err := handleRequest(Ctx, alerts)
-
 	if err != nil {
 		t.Fatalf("unexpected error %s", err)
 	}
@@ -146,7 +159,11 @@ func TestHandlerNoResults(t *testing.T) {
 func TestHandlerCreateSameIds(t *testing.T) {
 	setup()
 
-	alerts, _ := makeTestAlerts(5, "EXISTING-", true, true)
+	numgroups := 1
+	numalerts := 5
+
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, true)
+
 	output, err := handleRequest(Ctx, alerts)
 
 	var alertList []string
@@ -157,7 +174,7 @@ func TestHandlerCreateSameIds(t *testing.T) {
 	}
 	have := string(output)
 
-	want := fmt.Sprintf("Success: 1 alerts processed. Created alerts: %s", alertList)
+	want := fmt.Sprintf("Success: 1 alerts processed (%d groups). Created alerts: %s", numgroups, alertList)
 
 	if have != want {
 		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -20,6 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/aws/aws-sdk-go/service/sfn/sfniface"
 	"github.com/gyrospectre/squyre"
+	"golang.org/x/net/publicsuffix"
 )
 
 var (
@@ -34,7 +36,6 @@ var (
 
 const (
 	stepFunctionTimeout = 15
-	stackName           = "squyre"
 )
 
 // CloudformationStack abstracts AWS Cloudformation stacks
@@ -141,7 +142,7 @@ func init() {
 
 	Stack = CloudformationStack{
 		Client:    cloudformation.New(sess),
-		StackName: stackName,
+		StackName: os.Getenv("STACK_NAME"),
 	}
 }
 
@@ -188,6 +189,36 @@ func extractIPs(details string) []squyre.Subject {
 		// Ignore private IP addresses
 		if isPrivateIP(address) == false {
 			subjectList = append(subjectList, subject)
+		}
+	}
+	return subjectList
+}
+
+func extractDomains(details string) []squyre.Subject {
+	var subjectList []squyre.Subject
+	re := regexp.MustCompile(`(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z]`)
+	submatchall := re.FindAllString(details, -1)
+
+	submatchall = removeDuplicateStr(submatchall)
+
+	ignore := os.Getenv("IGNORE_DOMAIN")
+
+	for _, domain := range submatchall {
+		if ignore != "" && !strings.Contains(domain, ignore) {
+			var subject = squyre.Subject{
+				Type:  "domain",
+				Value: domain,
+			}
+			// Ignore TLDs that are not official
+			_, icann := publicsuffix.PublicSuffix(domain)
+			if icann {
+				log.Printf("Adding domain %s.", domain)
+				subjectList = append(subjectList, subject)
+			} else {
+				log.Printf("Ignoring internal domain %s.", domain)
+			}
+		} else {
+			log.Printf("Ignoring domain %s per env var.", domain)
 		}
 	}
 	return subjectList
@@ -242,6 +273,7 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 	if len(snsEvent.Records) == 0 {
 		return "Aborted", errors.New("No records in SNS event to process")
 	}
+	var scope []string
 	for _, record := range snsEvent.Records {
 		snsRecord := record.SNS
 		var alert squyre.Alert
@@ -256,13 +288,36 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		} else {
 			return "", errors.New("Could not determine alert type")
 		}
-		alert.Subjects = extractIPs(alert.RawMessage)
-		if len(alert.Subjects) == 0 {
-			return "", errors.New("No public IP addresses found to process")
+
+		// IPV4
+		ipSubjects := extractIPs(alert.RawMessage)
+		if len(ipSubjects) == 0 {
+			log.Print("No public IP addresses found to process")
+		} else {
+			for _, sub := range ipSubjects {
+				alert.Subjects = append(alert.Subjects, sub)
+			}
+			log.Printf("Extracted %d public IP addresses from the alert message", len(ipSubjects))
+			scope = append(scope, "ipv4")
 		}
-		log.Printf("Extracted %d public IP addresses from the alert message", len(alert.Subjects))
+
+		// Domains
+		domainSubjects := extractDomains(alert.RawMessage)
+		if len(domainSubjects) == 0 {
+			log.Print("No domains found to process")
+		} else {
+			for _, sub := range domainSubjects {
+				alert.Subjects = append(alert.Subjects, sub)
+			}
+			log.Printf("Extracted %d domains from the alert message", len(domainSubjects))
+			scope = append(scope, "domain")
+		}
 
 		// Have finished adding the extracted subjects to our alert
+		if len(scope) == 0 {
+			return "", errors.New("No subjects found to process")
+		}
+		alert.Scope = strings.Join(scope, ",")
 
 		err := SendAlert(alert, "EnrichIPStateMachine")
 		if err != nil {

@@ -27,7 +27,7 @@ type Alert struct {
 	ID         string
 	Subjects   []Subject
 	Results    []Result
-	Scope      string
+	Scope      string // The types of Subjects in this alert, used by the step function
 }
 
 // Alerter defines common functions for all alert types
@@ -94,14 +94,27 @@ func (alert OpsGenieAlert) Normaliser() Alert {
 
 // CombineResultsbyAlertID merges a slice of alerts for the same Id into one
 func CombineResultsbyAlertID(raw [][]string) map[string]Alert {
+
+	/*
+		The output function(s) are called with a slice of slice of srings.
+		Each slice is an output from a group of enrichments e.g. IPv4, Domain etc. which contains
+		another slice of the outputs from each function (as Alerts). This is the way the Step
+		Function groups the results of parallel executions.
+
+		This function collapses all of that structure down, grouping by alert ID with all the separate
+		results within.
+	*/
+
 	resultsmap := make(map[string][]Result)
 	alerts := make(map[string]Alert)
 
+	// First, collapse the enrichment groups down into one big slice
 	mergedGroups := []string{}
 	for _, group := range raw {
 		mergedGroups = append(mergedGroups, group...)
 	}
 
+	// Now, go through and organise as unique alerts with results contained within
 	for _, alertStr := range mergedGroups {
 		var alert Alert
 		json.Unmarshal([]byte(alertStr), &alert)

@@ -15,6 +15,9 @@ Resources:
       Handler: conductor
       Runtime: go1.x
       Role: !GetAtt ConductorRole.Arn
+      Environment:
+        Variables:
+          STACK_NAME: !Sub '${AWS::StackName}'
 
   AlertTopic:
     Type: AWS::SNS::Topic
@@ -47,6 +50,14 @@ Resources:
       Handler: ipapi
       Runtime: go1.x
 
+  CrowdStrikeFalconFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-CrowdStrikeFalcon'
+      CodeUri: function/crowdstrikefalcon
+      Handler: crowdstrikefalcon
+      Runtime: go1.x
+
   OutputFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -65,9 +76,13 @@ Resources:
         GreynoiseFunctionArn: !GetAtt GreynoiseFunction.Arn
         IPAPIFunctionArn: !GetAtt IPAPIFunction.Arn
         OutputFunctionArn: !GetAtt OutputFunction.Arn
+        CrowdStrikeFalconFunctionArn: !GetAtt CrowdStrikeFalconFunction.Arn
+
       Policies:
         - LambdaInvokePolicy:
             FunctionName: !Ref GreynoiseFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref CrowdStrikeFalconFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref IPAPIFunction
         - LambdaInvokePolicy:

@@ -102,7 +102,7 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 
 	// We have separate alerts by source, combine them first to prevent creating duplicate tickets
 	mergedAlerts := squyre.CombineResultsbyAlertID(rawAlerts)
-	log.Printf("Merged alerts. Was %d alerts, now %d.", len(rawAlerts), len(mergedAlerts))
+	log.Printf("Merged alerts. Was %d result groups, now %d individual results.", len(rawAlerts), len(mergedAlerts))
 
 	var alerts []string
 	// Process enrichment result list
@@ -136,7 +136,13 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 		alerts = append(alerts, alert.ID)
 	}
 	sort.Strings(alerts)
-	finalResult := fmt.Sprintf("Success: %d alerts processed. Updated alerts: %s", len(mergedAlerts), alerts)
+	finalResult := fmt.Sprintf(
+		"Success: %d alerts processed (%d groups). Updated alerts: %s",
+		len(mergedAlerts),
+		len(rawAlerts),
+		alerts,
+	)
+
 	log.Print(finalResult)
 
 	return finalResult, nil

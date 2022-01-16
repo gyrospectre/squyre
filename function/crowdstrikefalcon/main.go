@@ -105,6 +105,12 @@ func InitFalconClient() (*client.CrowdStrikeAPISpecification, error) {
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	log.Printf("Starting %s run for alert %s", provider, alert.ID)
 
+	if len(alert.Subjects) == 0 {
+		log.Print("Alert has no subjects to process.")
+		finalJSON, _ := json.Marshal(alert)
+		return string(finalJSON), nil
+	}
+
 	falconClient, err := InitClient()
 	if err != nil {
 		panic(err)

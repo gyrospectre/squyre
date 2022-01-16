@@ -92,7 +92,7 @@ func InitJiraClient() (*jira.Client, error) {
 	return jiraClient, nil
 }
 
-func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
+func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 	jiraClient, err := InitClient()
 	if err != nil {
 		panic(err)
@@ -100,7 +100,6 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 
 	// We have separate alerts by source, combine them first to prevent creating duplicate tickets
 	mergedAlerts := squyre.CombineResultsbyAlertID(rawAlerts)
-	log.Printf("Merged alerts. Was %d alerts, now %d.", len(rawAlerts), len(mergedAlerts))
 
 	// Process enrichment result list
 	var ticketnumber string
@@ -141,7 +140,13 @@ func handleRequest(ctx context.Context, rawAlerts []string) (string, error) {
 		ticketnumbers = append(ticketnumbers, ticketnumber)
 	}
 	sort.Strings(ticketnumbers)
-	finalResult := fmt.Sprintf("Success: %d alerts processed. %sd alerts: %s", len(mergedAlerts), action, ticketnumbers)
+	finalResult := fmt.Sprintf(
+		"Success: %d alerts processed (%d groups). %sd alerts: %s",
+		len(mergedAlerts),
+		len(rawAlerts),
+		action,
+		ticketnumbers,
+	)
 	log.Print(finalResult)
 
 	return finalResult, nil
