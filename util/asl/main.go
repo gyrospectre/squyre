@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// StateMachine is a conversion of ASL
 type StateMachine struct {
 	Comment        string  `json:"Comment"`
 	StartAt        string  `json:"StartAt"`
@@ -15,6 +16,7 @@ type StateMachine struct {
 	States         []State `json:"States"`
 }
 
+// State does nothing right now =)
 type State struct {
 }
 

@@ -239,15 +239,13 @@ func getIndicator(client *client.CrowdStrikeAPISpecification, name string) (*mod
 			if ok {
 				log.Printf("Failed to fetch data from %s", provider)
 				return nil, err
-			} else {
-				openChannels--
 			}
+			openChannels--
 		case indicator, ok := <-indicatorsChannel:
 			if ok {
 				return indicator, nil
-			} else {
-				openChannels--
 			}
+			openChannels--
 		}
 	}
 	return nil, nil
@@ -257,11 +255,11 @@ func getHost(client *client.CrowdStrikeAPISpecification, name string) (*models.D
 	filter := fmt.Sprintf("hostname:'%s'", name)
 
 	var hostDetailBatch []*models.DomainDeviceSwagger
-	for hostIdBatch := range getHostIds(client, &filter) {
-		if len(hostIdBatch) == 0 {
+	for hostIDBatch := range getHostIds(client, &filter) {
+		if len(hostIDBatch) == 0 {
 			return nil, nil
 		}
-		hostDetailBatch = getHostsDetails(client, hostIdBatch)
+		hostDetailBatch = getHostsDetails(client, hostIDBatch)
 		break
 	}
 	return hostDetailBatch[0], nil
