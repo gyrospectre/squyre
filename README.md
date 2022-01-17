@@ -101,8 +101,9 @@ sam deploy --guided
 It's easy to add enrichment functions, and more will be added over time. Feel free to PR and contribute!
 
 Currently supported:
-- Greynoise (https://www.greynoise.io/) : Tells security analysts what not to worry about. (Indicator types: IP)
-- IP API (https://ip-api.com/) : IP address geolocation information. (Indicator types: IP)
+- Greynoise (https://www.greynoise.io/) : Tells security analysts what not to worry about. (Indicator types: ipv4)
+- IP API (https://ip-api.com/) : IP address geolocation information. (Indicator types: ipv4)
+- CrowdStrike Falcon (https://www.crowdstrike.com/endpoint-security-products/falcon-platform/) : Primarily utilising Falcon X for threat intelligence. (Indicator types: ipv4, domain, sha256, hostname)
 
 ## Developing
 
