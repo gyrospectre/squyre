@@ -1,6 +1,6 @@
 module jira
 
-go 1.16
+go 1.17
 
 require (
 	github.com/andygrunwald/go-jira v1.14.0
