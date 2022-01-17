@@ -35,6 +35,7 @@
                     "CrowdStrike Falcon - Domain": {
                       "Type": "Task",
                       "Resource": "arn:aws:states:::lambda:invoke",
+                      "TimeoutSeconds": 10,
                       "OutputPath": "$.Payload",
                       "Parameters": {
                         "Payload.$": "$",
@@ -90,6 +91,7 @@
                     "Greynoise - IPv4": {
                       "Type": "Task",
                       "Resource": "arn:aws:states:::lambda:invoke",
+                      "TimeoutSeconds": 10,
                       "OutputPath": "$.Payload",
                       "Parameters": {
                         "FunctionName": "${GreynoiseFunctionArn}",
@@ -117,6 +119,7 @@
                     "IP API - IPv4": {
                       "Type": "Task",
                       "Resource": "arn:aws:states:::lambda:invoke",
+                      "TimeoutSeconds": 10,
                       "OutputPath": "$.Payload",
                       "Parameters": {
                         "FunctionName": "${IPAPIFunctionArn}",
@@ -148,6 +151,7 @@
     "Output Results": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 10,
       "OutputPath": "$.Payload",
       "Parameters": {
         "Payload.$": "$",
