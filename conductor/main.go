@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -102,11 +103,11 @@ func (s *StateMachine) WaitForExecCompletion(execArn *string) error {
 		execStatus = aws.StringValue(result.Status)
 
 		if execStatus == "SUCCEEDED" {
-			log.Printf("Step function exec succeeded after %d seconds.", iter)
+			log.Infof("Step function exec succeeded after %d seconds.", iter)
 			return nil
 		}
 		if execStatus == "FAILED" {
-			log.Printf("Step function exec failed. Full details: %s", result.GoString())
+			log.Errorf("Step function exec failed. Full details: %s", result.GoString())
 			return errors.New("Step function execution failed")
 		}
 		if execStatus == "TIMED_OUT" || execStatus == "ABORTED" {
@@ -117,7 +118,7 @@ func (s *StateMachine) WaitForExecCompletion(execArn *string) error {
 		iter++
 	}
 
-	log.Printf("Step function exec timed out after %d seconds.", iter)
+	log.Errorf("Step function exec timed out after %d seconds.", iter)
 	return errors.New("Step function timed out")
 }
 
@@ -212,13 +213,13 @@ func extractDomains(details string) []squyre.Subject {
 			// Ignore TLDs that are not official
 			_, icann := publicsuffix.PublicSuffix(domain)
 			if icann {
-				log.Printf("Adding domain %s.", domain)
+				log.Infof("Adding domain %s.", domain)
 				subjectList = append(subjectList, subject)
 			} else {
-				log.Printf("Ignoring internal domain %s.", domain)
+				log.Infof("Ignoring internal domain %s.", domain)
 			}
 		} else {
-			log.Printf("Ignoring domain %s per env var.", domain)
+			log.Infof("Ignoring domain %s per env var.", domain)
 		}
 	}
 	return subjectList
@@ -263,7 +264,7 @@ func sendAlertToSfn(alert squyre.Alert, sfnName string) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Started %s with execution %s\n", sfnName, aws.StringValue(result.ExecutionArn))
+	log.Infof("Started %s with execution %s\n", sfnName, aws.StringValue(result.ExecutionArn))
 	err = stepFunction.WaitForExecCompletion(result.ExecutionArn)
 
 	return err
@@ -277,13 +278,13 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 	for _, record := range snsEvent.Records {
 		snsRecord := record.SNS
 		var alert squyre.Alert
-		log.Printf("Processing message %s\n", snsRecord.MessageID)
+		log.Infof("Processing message %s\n", snsRecord.MessageID)
 
 		if strings.Contains(snsRecord.Message, "search_name") {
-			log.Println("Auto detected Splunk alert")
+			log.Info("Auto detected Splunk alert")
 			alert = convertSplunkAlert(snsRecord.Message)
 		} else if strings.Contains(snsRecord.Message, "integrationName") {
-			log.Println("Auto detected OpsGenie alert")
+			log.Info("Auto detected OpsGenie alert")
 			alert = convertOpsGenieAlert(snsRecord.Message)
 		} else {
 			return "", errors.New("Could not determine alert type")
@@ -292,24 +293,24 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		// IPV4
 		ipSubjects := extractIPs(alert.RawMessage)
 		if len(ipSubjects) == 0 {
-			log.Print("No public IP addresses found to process")
+			log.Info("No public IP addresses found to process")
 		} else {
 			for _, sub := range ipSubjects {
 				alert.Subjects = append(alert.Subjects, sub)
 			}
-			log.Printf("Extracted %d public IP addresses from the alert message", len(ipSubjects))
+			log.Infof("Extracted %d public IP addresses from the alert message", len(ipSubjects))
 			scope = append(scope, "ipv4")
 		}
 
 		// Domains
 		domainSubjects := extractDomains(alert.RawMessage)
 		if len(domainSubjects) == 0 {
-			log.Print("No domains found to process")
+			log.Info("No domains found to process")
 		} else {
 			for _, sub := range domainSubjects {
 				alert.Subjects = append(alert.Subjects, sub)
 			}
-			log.Printf("Extracted %d domains from the alert message", len(domainSubjects))
+			log.Infof("Extracted %d domains from the alert message", len(domainSubjects))
 			scope = append(scope, "domain")
 		}
 
@@ -323,12 +324,14 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		if err != nil {
 			return string(err.Error()), err
 		}
-		log.Printf("Successfully processed %d entries for alert %s!\n\n", len(alert.Subjects), alert.ID)
+		log.Infof("Successfully processed %d entries for alert %s!\n\n", len(alert.Subjects), alert.ID)
 	}
 
 	return fmt.Sprintf("Processed %d SNS messages.", len(snsEvent.Records)), nil
 }
 
 func main() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetLevel(log.InfoLevel)
 	lambda.Start(handleRequest)
 }

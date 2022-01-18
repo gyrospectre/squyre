@@ -110,6 +110,7 @@ func TestHandlerError(t *testing.T) {
 			Value: "8.8.8.8",
 		},
 	}
+
 	var ctx context.Context
 	_, err := handleRequest(ctx, alert)
 

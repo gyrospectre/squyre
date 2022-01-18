@@ -7,4 +7,5 @@ require (
 	github.com/aws/aws-sdk-go v1.42.30 // indirect
 	github.com/crowdstrike/gofalcon v0.2.16
 	github.com/gyrospectre/squyre v0.0.0-20220114093638-08944ee5b395
+	github.com/sirupsen/logrus v1.8.1 // indirect
 )

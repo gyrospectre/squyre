@@ -7,10 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"sort"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/gyrospectre/squyre"
@@ -61,7 +62,7 @@ func InitOpsgenieClient() (*OpsGenieClient, error) {
 	// Fetch API key from Secrets Manager
 	smresponse, err := squyre.GetSecret(secretLocation)
 	if err != nil {
-		log.Fatalf("Failed to fetch OpsGenie secret: %s", err)
+		log.Errorf("Failed to fetch OpsGenie secret: %s", err)
 	}
 	var secret apiKeySecret
 	json.Unmarshal([]byte(*smresponse.SecretString), &secret)
@@ -97,12 +98,13 @@ func AddNoteToAlert(client *OpsGenieClient, note *opsgenieNote, id string) error
 func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 	client, err := InitClient()
 	if err != nil {
-		panic(err)
+		log.Error("Failed to initialise client")
+		return "Failed to initialise client", err
 	}
 
 	// We have separate alerts by source, combine them first to prevent creating duplicate tickets
 	mergedAlerts := squyre.CombineResultsbyAlertID(rawAlerts)
-	log.Printf("Merged alerts. Was %d result groups, now %d individual results.", len(rawAlerts), len(mergedAlerts))
+	log.Infof("Merged alerts. Was %d result groups, now %d individual results.", len(rawAlerts), len(mergedAlerts))
 
 	var alerts []string
 	// Process enrichment result list
@@ -112,7 +114,7 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 			return "No results found to process", nil
 		}
 
-		log.Printf("Sending results of successful enrichment for alert %s", alert.ID)
+		log.Infof("Sending results of successful enrichment for alert %s", alert.ID)
 
 		for _, result := range alert.Results {
 			// Only send the output of successful enrichments
@@ -125,11 +127,12 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 
 				err := AddComment(client, note, alert.ID)
 				if err != nil {
-					panic(err)
+					log.Errorf("Failed to add comment to alert '%s'", alert.ID)
+					return "Failed to add comment to alert", err
 				}
-				log.Print("Successfully adding note to OpsGenie")
+				log.Info("Successfully adding note to OpsGenie")
 			} else {
-				log.Printf("Skipping failed enrichment from %s for alert %s", result.Source, alert.ID)
+				log.Errorf("Skipping failed enrichment from %s for alert %s", result.Source, alert.ID)
 			}
 
 		}
@@ -143,11 +146,13 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 		alerts,
 	)
 
-	log.Print(finalResult)
+	log.Info(finalResult)
 
 	return finalResult, nil
 }
 
 func main() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetLevel(log.InfoLevel)
 	lambda.Start(handleRequest)
 }

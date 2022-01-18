@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/gyrospectre/squyre"
@@ -80,7 +81,7 @@ func InitFalconClient() (*client.CrowdStrikeAPISpecification, error) {
 	// Fetch API key from Secrets Manager
 	smresponse, err := squyre.GetSecret(secretLocation)
 	if err != nil {
-		log.Fatalf("Failed to fetch Crowdstrike Falcon secret: %s", err)
+		log.Errorf("Failed to fetch Crowdstrike Falcon secret: %s", err)
 	}
 
 	var secret apiKeySecret
@@ -103,23 +104,24 @@ func InitFalconClient() (*client.CrowdStrikeAPISpecification, error) {
 }
 
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
-	log.Printf("Starting %s run for alert %s", provider, alert.ID)
+	log.Infof("Starting %s run for alert %s", provider, alert.ID)
 
 	if len(alert.Subjects) == 0 {
-		log.Print("Alert has no subjects to process.")
+		log.Info("Alert has no subjects to process.")
 		finalJSON, _ := json.Marshal(alert)
 		return string(finalJSON), nil
 	}
 
 	falconClient, err := InitClient()
 	if err != nil {
-		panic(err)
+		log.Error("Failed to initialise client")
+		return "Failed to initialise client", err
 	}
 
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
 		if !strings.Contains(supports, subject.Type) {
-			log.Printf("Subject not supported by this provider. Skipping.")
+			log.Error("Subject not supported by this provider. Skipping.")
 		} else {
 			// Subject supported. Build a result object to hold our goodies
 			var result = squyre.Result{
@@ -135,21 +137,22 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				result.Success = true
 
 				if hostDetail != nil {
-					log.Printf("Received %s response for %s", provider, subject.Value)
+					log.Infof("Received %s response for %s", provider, subject.Value)
 					result.Message = messageFromHostDetail(hostDetail)
 
 				} else {
-					log.Printf("Host %s not found in %s", subject.Value, provider)
+					log.Infof("Host %s not found in %s", subject.Value, provider)
 					result.Message = fmt.Sprintf("Host '%s' not found in Falcon X.", subject.Value)
 				}
 
 				// Add the enriched details back to the results
 				alert.Results = append(alert.Results, result)
-				log.Printf("Added %s to result set", subject.Value)
+				log.Infof("Added %s to result set", subject.Value)
 			} else {
 				var indicator *models.DomainPublicIndicatorV3
 				indicator, err = getIndicator(falconClient, subject.Value)
 				if err != nil {
+					log.Error("Error fetching data from API!")
 					return "Error fetching data from API!", err
 				}
 				result.Success = true
@@ -160,15 +163,15 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				} else {
 					result.Message = "Indicator not found in Falcon X."
 				}
-				log.Printf("Received %s response for %s", provider, subject.Value)
+				log.Infof("Received %s response for %s", provider, subject.Value)
 
 				// Add the enriched details back to the results
 				alert.Results = append(alert.Results, result)
-				log.Printf("Added %s to result set", subject.Value)
+				log.Infof("Added %s to result set", subject.Value)
 			}
 		}
 	}
-	log.Printf("Successfully ran %s. Yielded %d results for %d subjects.", provider, len(alert.Results), len(alert.Subjects))
+	log.Infof("Successfully ran %s. Yielded %d results for %d subjects.", provider, len(alert.Results), len(alert.Subjects))
 
 	// Convert the alert object into Json for the step function
 	finalJSON, _ := json.Marshal(alert)
@@ -176,6 +179,8 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 }
 
 func main() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetLevel(log.InfoLevel)
 	lambda.Start(handleRequest)
 }
 
@@ -198,7 +203,7 @@ func messageFromIndicator(indicator *models.DomainPublicIndicatorV3) string {
 		strings.Join(indicator.Targets, ","),
 		*indicator.Indicator,
 	)
-	log.Println(message)
+
 	return string(message)
 }
 
@@ -225,7 +230,7 @@ func messageFromHostDetail(host *models.DomainDeviceSwagger) string {
 		strings.Join(policies, "\n- "),
 		host.Hostname,
 	)
-	log.Println(message)
+
 	return string(message)
 }
 
@@ -237,7 +242,7 @@ func getIndicator(client *client.CrowdStrikeAPISpecification, name string) (*mod
 		select {
 		case err, ok := <-errorChannel:
 			if ok {
-				log.Printf("Failed to fetch data from %s", provider)
+				log.Errorf("Failed to fetch data from %s", provider)
 				return nil, err
 			}
 			openChannels--
@@ -255,11 +260,21 @@ func getHost(client *client.CrowdStrikeAPISpecification, name string) (*models.D
 	filter := fmt.Sprintf("hostname:'%s'", name)
 
 	var hostDetailBatch []*models.DomainDeviceSwagger
-	for hostIDBatch := range getHostIds(client, &filter) {
+	hostIDs, err := getHostIds(client, &filter)
+	if err != nil {
+		log.Error(falcon.ErrorExplain(err))
+		return nil, err
+	}
+
+	for hostIDBatch := range hostIDs {
 		if len(hostIDBatch) == 0 {
 			return nil, nil
 		}
-		hostDetailBatch = getHostsDetails(client, hostIDBatch)
+		hostDetailBatch, err = getHostsDetails(client, hostIDBatch)
+		if err != nil {
+			log.Error(falcon.ErrorExplain(err))
+			return nil, err
+		}
 		break
 	}
 	return hostDetailBatch[0], nil
@@ -304,24 +319,28 @@ func queryIntelIndicators(client *client.CrowdStrikeAPISpecification, filter, so
 	return indicatorsChannel, errorChannel
 }
 
-func getHostsDetails(client *client.CrowdStrikeAPISpecification, hostIds []string) []*models.DomainDeviceSwagger {
+func getHostsDetails(client *client.CrowdStrikeAPISpecification, hostIds []string) ([]*models.DomainDeviceSwagger, error) {
 	response, err := client.Hosts.GetDeviceDetails(&hosts.GetDeviceDetailsParams{
 		Ids:     hostIds,
 		Context: context.Background(),
 	})
 	if err != nil {
-		panic(falcon.ErrorExplain(err))
+		log.Error(falcon.ErrorExplain(err))
+		return nil, err
 	}
 	if err = falcon.AssertNoError(response.Payload.Errors); err != nil {
-		panic(err)
+		log.Error(falcon.ErrorExplain(err))
+		return nil, err
 	}
 
-	return response.Payload.Resources
+	return response.Payload.Resources, nil
 }
 
-func getHostIds(client *client.CrowdStrikeAPISpecification, filter *string) <-chan []string {
+func getHostIds(client *client.CrowdStrikeAPISpecification, filter *string) (<-chan []string, error) {
 	hostIds := make(chan []string)
 
+	var err error
+	err = nil
 	go func() {
 		limit := int64(500)
 		for offset := int64(0); ; {
@@ -332,10 +351,10 @@ func getHostIds(client *client.CrowdStrikeAPISpecification, filter *string) <-ch
 				Context: context.Background(),
 			})
 			if err != nil {
-				panic(falcon.ErrorExplain(err))
+				log.Error(falcon.ErrorExplain(err))
 			}
 			if err = falcon.AssertNoError(response.Payload.Errors); err != nil {
-				panic(err)
+				log.Error(falcon.ErrorExplain(err))
 			}
 
 			hosts := response.Payload.Resources
@@ -347,5 +366,5 @@ func getHostIds(client *client.CrowdStrikeAPISpecification, filter *string) <-ch
 		}
 		close(hostIds)
 	}()
-	return hostIds
+	return hostIds, err
 }

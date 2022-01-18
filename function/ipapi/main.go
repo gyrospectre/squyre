@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/gyrospectre/squyre"
@@ -50,7 +51,7 @@ type ipapiResponse struct {
 }
 
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
-	log.Printf("Starting %s run for alert %s", provider, alert.ID)
+	log.Infof("Starting %s run for alert %s", provider, alert.ID)
 
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
@@ -67,13 +68,13 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 			response, err := Client.Do(request)
 
 			if err != nil {
-				log.Printf("Failed to fetch data from %s", provider)
+				log.Errorf("Failed to fetch data from %s", provider)
 				return "Error fetching data from API!", err
 			}
 			responseData, err := ioutil.ReadAll(response.Body)
 
 			if err == nil {
-				log.Printf("Received %s response for %s", provider, subject.Value)
+				log.Infof("Received %s response for %s", provider, subject.Value)
 
 				json.Unmarshal(responseData, &responseObject)
 				prettyresponse, _ := json.MarshalIndent(responseObject, "", "    ")
@@ -81,17 +82,17 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				result.Success = true
 				result.Message = string(prettyresponse)
 			} else {
-				log.Printf("Unexpected response from %s for %s", provider, subject.Value)
+				log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
 				return "Error decoding response from API!", err
 			}
 			// Add the enriched details back to the results
 			alert.Results = append(alert.Results, result)
-			log.Printf("Added %s to result set", subject.Value)
+			log.Infof("Added %s to result set", subject.Value)
 		} else {
-			log.Printf("Subject not supported by this provider. Skipping.")
+			log.Error("Subject not supported by this provider. Skipping.")
 		}
 	}
-	log.Printf("Successfully ran %s. Yielded %d results for %d subjects.", provider, len(alert.Results), len(alert.Subjects))
+	log.Infof("Successfully ran %s. Yielded %d results for %d subjects.", provider, len(alert.Results), len(alert.Subjects))
 
 	// Convert the alert object into Json for the step function
 	finalJSON, _ := json.Marshal(alert)
@@ -99,5 +100,7 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 }
 
 func main() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetLevel(log.InfoLevel)
 	lambda.Start(handleRequest)
 }

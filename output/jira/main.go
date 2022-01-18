@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"sort"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/andygrunwald/go-jira"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -72,7 +73,8 @@ func InitJiraClient() (*jira.Client, error) {
 	// Fetch API key from Secrets Manager
 	smresponse, err := squyre.GetSecret(secretLocation)
 	if err != nil {
-		log.Fatalf("Failed to fetch Jira secret: %s", err)
+		log.Error("Failed to fetch Jira secret")
+		return nil, err
 	}
 
 	var secret apiKeySecret
@@ -95,11 +97,13 @@ func InitJiraClient() (*jira.Client, error) {
 func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 	jiraClient, err := InitClient()
 	if err != nil {
-		panic(err)
+		log.Error("Failed to initialise client")
+		return "Failed to initialise client", err
 	}
 
 	// We have separate alerts by source, combine them first to prevent creating duplicate tickets
 	mergedAlerts := squyre.CombineResultsbyAlertID(rawAlerts)
+	log.Infof("Merged alerts. Was %d result groups, now %d individual results.", len(rawAlerts), len(mergedAlerts))
 
 	// Process enrichment result list
 	var ticketnumber string
@@ -110,11 +114,12 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 		if CreateTicket {
 			ticketnumber, err = CreateTicketForAlert(jiraClient, alert)
 			if err != nil {
-				panic(err)
+				log.Error("Failed to create ticket")
+				return "Failed to create ticket", err
 			}
 			action = "Create"
 
-			log.Printf("Created ticket number %s", ticketnumber)
+			log.Infof("Created ticket number %s", ticketnumber)
 		} else {
 			ticketnumber = alert.ID
 			action = "Update"
@@ -124,17 +129,18 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 			return "No results found to process", nil
 		}
 
-		log.Printf("Sending results of successful enrichments to %s", ticketnumber)
+		log.Infof("Sending results of successful enrichments to %s", ticketnumber)
 
 		for _, result := range alert.Results {
 			// Only send the output of successful enrichments
 			if result.Success {
 				err = AddComment(jiraClient, ticketnumber, fmt.Sprintf("Additional information on %s from %s:\n\n%s", result.AttributeValue, result.Source, result.Message))
 				if err != nil {
-					panic(err)
+					log.Errorf("Failed to add comment to ticket %s", ticketnumber)
+					return "Failed to add comment to ticket", err
 				}
 			} else {
-				log.Printf("Skipping failed enrichment from %s for alert %s", result.Source, alert.ID)
+				log.Errorf("Skipping failed enrichment from %s for alert %s", result.Source, alert.ID)
 			}
 		}
 		ticketnumbers = append(ticketnumbers, ticketnumber)
@@ -147,11 +153,13 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 		action,
 		ticketnumbers,
 	)
-	log.Print(finalResult)
+	log.Info(finalResult)
 
 	return finalResult, nil
 }
 
 func main() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetLevel(log.InfoLevel)
 	lambda.Start(handleRequest)
 }
