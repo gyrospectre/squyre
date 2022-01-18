@@ -127,7 +127,7 @@ make test
 make build
 sam local invoke MyNewFunction --event event/alert.json
 ```
-If all is working, then add the new function to the `statemachine/enrichIP.asl.json` file, so that it executes as part of the main workflow. Then you can `sam deploy` and try it out!
+If all is working, then add the new function to the `statemachine/enrich.asl.json` file, so that it executes as part of the main workflow. Then you can `sam deploy` and try it out!
 
 ## Testing
 

@@ -121,7 +121,7 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
 		if !strings.Contains(supports, subject.Type) {
-			log.Error("Subject not supported by this provider. Skipping.")
+			log.Info("Subject not supported by this provider. Skipping.")
 		} else {
 			// Subject supported. Build a result object to hold our goodies
 			var result = squyre.Result{

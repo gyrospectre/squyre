@@ -316,12 +316,14 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 
 		// Have finished adding the extracted subjects to our alert
 		if len(scope) == 0 {
+			log.Error("No subjects founds to process")
 			return "", errors.New("No subjects found to process")
 		}
 		alert.Scope = strings.Join(scope, ",")
 
-		err := SendAlert(alert, "EnrichIPStateMachine")
+		err := SendAlert(alert, "EnrichStateMachine")
 		if err != nil {
+			log.Error("Enrichment function failed")
 			return string(err.Error()), err
 		}
 		log.Infof("Successfully processed %d entries for alert %s!\n\n", len(alert.Subjects), alert.ID)

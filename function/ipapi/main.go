@@ -89,7 +89,7 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 			alert.Results = append(alert.Results, result)
 			log.Infof("Added %s to result set", subject.Value)
 		} else {
-			log.Error("Subject not supported by this provider. Skipping.")
+			log.Info("Subject not supported by this provider. Skipping.")
 		}
 	}
 	log.Infof("Successfully ran %s. Yielded %d results for %d subjects.", provider, len(alert.Results), len(alert.Subjects))

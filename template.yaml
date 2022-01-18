@@ -67,11 +67,11 @@ Resources:
       Runtime: go1.x
       Role: !GetAtt OutputRole.Arn
 
-  EnrichIPStateMachine:
+  EnrichStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
-      Name: !Sub '${AWS::StackName}-EnrichIP'
-      DefinitionUri: statemachine/enrichIP.asl.json
+      Name: !Sub '${AWS::StackName}-Enrich'
+      DefinitionUri: statemachine/enrich.asl.json
       DefinitionSubstitutions:
         GreynoiseFunctionArn: !GetAtt GreynoiseFunction.Arn
         IPAPIFunctionArn: !GetAtt IPAPIFunction.Arn
