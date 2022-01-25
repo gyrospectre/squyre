@@ -3,6 +3,7 @@ module github.com/gyrospectre/squyre
 go 1.17
 
 require (
+	github.com/aws/aws-cdk-go/awscdk/v2 v2.8.0 // indirect
 	github.com/aws/aws-lambda-go v1.28.0
 	github.com/aws/aws-sdk-go v1.42.30
 	github.com/crowdstrike/gofalcon v0.2.16 // indirect

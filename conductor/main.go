@@ -293,40 +293,54 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		// IPV4
 		ipSubjects := extractIPs(alert.RawMessage)
 		if len(ipSubjects) == 0 {
-			log.Info("No public IP addresses found to process")
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			  }).Info("No public IP addresses found to process")
 		} else {
 			for _, sub := range ipSubjects {
 				alert.Subjects = append(alert.Subjects, sub)
 			}
-			log.Infof("Extracted %d public IP addresses from the alert message", len(ipSubjects))
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			}).Infof("Extracted %d public IP addresses from the alert message", len(ipSubjects))
 			scope = append(scope, "ipv4")
 		}
 
 		// Domains
 		domainSubjects := extractDomains(alert.RawMessage)
 		if len(domainSubjects) == 0 {
-			log.Info("No domains found to process")
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			}).Info("No domains found to process")
 		} else {
 			for _, sub := range domainSubjects {
 				alert.Subjects = append(alert.Subjects, sub)
 			}
-			log.Infof("Extracted %d domains from the alert message", len(domainSubjects))
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			}).Infof("Extracted %d domains from the alert message", len(domainSubjects))
 			scope = append(scope, "domain")
 		}
 
 		// Have finished adding the extracted subjects to our alert
 		if len(scope) == 0 {
-			log.Error("No subjects founds to process")
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			}).Info("No subjects founds to process")
 			return "", errors.New("No subjects found to process")
 		}
 		alert.Scope = strings.Join(scope, ",")
 
 		err := SendAlert(alert, "EnrichStateMachine")
 		if err != nil {
-			log.Error("Enrichment function failed")
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			}).Error("Enrichment function failed")
 			return string(err.Error()), err
 		}
-		log.Infof("Successfully processed %d entries for alert %s!\n\n", len(alert.Subjects), alert.ID)
+		log.WithFields(log.Fields{
+			"alert": alert.ID,
+		}).Infof("Successfully processed %d entries for alert %s!\n\n", len(alert.Subjects), alert.ID)
 	}
 
 	return fmt.Sprintf("Processed %d SNS messages.", len(snsEvent.Records)), nil
