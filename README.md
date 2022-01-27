@@ -8,7 +8,7 @@ Designed to be modular and extensible, it will consume your alerts, enrich them 
 
 The only pre-requisite is that you must have an AWS account to host Squyre - it runs solely in AWS using serverless services (lambdas and step functions).
 
-Currently, we support Splunk or OpsGenie as alert sources, and Jira or OpsGenie as output providers, but let me know if you need something else to make this work for you. Even better, build it yourself and contribute to the project!
+Currently, we support Splunk or Opsgenie as alert sources, and Jira or Opsgenie as output providers, but let me know if you need something else to make this work for you. Even better, build it yourself and contribute to the project!
 
 ## How can I use this?
 
