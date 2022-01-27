@@ -69,7 +69,8 @@ func TestHandlerSuccess(t *testing.T) {
 		t.Fatalf("unexpected error %s", err)
 	}
 
-	prettyresponse, _ := json.MarshalIndent(gnResp, "", "    ")
+	prettyresponse := messageFromResponse(gnResp)
+
 	expected, _ := json.Marshal(squyre.Alert{
 		RawMessage: "Testing",
 		ID:         "1234-1234",

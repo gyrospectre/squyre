@@ -26,6 +26,14 @@ var (
 	responseObject ipapiResponse
 )
 
+var template = `
+IP API result for %s (%s):
+
+Country: %s
+City: %s, %s
+ISP: %s
+`
+
 func init() {
 	Client = &http.Client{}
 }
@@ -48,6 +56,7 @@ type ipapiResponse struct {
 	ISP         string `json:"isp"`
 	Org         string `json:"org"`
 	ASN         string `json:"as"`
+	Query       string `json:"query"`
 }
 
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
@@ -77,10 +86,9 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				log.Infof("Received %s response for %s", provider, subject.Value)
 
 				json.Unmarshal(responseData, &responseObject)
-				prettyresponse, _ := json.MarshalIndent(responseObject, "", "    ")
 
 				result.Success = true
-				result.Message = string(prettyresponse)
+				result.Message = messageFromResponse(responseObject)
 			} else {
 				log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
 				return "Error decoding response from API!", err
@@ -97,6 +105,19 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	// Convert the alert object into Json for the step function
 	finalJSON, _ := json.Marshal(alert)
 	return string(finalJSON), nil
+}
+
+func messageFromResponse(response ipapiResponse) string {
+	message := fmt.Sprintf(template,
+		response.Query,
+		response.Org,
+		response.Country,
+		response.City,
+		response.RegionName,
+		response.ISP,
+	)
+
+	return string(message)
 }
 
 func main() {

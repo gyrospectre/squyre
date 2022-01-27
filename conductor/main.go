@@ -295,7 +295,7 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 		if len(ipSubjects) == 0 {
 			log.WithFields(log.Fields{
 				"alert": alert.ID,
-			  }).Info("No public IP addresses found to process")
+			}).Info("No public IP addresses found to process")
 		} else {
 			for _, sub := range ipSubjects {
 				alert.Subjects = append(alert.Subjects, sub)

@@ -26,6 +26,16 @@ var (
 	responseObject greynoiseResponse
 )
 
+var template = `
+Greynoise believes %s is %s.
+
+Noise? %t
+In the RIOT database? %t
+Last seen %s.
+
+More information at: %s
+`
+
 func init() {
 	Client = &http.Client{}
 }
@@ -73,10 +83,9 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				log.Infof("Received %s response for %s", provider, subject.Value)
 
 				json.Unmarshal(responseData, &responseObject)
-				prettyresponse, _ := json.MarshalIndent(responseObject, "", "    ")
 
 				result.Success = true
-				result.Message = string(prettyresponse)
+				result.Message = messageFromResponse(responseObject)
 			} else {
 				log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
 				return "Error decoding response from API!", err
@@ -93,6 +102,23 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	// Convert the alert object into Json for the step function
 	finalJSON, _ := json.Marshal(alert)
 	return string(finalJSON), nil
+}
+
+func messageFromResponse(response greynoiseResponse) string {
+	if response.Classification == "" {
+		return response.Message
+	}
+
+	message := fmt.Sprintf(template,
+		response.IP,
+		response.Classification,
+		response.Noise,
+		response.Riot,
+		response.LastSeen,
+		response.Link,
+	)
+
+	return string(message)
 }
 
 func main() {
