@@ -150,4 +150,3 @@ sam local invoke ConductorFunction --event event/sns_from_opsgenie.json
 # Test whichever output function you're using (either Jira or Opsgenie)
 sam local invoke OutputFunction --event event/output.json
 ```
-
