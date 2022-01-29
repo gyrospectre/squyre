@@ -172,7 +172,11 @@ func removeDuplicateStr(strSlice []string) []string {
 
 func extractIPs(details string) []squyre.Subject {
 	var subjectList []squyre.Subject
-	re := regexp.MustCompile(`(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}`)
+
+	// Only match IP addresses bounded by space or start/end of line.
+	// Prevents a lot of false positive matches
+	re := regexp.MustCompile(`(^|[ ])(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}($|[ ])`)
+
 	submatchall := re.FindAllString(details, -1)
 
 	if len(privateBlocks) < 1 {
@@ -182,13 +186,14 @@ func extractIPs(details string) []squyre.Subject {
 	submatchall = removeDuplicateStr(submatchall)
 
 	for _, address := range submatchall {
+		trimmed := strings.TrimSpace(address)
 		var subject = squyre.Subject{
 			Type:  "ipv4",
-			Value: address,
+			Value: trimmed,
 		}
 
 		// Ignore private IP addresses
-		if isPrivateIP(address) == false {
+		if isPrivateIP(trimmed) == false {
 			subjectList = append(subjectList, subject)
 		}
 	}
@@ -198,6 +203,7 @@ func extractIPs(details string) []squyre.Subject {
 func extractDomains(details string) []squyre.Subject {
 	var subjectList []squyre.Subject
 	re := regexp.MustCompile(`(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z]`)
+
 	submatchall := re.FindAllString(details, -1)
 
 	submatchall = removeDuplicateStr(submatchall)

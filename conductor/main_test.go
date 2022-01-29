@@ -201,3 +201,30 @@ func TestSendAlertTimedOut(t *testing.T) {
 		t.Fatalf("unexpected output. \nHave: %s\nWant: %s", have, want)
 	}
 }
+
+func TestIPExtraction(t *testing.T) {
+	setup()
+	ua1 := "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.3) Gecko/20070517 BonEcho/2.0.0.3"
+	ua2 := "Mozilla/5.0 (X11; ; Linux i686; rv:1.9.2.20) Gecko/20110805"
+	ip1 := "8.8.8.8"
+	ip2 := "151.101.29.67"
+	ip3 := "192.168.1.1"
+
+	message := ip1 + " " + ua1 + " " + ip3 + " " + ip2 + " " + ua2 + " " + ip2
+	subjects := extractIPs(message)
+
+	have := len(subjects)
+
+	want := 2
+	if have != want {
+		t.Fatalf("Unexpected number of IPs. \nHave: %x\nWant: %x", have, want)
+	}
+
+	if subjects[0].Value != ip1 {
+		t.Fatalf("Unxpected first IP. \nHave: %s\nWant: %s", subjects[0].Value, ip1)
+	}
+
+	if subjects[1].Value != ip2 {
+		t.Fatalf("Unxpected second IP. \nHave: %s\nWant: %s", subjects[1].Value, ip2)
+	}
+}
