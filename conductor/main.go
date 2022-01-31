@@ -162,7 +162,7 @@ func removeDuplicateTrimmedStr(strSlice []string) []string {
 	allKeys := make(map[string]bool)
 	list := []string{}
 	for _, item := range strSlice {
-		trimmed := strings.Trim(item, " {}=")
+		trimmed := strings.Trim(item, " {}=[],")
 		if _, value := allKeys[trimmed]; !value {
 			allKeys[trimmed] = true
 			list = append(list, trimmed)
@@ -176,7 +176,7 @@ func extractIPs(details string) []squyre.Subject {
 
 	// Only match IP addresses bounded by space, start/end of line, '=' or braces.
 	// Prevents a lot of false positive matches!
-	re := regexp.MustCompile(`(^|[ =\{\}])(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}($|[ \{\}])`)
+	re := regexp.MustCompile(`(^|[ =\{\}\[])(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}($|[ ,\{\}\]])`)
 
 	submatchall := re.FindAllString(details, -1)
 

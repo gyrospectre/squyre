@@ -210,13 +210,14 @@ func TestIPExtraction(t *testing.T) {
 	ip2 := "151.101.29.67"
 	ip3 := "192.168.1.1"
 	ip4 := "202.92.65.254"
+	ip5 := "3.3.3.3"
 
-	message := ip1 + " " + ua1 + " " + "{" + ip4 + " " + ip3 + " ip=" + ip2 + " " + ua2 + " " + ip2 + "}"
+	message := ip1 + " " + ua1 + " " + " [" + ip4 + ", " + ip5 + "] " + ip3 + " ip=" + ip2 + " " + ua2 + " " + ip2 + "}"
 	subjects := extractIPs(message)
 
 	have := len(subjects)
 
-	want := 3
+	want := 4
 	if have != want {
 		t.Fatalf("Unexpected number of IPs. \nHave: %x\nWant: %x", have, want)
 	}
@@ -226,10 +227,14 @@ func TestIPExtraction(t *testing.T) {
 	}
 
 	if subjects[1].Value != ip4 {
-		t.Fatalf("Unxpected second IP. \nHave: %s\nWant: %s", subjects[1].Value, ip2)
+		t.Fatalf("Unxpected second IP. \nHave: %s\nWant: %s", subjects[1].Value, ip4)
 	}
 
-	if subjects[2].Value != ip2 {
-		t.Fatalf("Unxpected third IP. \nHave: %s\nWant: %s", subjects[1].Value, ip2)
+	if subjects[2].Value != ip5 {
+		t.Fatalf("Unxpected third IP. \nHave: %s\nWant: %s", subjects[1].Value, ip5)
+	}
+
+	if subjects[3].Value != ip2 {
+		t.Fatalf("Unxpected forth IP. \nHave: %s\nWant: %s", subjects[1].Value, ip2)
 	}
 }
