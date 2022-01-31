@@ -209,13 +209,14 @@ func TestIPExtraction(t *testing.T) {
 	ip1 := "8.8.8.8"
 	ip2 := "151.101.29.67"
 	ip3 := "192.168.1.1"
+	ip4 := "202.92.65.254"
 
-	message := ip1 + " " + ua1 + " " + ip3 + " " + ip2 + " " + ua2 + " " + ip2
+	message := ip1 + " " + ua1 + " " + "{" + ip4 + " " + ip3 + " ip=" + ip2 + " " + ua2 + " " + ip2 + "}"
 	subjects := extractIPs(message)
 
 	have := len(subjects)
 
-	want := 2
+	want := 3
 	if have != want {
 		t.Fatalf("Unexpected number of IPs. \nHave: %x\nWant: %x", have, want)
 	}
@@ -224,7 +225,11 @@ func TestIPExtraction(t *testing.T) {
 		t.Fatalf("Unxpected first IP. \nHave: %s\nWant: %s", subjects[0].Value, ip1)
 	}
 
-	if subjects[1].Value != ip2 {
+	if subjects[1].Value != ip4 {
 		t.Fatalf("Unxpected second IP. \nHave: %s\nWant: %s", subjects[1].Value, ip2)
+	}
+
+	if subjects[2].Value != ip2 {
+		t.Fatalf("Unxpected third IP. \nHave: %s\nWant: %s", subjects[1].Value, ip2)
 	}
 }

@@ -158,13 +158,14 @@ func isPrivateIP(ipStr string) bool {
 	return false
 }
 
-func removeDuplicateStr(strSlice []string) []string {
+func removeDuplicateTrimmedStr(strSlice []string) []string {
 	allKeys := make(map[string]bool)
 	list := []string{}
 	for _, item := range strSlice {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
-			list = append(list, item)
+		trimmed := strings.Trim(item, " {}=")
+		if _, value := allKeys[trimmed]; !value {
+			allKeys[trimmed] = true
+			list = append(list, trimmed)
 		}
 	}
 	return list
@@ -173,9 +174,9 @@ func removeDuplicateStr(strSlice []string) []string {
 func extractIPs(details string) []squyre.Subject {
 	var subjectList []squyre.Subject
 
-	// Only match IP addresses bounded by space or start/end of line.
-	// Prevents a lot of false positive matches
-	re := regexp.MustCompile(`(^|[ ])(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}($|[ ])`)
+	// Only match IP addresses bounded by space, start/end of line, '=' or braces.
+	// Prevents a lot of false positive matches!
+	re := regexp.MustCompile(`(^|[ =\{\}])(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}($|[ \{\}])`)
 
 	submatchall := re.FindAllString(details, -1)
 
@@ -183,17 +184,16 @@ func extractIPs(details string) []squyre.Subject {
 		setupIPBlocks()
 	}
 
-	submatchall = removeDuplicateStr(submatchall)
+	submatchall = removeDuplicateTrimmedStr(submatchall)
 
 	for _, address := range submatchall {
-		trimmed := strings.TrimSpace(address)
 		var subject = squyre.Subject{
 			Type:  "ipv4",
-			Value: trimmed,
+			Value: address,
 		}
 
 		// Ignore private IP addresses
-		if isPrivateIP(trimmed) == false {
+		if isPrivateIP(address) == false {
 			subjectList = append(subjectList, subject)
 		}
 	}
@@ -206,7 +206,7 @@ func extractDomains(details string) []squyre.Subject {
 
 	submatchall := re.FindAllString(details, -1)
 
-	submatchall = removeDuplicateStr(submatchall)
+	submatchall = removeDuplicateTrimmedStr(submatchall)
 
 	ignore := os.Getenv("IGNORE_DOMAIN")
 
