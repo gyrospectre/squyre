@@ -86,6 +86,10 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 
 				result.Success = true
 				result.Message = messageFromResponse(responseObject)
+				responseObject.Classification = ""
+				responseObject.Name = ""
+				responseObject.Link = ""
+				responseObject.LastSeen = ""
 			} else {
 				log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
 				return "Error decoding response from API!", err
