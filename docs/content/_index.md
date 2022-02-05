@@ -32,7 +32,7 @@ At scale, this leads to "alert fatigue": de-sensitising analysts with repetitive
 ...
 *"A rule should trigger automation that pulls in corresponding information, including log snippets, translation of IDs or employee names, hostnames, opinions from threat intelligence, etc."*
 
-This is exactly what Squyre does for you. Alerts are sent in, automation runs to gather this information, and them added to your alert - "decorating" them.
+This is exactly what Squyre does for you. Automation runs to gather this information and add to your alert - "decorating" them.
 
 It is cheap and relatively easy to run, improving your ability to catch threats, and keeping your team happy and focussed on what you pay them for! There are commercial products out there to do this, but they can get VERY expensive.
 
