@@ -5,7 +5,7 @@ title: Squyre
 
 Easy alert enrichment for overworked security teams!
 
-Squyre will help you deal with threats more effectively, decorating your security alerts by adding helpful information to provide context and help decide if this alert is cause for concern.
+Squyre will help you deal with threats more effectively, decorating your security alerts by adding helpful information that provides context and helps you decide if this alert is cause for concern.
 
 ## The Problem
 
