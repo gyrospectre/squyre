@@ -18,6 +18,8 @@ Resources:
       Environment:
         Variables:
           STACK_NAME: !Sub '${AWS::StackName}'
+          HOST_REGEX: A-[A-Z0-9]{6}
+          IGNORE_DOMAIN: your-internal-domain.int
 
   AlertTopic:
     Type: AWS::SNS::Topic

@@ -238,3 +238,55 @@ func TestIPExtraction(t *testing.T) {
 		t.Fatalf("Unxpected forth IP. \nHave: %s\nWant: %s", subjects[1].Value, ip2)
 	}
 }
+
+func TestHostExtraction(t *testing.T) {
+	setup()
+	host1 := "ABC-12345"
+	host2 := "X123487822"
+	host3 := "ABC-54321"
+
+	message := host1 + " " + " [" + host2 + ", " + host3 + "] " + host2 + "}"
+	HostRegex = `ABC-\d{5}`
+	subjects := extractHosts(message)
+
+	have := len(subjects)
+
+	want := 2
+	if have != want {
+		t.Fatalf("Unexpected number of Hosts. \nHave: %x\nWant: %x", have, want)
+	}
+
+	if subjects[0].Value != host1 {
+		t.Fatalf("Unxpected first host. \nHave: %s\nWant: %s", subjects[0].Value, host1)
+	}
+
+	if subjects[1].Value != host3 {
+		t.Fatalf("Unxpected second host. \nHave: %s\nWant: %s", subjects[1].Value, host3)
+	}
+}
+
+func TestNoHostRegex(t *testing.T) {
+	setup()
+
+	subjects := extractHosts("}")
+
+	have := len(subjects)
+	want := 0
+
+	if have != want {
+		t.Fatalf("Unexpected behaviour when host regex missing.\n Got: %s", subjects)
+	}
+}
+
+func TestNoIgnoreDomain(t *testing.T) {
+	setup()
+
+	subjects := extractDomains("google.com internal.domain")
+
+	have := len(subjects)
+	want := 1
+
+	if have != want {
+		t.Fatalf("Unexpected behaviour when ignore domain missing.\n Got: %s", subjects)
+	}
+}

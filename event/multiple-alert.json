@@ -15,7 +15,7 @@
       },
       {
         "Type": "hostname",
-        "Value": "A-hostname"
+        "Value": "A-123ABC"
       },
       {
         "Type": "sha256",

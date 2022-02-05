@@ -33,6 +33,10 @@ var (
 	SendAlert = sendAlertToSfn
 	// BuildDestination abstracts the BuildStateMachine function to allow for testing
 	BuildDestination = BuildStateMachine
+	// HostRegex defines the pattern for hostnames in your organisation, comes from an env var
+	HostRegex = os.Getenv("HOST_REGEX")
+	// IgnoreDomain optionally specifies a domain to ignore when extracting domains, comes from an env var
+	IgnoreDomain = os.Getenv("IGNORE_DOMAIN")
 )
 
 const (
@@ -171,6 +175,30 @@ func removeDuplicateTrimmedStr(strSlice []string) []string {
 	return list
 }
 
+func extractHosts(details string) []squyre.Subject {
+	if HostRegex == "" {
+		log.Warn("Env var IGNORE_DOMAIN is not set!")
+		return nil
+	}
+	var subjectList []squyre.Subject
+
+	regex := `(^|[ =\{\}\[])` + HostRegex + `($|[ ,\{\}\]])`
+
+	re := regexp.MustCompile(regex)
+
+	submatchall := re.FindAllString(details, -1)
+	submatchall = removeDuplicateTrimmedStr(submatchall)
+
+	for _, hostname := range submatchall {
+		var subject = squyre.Subject{
+			Type:  "hostname",
+			Value: hostname,
+		}
+		subjectList = append(subjectList, subject)
+	}
+	return subjectList
+}
+
 func extractIPs(details string) []squyre.Subject {
 	var subjectList []squyre.Subject
 
@@ -208,10 +236,12 @@ func extractDomains(details string) []squyre.Subject {
 
 	submatchall = removeDuplicateTrimmedStr(submatchall)
 
-	ignore := os.Getenv("IGNORE_DOMAIN")
+	if IgnoreDomain == "" {
+		log.Warn("Env var IGNORE_DOMAIN is not set!")
+	}
 
 	for _, domain := range submatchall {
-		if ignore != "" && !strings.Contains(domain, ignore) {
+		if (IgnoreDomain != "" || !strings.Contains(domain, IgnoreDomain)) || IgnoreDomain == "" {
 			var subject = squyre.Subject{
 				Type:  "domain",
 				Value: domain,
@@ -224,7 +254,7 @@ func extractDomains(details string) []squyre.Subject {
 			} else {
 				log.Infof("Ignoring internal domain %s.", domain)
 			}
-		} else {
+		} else if IgnoreDomain != "" {
 			log.Infof("Ignoring domain %s per env var.", domain)
 		}
 	}
@@ -326,6 +356,22 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 				"alert": alert.ID,
 			}).Infof("Extracted %d domains from the alert message", len(domainSubjects))
 			scope = append(scope, "domain")
+		}
+
+		// Hosts
+		hostSubjects := extractHosts(alert.RawMessage)
+		if len(hostSubjects) == 0 {
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			}).Info("No hosts found to process")
+		} else {
+			for _, sub := range hostSubjects {
+				alert.Subjects = append(alert.Subjects, sub)
+			}
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			}).Infof("Extracted %d hosts from the alert message", len(hostSubjects))
+			scope = append(scope, "hostname")
 		}
 
 		// Have finished adding the extracted subjects to our alert
