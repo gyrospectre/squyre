@@ -2,46 +2,48 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost/functions/crowdstrike/</loc>
-    <lastmod>2022-02-05T14:05:25+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/functions/crowdstrike/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/architecture/</loc>
-    <lastmod>2022-02-05T14:16:07+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/architecture/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/usage/customise/</loc>
-    <lastmod>2022-02-05T14:16:07+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/usage/customise/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/usage/getting_started/</loc>
-    <lastmod>2022-02-05T14:16:07+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/usage/getting_started/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/usage/incidentmgmt/</loc>
-    <lastmod>2022-02-05T14:16:07+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/usage/incidentmgmt/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/usage/direct/</loc>
-    <lastmod>2022-02-05T14:16:07+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/usage/direct/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/usage/requirements/</loc>
-    <lastmod>2022-02-05T14:16:07+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/usage/requirements/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/</loc>
-    <lastmod>2022-02-05T14:16:07+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/usage/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/usage/</loc>
-    <lastmod>2022-02-05T14:16:07+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/functions/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/functions/</loc>
-    <lastmod>2022-02-05T14:05:25+11:00</lastmod>
+    <loc>https://gyrospectre.github.io/squyre/overview/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/overview/</loc>
-    <lastmod>2022-02-05T14:03:08+11:00</lastmod>
-  </url><url>
-    <loc>http://localhost/contrib/</loc>
+    <loc>https://gyrospectre.github.io/squyre/contrib/</loc>
     <priority>0</priority>
   </url><url>
-    <loc>http://localhost/functions/greynoise/</loc>
+    <loc>https://gyrospectre.github.io/squyre/functions/greynoise/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/functions/ipapi/</loc>
+    <loc>https://gyrospectre.github.io/squyre/functions/ipapi/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
   </url><url>
-    <loc>http://localhost/tags/</loc>
+    <loc>https://gyrospectre.github.io/squyre/</loc>
+    <lastmod>2022-02-05T17:42:50+11:00</lastmod>
+  </url><url>
+    <loc>https://gyrospectre.github.io/squyre/tags/</loc>
   </url>
 </urlset>

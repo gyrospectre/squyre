@@ -2,16 +2,16 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Usage on Squyre Documentation</title>
-    <link>http://localhost/usage/</link>
+    <link>https://gyrospectre.github.io/squyre/usage/</link>
     <description>Recent content in Usage on Squyre Documentation</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 05 Feb 2022 14:16:07 +1100</lastBuildDate><atom:link href="http://localhost/usage/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 05 Feb 2022 14:16:07 +1100</lastBuildDate><atom:link href="https://gyrospectre.github.io/squyre/usage/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Customising for your environment</title>
-      <link>http://localhost/usage/customise/</link>
+      <link>https://gyrospectre.github.io/squyre/usage/customise/</link>
       <pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate>
       
-      <guid>http://localhost/usage/customise/</guid>
+      <guid>https://gyrospectre.github.io/squyre/usage/customise/</guid>
       <description>There are a couple of features which can be customised for your environment.
 Hostname Enrichment     Squyre will attempt to extract any internal hostnames from your alerts. Most organisations have a convention for endpoints and servers, but they vary considerably. As a result, you need to tell Squyre what your org&amp;rsquo;s convention is.
 Do this via an environment variable in template.yaml under the ConductorFunction section, specifying a Go compatible regular expression.</description>
@@ -19,38 +19,38 @@ Do this via an environment variable in template.yaml under the ConductorFunction
     
     <item>
       <title>Getting started</title>
-      <link>http://localhost/usage/getting_started/</link>
+      <link>https://gyrospectre.github.io/squyre/usage/getting_started/</link>
       <pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate>
       
-      <guid>http://localhost/usage/getting_started/</guid>
+      <guid>https://gyrospectre.github.io/squyre/usage/getting_started/</guid>
       <description>There are a couple of ways you can deploy, either directly between your alert source and ticketing system (pattern 1), or using an incident management platform like Opsgenie (pattern 2).
 Pattern 1 is the out of the box configuration as it&amp;rsquo;s the most generic. If you are using Splunk and Jira, but don&amp;rsquo;t already have something in place to create tickets automatically when alerts fire, then this is for you.</description>
     </item>
     
     <item>
       <title>Getting Started: Opsgenie Deployment</title>
-      <link>http://localhost/usage/incidentmgmt/</link>
+      <link>https://gyrospectre.github.io/squyre/usage/incidentmgmt/</link>
       <pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate>
       
-      <guid>http://localhost/usage/incidentmgmt/</guid>
+      <guid>https://gyrospectre.github.io/squyre/usage/incidentmgmt/</guid>
       <description>Clone the repo.  git clone https://github.com/gyrospectre/squyre.git Install the AWS SAM CLI. Edit template.yaml to use OpsGenie instead of Jira. In the OutputFunction definition, change the CodeUri value to output/opsgenie. While you&amp;rsquo;re at it, add a second snippet to template.yaml, to allow Opsgenie to send to the SNS topic.   AlertTopicPolicy: Type: AWS::SNS::TopicPolicy Properties: PolicyDocument: Id: AlertTopicPolicy Version: 2012-10-17 Statement: - Sid: OpsGenie-Publish Effect: Allow Principal: AWS: arn:aws:iam::089311581210:root Action: sns:Publish Resource: &amp;quot;*&amp;quot; Topics: - !</description>
     </item>
     
     <item>
       <title>Getting Started: Splunk to Jira Deployment</title>
-      <link>http://localhost/usage/direct/</link>
+      <link>https://gyrospectre.github.io/squyre/usage/direct/</link>
       <pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate>
       
-      <guid>http://localhost/usage/direct/</guid>
+      <guid>https://gyrospectre.github.io/squyre/usage/direct/</guid>
       <description>Clone the repo.  git clone https://github.com/gyrospectre/squyre.git Install the AWS SAM CLI. Update the consts at the top of output/jira/main.go with your destination Jira instance URL (BaseURL) and Project name (Project). With appropriate AWS credentials in your terminal session, build and deploy the stack. Name the stack squyre.  sam build sam deploy --guided  Over on Splunk, install the Splunk Add-on for AWS, which adds the ability to send alerts to SNS.</description>
     </item>
     
     <item>
       <title>Requirements</title>
-      <link>http://localhost/usage/requirements/</link>
+      <link>https://gyrospectre.github.io/squyre/usage/requirements/</link>
       <pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate>
       
-      <guid>http://localhost/usage/requirements/</guid>
+      <guid>https://gyrospectre.github.io/squyre/usage/requirements/</guid>
       <description>You will need 3 things in place in order to use Squyre.
   You must have an AWS account to host it. It runs solely in AWS using serverless services (lambdas and step functions). If you don&amp;rsquo;t have one, don&amp;rsquo;t be too concerned with signing up - if you&amp;rsquo;re only running a few test alerts through Squyre AWS &amp;ldquo;Free Tier&amp;rdquo;should mean the cost is negligible (if not free).
   You need something that is generating security alerts for you.</description>
