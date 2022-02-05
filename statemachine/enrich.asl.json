@@ -7,32 +7,16 @@
       "Next": "Output Results",
       "Branches": [
         {
-          "StartAt": "Domains to process?",
+          "StartAt": "Enrich Multipurpose",
           "States": {
-            "Domains to process?": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Variable": "$.Scope",
-                  "StringMatches": "*domain*",
-                  "Next": "Enrich by Domain"
-                }
-              ],
-              "Default": "Don't process domains",
-              "Comment": "Only run domain functions if we have domains to process."
-            },
-            "Don't process domains": {
-              "Type": "Pass",
-              "End": true,
-              "Result": []
-            },
-            "Enrich by Domain": {
+            "Enrich Multipurpose": {
               "Type": "Parallel",
+              "Comment": "Always run multi functions",
               "Branches": [
                 {
-                  "StartAt": "CrowdStrike Falcon - Domain",
+                  "StartAt": "CrowdStrike Falcon - Multipurpose",
                   "States": {
-                    "CrowdStrike Falcon - Domain": {
+                    "CrowdStrike Falcon - Multipurpose": {
                       "Type": "Task",
                       "Resource": "arn:aws:states:::lambda:invoke",
                       "TimeoutSeconds": 10,
