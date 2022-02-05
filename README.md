@@ -8,6 +8,8 @@ Squyre will help you deal with threats more effectively, decorating your securit
 
 Check out the docs at https://gyrospectre.github.io/squyre/ for more information on the problem it solves and how it can work for you.
 
+[![Build Docs](https://github.com/gyrospectre/squyre/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/gyrospectre/squyre/actions/workflows/gh-pages.yml)
+
 ## How can I use this?
 
 As an example, let's say that your security team uses Splunk for alerting and investigation, and Atlassian Jira for ticketing. By using the SNS alert action in the free Splunk Add-on for AWS, you can set your alerts to send to Squyre, which will take the results you define as interesting, extract any public IP addresses from them, and then run them through a bunch of services to get information about them. Squyre will then create a Jira ticket for your alert, and add this information as comments.
