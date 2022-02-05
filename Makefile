@@ -7,7 +7,10 @@ GODIRS := $(shell find . -name '*.go' | xargs dirname | sort -u)
 
 build:
 	sam build
-	cd docs && hugo && cd ..
+
+update-docs:
+	cd docs && hugo --minify && cd ..
+	git subtree push --prefix docs/public origin gh-pages
 
 test:
 	@echo "go test all packages"
