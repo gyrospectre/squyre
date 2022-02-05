@@ -8,10 +8,6 @@ GODIRS := $(shell find . -name '*.go' | xargs dirname | sort -u)
 build:
 	sam build
 
-update-docs:
-	cd docs && hugo --minify && cd ..
-	git subtree push --prefix docs/public origin gh-pages
-
 test:
 	@echo "go test all packages"
 	@for DIR in $(GODIRS); do cd $$DIR; go test ${TEST_TIMEOUT} -cover -v -count=1; cd - > /dev/null ; done;
