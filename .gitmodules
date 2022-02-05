@@ -1,0 +1,6 @@
+[submodule "docs/themes/risotto"]
+	path = docs/themes/risotto
+	url = https://github.com/joeroe/risotto.git
+[submodule "docs/themes/geekdoc"]
+	path = docs/themes/geekdoc
+	url = https://github.com/thegeeklab/hugo-geekdoc.git

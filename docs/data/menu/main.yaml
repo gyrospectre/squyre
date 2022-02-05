@@ -1,0 +1,32 @@
+---
+main:
+  - name: Usage
+    sub:
+      - name: What do I need?
+        ref: "/usage/requirements"
+      - name: Getting started
+        ref: "/usage/getting_started"
+        sub:
+          - name: Direct
+            ref: "/usage/direct"
+          - name: Opsgenie
+            ref: "/usage/incidentmgmt"
+      - name: Customising
+        ref: "/usage/customise"          
+  - name: How it works
+    sub:
+    - name: Architecture
+      ref: "/architecture"
+    - name: Functions
+      sub:
+      - name: CrowdStrike Falcon
+        ref: "/functions/crowdstrike"
+      - name: GreyNoise
+        ref: "/functions/greynoise"
+      - name: IP API
+        ref: "/functions/ipapi"
+  - name: Contributing
+    icon: "gdoc_heart"
+    sub:
+      - name: Code Contributions
+        ref: "/contrib"

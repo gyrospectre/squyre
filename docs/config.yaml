@@ -1,0 +1,32 @@
+---
+baseURL: "http://localhost"
+title: "Squyre Documentation"
+theme: "hugo-geekdoc"
+
+# Required to get well formatted code blocks
+pygmentsUseClasses: true
+pygmentsCodeFences: true
+disablePathToLower: true
+enableGitInfo: true
+
+# Required if you want to render robots.txt template
+enableRobotsTXT: true
+
+# I know how to English
+pluralizeListTitles: false
+
+markup:
+  goldmark:
+    # Needed for mermaid shortcode
+    renderer:
+      unsafe: true
+  tableOfContents:
+    startLevel: 1
+    endLevel: 9
+
+taxonomies:
+  tag: tags
+
+params:
+  geekdocMenuBundle: true
+  geekdocLogo: "logo.png"

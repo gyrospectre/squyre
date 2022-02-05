@@ -7,6 +7,7 @@ GODIRS := $(shell find . -name '*.go' | xargs dirname | sort -u)
 
 build:
 	sam build
+	cd docs && hugo && cd ..
 
 test:
 	@echo "go test all packages"
