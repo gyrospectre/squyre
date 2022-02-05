@@ -1,2 +1,4 @@
 .aws-sam
 samconfig.toml
+docs/public
+.hugo_build.lock

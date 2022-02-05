@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /tags/*
-
-Sitemap: https://gyrospectre.github.io/squyre/sitemap.xml
