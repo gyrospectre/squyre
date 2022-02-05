@@ -1,5 +1,5 @@
 ---
-baseURL: "http://localhost"
+baseURL: "https://gyrospectre.github.io/squyre/"
 title: "Squyre Documentation"
 theme: "hugo-geekdoc"
 
