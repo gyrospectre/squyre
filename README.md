@@ -1,10 +1,10 @@
 # Squyre
 
+<img src="https://media.giphy.com/media/l0MYylLtnC1ADCGys/giphy.gif" alt="ooh so rad" width="300" align="right" />
+
 Easy alert enrichment for overworked security teams!
 
 [![Build Docs](https://github.com/gyrospectre/squyre/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/gyrospectre/squyre/actions/workflows/gh-pages.yml)
-
-<img src="https://media.giphy.com/media/l0MYylLtnC1ADCGys/giphy.gif" alt="ooh so rad" width="300" align="right" />
 
 Squyre will help you deal with threats more effectively, decorating your security alerts by adding helpful information to provide context and help decide if this alert is cause for concern.
 
