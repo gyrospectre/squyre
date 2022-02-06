@@ -24,7 +24,7 @@ const (
 	provider       = "Crowdstrike Falcon"
 	baseURL        = "https://api.crowdstrike.com"
 	supports       = "ipv4,domain,sha256,hostname"
-	secretLocation  = "CrowdstrikeAPI"
+	secretLocation = "CrowdstrikeAPI"
 )
 
 var (
