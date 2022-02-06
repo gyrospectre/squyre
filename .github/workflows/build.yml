@@ -23,9 +23,6 @@ jobs:
     - name: Unit tests
       run: make test
 
-    - name: Lint
-      run: make lint
-
     - name: "Check: go fmt"
       run: |
         if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then

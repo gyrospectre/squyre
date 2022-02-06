@@ -16,7 +16,7 @@ test:
 lint:
 	@echo "go lint all packages"
 	@hash golint > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u golang.org/x/lint/golint; \
+		$(GO) install golang.org/x/lint/golint@latest; \
 	fi
 	@for DIR in $(GODIRS); do echo $$DIR; `go list -f {{.Target}} golang.org/x/lint/golint` -set_exit_status $$DIR || exit 1; done;
 	
