@@ -10,7 +10,4 @@ It is defined by `statemachine/enrich.asl.json` in the [AWS ASL language](https:
 
 Layout is straightforward, nested parallel branches run the enrichment tasks which are sent to the output function at the end to update alerts/tickets.
 
-![pretty](/media/statemachine.png)
-
-
-test
+<img src="/squyre/media/statemachine.png" alt="Enrich State Machine" width="75%" />
