@@ -8,4 +8,4 @@ The main state machine is called `EnrichStateMachine`, because it, uh enriches, 
 
 It is defined by `statemachine/enrich.asl.json` in the [AWS ASL language](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html).
 
-![pretty](statemachine.png)
+![pretty](/statemachine.png)
