@@ -16,15 +16,17 @@ main:
   - name: How it works
     sub:
     - name: Architecture
-      ref: "/architecture"
-    - name: Functions
-      sub:
-      - name: CrowdStrike Falcon
-        ref: "/functions/crowdstrike"
-      - name: GreyNoise
-        ref: "/functions/greynoise"
-      - name: IP API
-        ref: "/functions/ipapi"
+      ref: "/architecture/architecture"
+    - name: State Machine
+      ref: "/architecture/state.md"
+  - name: Functions
+    sub:
+    - name: CrowdStrike Falcon
+      ref: "/functions/crowdstrike"
+    - name: GreyNoise
+      ref: "/functions/greynoise"
+    - name: IP API
+      ref: "/functions/ipapi"
   - name: Contributing
     icon: "gdoc_heart"
     sub:
