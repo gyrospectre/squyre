@@ -2,5 +2,4 @@
 Alerts are sent to the SNS topic, which triggers the first Lambda function, conductor. This function take the alert body, extracts IP addresses, domain names and hostnames, and then starts the step function with this information.
 The step function (or state machine) then invokes enrichment functions depending on what sort of info was in the alert.</description></item><item><title>State Machine</title><link>https://gyrospectre.github.io/squyre/architecture/state/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/architecture/state/</guid><description>The main state machine is called EnrichStateMachine, because it, uh enriches, and it&amp;rsquo;s a state machine.
 It is defined by statemachine/enrich.asl.json in the AWS ASL language.
-Layout is straightforward, nested parallel branches run the enrichment tasks which are sent to the output function at the end to update alerts/tickets.
-test</description></item></channel></rss>
+Layout is straightforward, nested parallel branches run the enrichment tasks which are sent to the output function at the end to update alerts/tickets.</description></item></channel></rss>
