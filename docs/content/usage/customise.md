@@ -6,6 +6,12 @@ draft: false
 
 There are a couple of features which can be customised for your environment.
 
+## Enrichment Functions
+
+You can modify `statemachine/enrich.asl.json` to change which enrichment functions run. Don't have CrowdStrike? No problem, just remove that component from the state machine. If you want, you can also remove unnecessary functions from `template.yaml` to cut down what gets deployed to AWS.
+
+The easiest way to change the state machine definition is to edit it from the [AWS Step Functions Workflow Studio](https://aws.amazon.com/blogs/aws/new-aws-step-functions-workflow-studio-a-low-code-visual-tool-for-building-state-machines/) in the AWS Console, then export as JSON back into `statemachine/enrich.asl.json`.
+
 ## Hostname Enrichment
 
 Squyre will attempt to extract any internal hostnames from your alerts. Most organisations have a convention for endpoints and servers, but they vary considerably. As a result, you need to tell Squyre what your org's convention is.
