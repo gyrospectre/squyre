@@ -4,6 +4,7 @@
 
 Easy alert enrichment for overworked security teams!
 
+[![Tests](https://github.com/gyrospectre/squyre/actions/workflows/tests.yml/badge.svg)](https://github.com/gyrospectre/squyre/actions/workflows/tests.yml)
 [![Build Docs](https://github.com/gyrospectre/squyre/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/gyrospectre/squyre/actions/workflows/gh-pages.yml)
 
 Squyre will help you deal with threats more effectively, decorating your security alerts by adding helpful information to provide context and help decide if this alert is cause for concern.
