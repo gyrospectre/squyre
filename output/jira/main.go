@@ -10,7 +10,7 @@ import (
 
 	"github.com/andygrunwald/go-jira"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/gyrospectre/squyre"
+	"github.com/gyrospectre/squyre/pkg/squyre"
 )
 
 const (

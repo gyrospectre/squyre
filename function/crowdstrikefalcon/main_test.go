@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/crowdstrike/gofalcon/falcon/client"
-	"github.com/gyrospectre/squyre"
+	"github.com/gyrospectre/squyre/pkg/squyre"
 	"testing"
 )
 

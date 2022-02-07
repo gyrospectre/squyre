@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/google/go-cmp/cmp"
-	"github.com/gyrospectre/squyre"
+	"github.com/gyrospectre/squyre/pkg/squyre"
 	"io/ioutil"
 	"net/http"
 	"testing"

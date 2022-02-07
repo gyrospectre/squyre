@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/gyrospectre/squyre"
+	"github.com/gyrospectre/squyre/pkg/squyre"
 	"sort"
 	"testing"
 )

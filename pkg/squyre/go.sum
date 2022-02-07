@@ -55,6 +55,8 @@ github.com/aws/aws-lambda-go v1.28.0/go.mod h1:jJmlefzPfGnckuHdXX7/80O3BvUUi12XO
 github.com/aws/aws-sdk-go v1.34.28/go.mod h1:H7NKnBqNVzoTJpGfLrQkkD+ytBA93eiDYi/+8rV9s48=
 github.com/aws/aws-sdk-go v1.42.30 h1:GvzWHwAdE5ZQ9UOcq0lX+PTzVJ4+sm1DjYrk6nUSTgA=
 github.com/aws/aws-sdk-go v1.42.30/go.mod h1:OGr6lGMAKGlG9CVrYnWYDKIyb829c6EVBRjxqjmPepc=
+github.com/aws/aws-sdk-go v1.42.47 h1:Faabrbp+bOBiZjHje7Hbhvni212aQYQIXZMruwkgmmA=
+github.com/aws/aws-sdk-go v1.42.47/go.mod h1:OGr6lGMAKGlG9CVrYnWYDKIyb829c6EVBRjxqjmPepc=
 github.com/aws/constructs-go/constructs/v10 v10.0.9 h1:YGk+deTAD3rgyANybjOtaoVrjC7HZZtALeC872avWFQ=
 github.com/aws/constructs-go/constructs/v10 v10.0.9/go.mod h1:RC6w8bOwxLmPX7Jfo9dkEZ9iVfgH4QnaVnfWvaNOHy0=
 github.com/aws/jsii-runtime-go v1.37.0/go.mod h1:6tZnlstx8bAB3vnLFF9n8bbkI//LDblAek9zFyMXV3E=

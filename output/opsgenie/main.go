@@ -14,7 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/gyrospectre/squyre"
+	"github.com/gyrospectre/squyre/pkg/squyre"
 )
 
 const (

@@ -19,15 +19,15 @@ Requires a paid Falcon Insight and Falcon X license.
 Found Falcon X indicator for 127.0.0.1:
 
 Malicious confidence: 'High'.
-Added: 2022-01-01 00:00:00
-Updated: 2022-01-01 00:00:10
+Added: 2022-01-01 00:00:00 +0000 UTC
+Updated: 2022-01-01 00:00:10 +0000 UTC
 
-Labels: %s
-Kill Chains: %s
-Malware Families: %s
-Vulnerabilities: %s
-Threat Types: %s
-Targets: %s
+Labels: Killchain/C2,Malware/CobaltStrike
+Kill Chains: C2
+Malware Families: CobaltStrike
+Vulnerabilities:
+Threat Types: Commodity,Criminal,RAT
+Targets:
 
 More information at: https://falcon.crowdstrike.com/search/?term=_all:~'127.0.0.1'
 ```
