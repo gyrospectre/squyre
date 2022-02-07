@@ -1,4 +1,4 @@
-module github.com/gyrospectre/squyre
+module github.com/gyrospectre/squyre/pkg/squyre
 
 go 1.17
 
