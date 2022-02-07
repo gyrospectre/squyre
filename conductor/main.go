@@ -21,7 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/aws/aws-sdk-go/service/sfn/sfniface"
-	"github.com/gyrospectre/squyre/internal/squyre"
+	"github.com/gyrospectre/squyre/pkg/squyre"
 	"golang.org/x/net/publicsuffix"
 )
 
