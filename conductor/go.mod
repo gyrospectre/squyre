@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/aws/aws-lambda-go v1.28.0
 	github.com/aws/aws-sdk-go v1.42.47
-	github.com/gyrospectre/squyre v0.0.0-20220206065758-5c05ea014c46
+	github.com/gyrospectre/squyre/pkg/squyre v0.0.0-20220207011116-2eb878210cf3
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd
 )
