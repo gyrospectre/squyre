@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -69,11 +68,6 @@ type apiKeySecret struct {
 	ClientID     string `json:"clientID"`
 	ClientSecret string `json:"clientSecret"`
 	FalconCloud  string `json:"falconCloud"`
-}
-
-// HTTPClient interface
-type HTTPClient interface {
-	Do(req *http.Request) (*http.Response, error)
 }
 
 // InitFalconClient initialises a Falcon client using credentials from AWS Secrets Manager

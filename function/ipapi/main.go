@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -15,52 +16,101 @@ import (
 )
 
 const (
-	provider = "IP API"
-	baseURL  = "http://ip-api.com/json"
-	supports = "ipv4"
+	provider       = "IP API"
+	baseURL        = "http://api.ipapi.com/"
+	supports       = "ipv4"
+	secretLocation = "IPAPI"
 )
 
 var (
-	// Client defines an abstracted HTTP client to allow for tests
-	Client         HTTPClient
+	// GetIPInfo abstracts this function to allow for tests
+	GetIPInfo      = getIPInfo
 	responseObject ipapiResponse
+	InitClient     = initIPAPIClient
 )
 
-var template = `
-IP API result for %s (%s):
+var template = `IP API result for %s:
 
 Country: %s
 City: %s, %s
-ISP: %s
 `
 
-func init() {
-	Client = &http.Client{}
+type apiKeySecret struct {
+	ApiKey string `json:"apikey"`
 }
 
-// HTTPClient interface
-type HTTPClient interface {
-	Do(req *http.Request) (*http.Response, error)
+type apiClient struct {
+	httpClient *http.Client
+	apiKey     string
+	baseURL    string
 }
 
 type ipapiResponse struct {
-	Status      string `json:"status"`
-	Country     string `json:"country"`
-	CountryCode string `json:"countryCode"`
-	Region      string `json:"region"`
-	RegionName  string `json:"regionName"`
-	City        string `json:"city"`
-	Latitude    string `json:"lat"`
-	Longitude   string `json:"lon"`
-	Timezone    string `json:"timezone"`
-	ISP         string `json:"isp"`
-	Org         string `json:"org"`
-	ASN         string `json:"as"`
-	Query       string `json:"query"`
+	IP                      string `json:"ip"`
+	Type                    string `json:"type"`
+	ContinentCode           string `json:"continent_code"`
+	ContinentName           string `json:"continent_name"`
+	CountryCode             string `json:"country_code"`
+	CountryName             string `json:"country_name"`
+	RegionCode              string `json:"region_code"`
+	RegionName              string `json:"region_name"`
+	City                    string `json:"city"`
+	Zip                     string `json:"zip"`
+	Latitude                string `json:"latitude"`
+	Longitude               string `json:"longitude"`
+	CountryFlag             string `json:"country_flag"`
+	CountryFlagEmoji        string `json:"country_flag_emoji"`
+	CountryFlagEmojiUnicode string `json:"country_flag_emoji_unicode"`
+	calling_code            string `json:"calling_code"`
+	IsEu                    bool   `json:"is_eu"`
+}
+
+func initIPAPIClient() (*apiClient, error) {
+	// Fetch API key from Secrets Manager
+	smresponse, err := squyre.GetSecret(secretLocation)
+	if err != nil {
+		log.Errorf("Failed to fetch %s secret: %s", provider, err)
+	}
+
+	var secret apiKeySecret
+	json.Unmarshal([]byte(*smresponse.SecretString), &secret)
+
+	client := &apiClient{
+		baseURL: strings.TrimSuffix(baseURL, "/"),
+		httpClient: &http.Client{
+			Timeout: time.Second * 30,
+		},
+		apiKey: secret.ApiKey,
+	}
+
+	return client, nil
+}
+
+func getIPInfo(c *apiClient, ipv4 string) (*http.Response, error) {
+	request, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/%s?access_key=%s", c.baseURL, ipv4, c.apiKey),
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return c.httpClient.Do(request)
 }
 
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	log.Infof("Starting %s run for alert %s", provider, alert.ID)
+
+	if len(alert.Subjects) == 0 {
+		log.Info("Alert has no subjects to process.")
+		finalJSON, _ := json.Marshal(alert)
+		return string(finalJSON), nil
+	}
+
+	client, err := InitClient()
+	if err != nil {
+		return "Failed to initialise client", err
+	}
 
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
@@ -73,8 +123,7 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				Success:        false,
 			}
 
-			request, _ := http.NewRequest("GET", fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.Value), nil)
-			response, err := Client.Do(request)
+			response, err := GetIPInfo(client, subject.Value)
 
 			if err != nil {
 				log.Errorf("Failed to fetch data from %s", provider)
@@ -109,12 +158,10 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 
 func messageFromResponse(response ipapiResponse) string {
 	message := fmt.Sprintf(template,
-		response.Query,
-		response.Org,
-		response.Country,
+		response.IP,
+		response.CountryName,
 		response.City,
 		response.RegionName,
-		response.ISP,
 	)
 
 	return string(message)
