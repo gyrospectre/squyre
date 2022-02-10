@@ -42,3 +42,6 @@ More information at: https://falcon.crowdstrike.com/search/?term=_all:~'127.0.0.
   "FalconCloud": <the Falcon Cloud region your account uses e.g. us-1, us-2, eu-1, us-gov-1>
 }
 ```
+
+### Environment Variables
+`ONLY_LOG_MATCHES` : Set to true (in template.yaml) to only decorate an alert if the indicator was found in Greynoise. Default = `false`.
