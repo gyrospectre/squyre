@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -28,7 +30,9 @@ const (
 
 var (
 	// InitClient abstracts this function to allow for tests
-	InitClient = InitFalconClient
+	InitClient        = InitFalconClient
+	OnlyLogMatches, _ = strconv.ParseBool(os.Getenv("ONLY_LOG_MATCHES"))
+	getIndicator      = getFalconIndicator
 )
 
 var templateIntelIndicator = `
@@ -101,6 +105,7 @@ func InitFalconClient() (*client.CrowdStrikeAPISpecification, error) {
 
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	log.Infof("Starting %s run for alert %s", provider, alert.ID)
+	log.Infof("OnlyLogMatches is set to %t", OnlyLogMatches)
 
 	if len(alert.Subjects) == 0 {
 		log.Info("Alert has no subjects to process.")
@@ -152,18 +157,24 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 					return "Error fetching data from API!", err
 				}
 				result.Success = true
-
 				if indicator != nil {
-					result.Message = messageFromIndicator(indicator)
-
+					log.Infof("Received %s response for %s", provider, subject.Value)
+					result.Success = true
 				} else {
-					result.Message = "Indicator not found in Falcon X."
+					result.Success = false
 				}
-				log.Infof("Received %s response for %s", provider, subject.Value)
 
-				// Add the enriched details back to the results
-				alert.Results = append(alert.Results, result)
-				log.Infof("Added %s to result set", subject.Value)
+				if !result.Success && OnlyLogMatches {
+					log.Infof("Skipping non match for %s", subject.Value)
+				} else {
+					if !result.Success {
+						result.Message = "Indicator not found in Falcon X."
+					} else {
+						result.Message = messageFromIndicator(indicator)
+					}
+					alert.Results = append(alert.Results, result)
+					log.Infof("Added %s to result set", subject.Value)
+				}
 			}
 		}
 	}
@@ -230,7 +241,7 @@ func messageFromHostDetail(host *models.DomainDeviceSwagger) string {
 	return string(message)
 }
 
-func getIndicator(client *client.CrowdStrikeAPISpecification, name string) (*models.DomainPublicIndicatorV3, error) {
+func getFalconIndicator(client *client.CrowdStrikeAPISpecification, name string) (*models.DomainPublicIndicatorV3, error) {
 	filter := fmt.Sprintf("indicator:'%s'", name)
 
 	indicatorsChannel, errorChannel := queryIntelIndicators(client, &filter, nil)

@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/crowdstrike/gofalcon/falcon/client"
+	"github.com/crowdstrike/gofalcon/falcon/models"
 	"github.com/gyrospectre/squyre/pkg/squyre"
 	"testing"
+	"time"
 )
 
 var (
@@ -22,10 +24,31 @@ func setup() {
 
 	// Reset fake ticket number count
 	MockTicket = 1
+
+	getIndicator = mockGetFalconIndicator
+	OnlyLogMatches = false
 }
 
 func mockInitClient() (*client.CrowdStrikeAPISpecification, error) {
 	return &client.CrowdStrikeAPISpecification{}, nil
+}
+
+func mockGetFalconIndicator(client *client.CrowdStrikeAPISpecification, name string) (*models.DomainPublicIndicatorV3, error) {
+	conf := "high"
+	now := time.Now()
+	epoch := now.Unix()
+
+	if name == "8.8.8.8" {
+		indicator := &models.DomainPublicIndicatorV3{
+			Indicator:           &name,
+			MaliciousConfidence: &conf,
+			PublishedDate:       &epoch,
+			LastUpdated:         &epoch,
+		}
+		return indicator, nil
+	}
+
+	return nil, nil
 }
 
 func mockGetSecret(location string) (secretsmanager.GetSecretValueOutput, error) {
@@ -38,14 +61,6 @@ func mockGetSecret(location string) (secretsmanager.GetSecretValueOutput, error)
 func makeTestAlert() (squyre.Alert, string) {
 	alert := squyre.Alert{
 		RawMessage: "Testing",
-	}
-	alert.Results = []squyre.Result{
-		{
-			Source:         "Gyro",
-			AttributeValue: "127.0.0.1",
-			Message:        "Test",
-			Success:        true,
-		},
 	}
 	finalJSON, _ := json.Marshal(alert)
 
@@ -67,5 +82,78 @@ func TestAlertWithNoSubjects(t *testing.T) {
 
 	if have != want {
 		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)
+	}
+}
+
+func TestAlertWithSubjectsNoIgnore(t *testing.T) {
+	setup()
+
+	alert, _ := makeTestAlert()
+	alert.Subjects = []squyre.Subject{
+		{
+			Type:  "ipv4",
+			Value: "8.8.8.8",
+		},
+		{
+			Type:  "ipv4",
+			Value: "4.4.4.4",
+		},
+	}
+
+	output, err := handleRequest(Ctx, alert)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err)
+	}
+
+	var response squyre.Alert
+	json.Unmarshal([]byte(output), &response)
+
+	client, _ := mockInitClient()
+	ind, _ := mockGetFalconIndicator(client, "8.8.8.8")
+
+	have := string(response.Results[0].Message)
+	want := messageFromIndicator(ind)
+	if have != want {
+		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)
+	}
+
+	havenum := len(response.Results)
+	wantnum := 0
+
+	if have != want {
+		t.Errorf("Expected %x results, got %x", wantnum, havenum)
+	}
+
+}
+
+func TestAlertWithSubjectsIgnore(t *testing.T) {
+	setup()
+	OnlyLogMatches = true
+
+	alert, _ := makeTestAlert()
+	alert.Subjects = []squyre.Subject{
+		{
+			Type:  "ipv4",
+			Value: "8.8.8.8",
+		},
+		{
+			Type:  "ipv4",
+			Value: "4.4.4.4",
+		},
+	}
+
+	output, err := handleRequest(Ctx, alert)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err)
+	}
+
+	var response squyre.Alert
+	json.Unmarshal([]byte(output), &response)
+
+	have := len(response.Results)
+	want := 1
+
+	if have != want {
+		t.Errorf("Expected %x results, got %x", want, have)
 	}
 }
