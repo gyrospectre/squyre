@@ -4,150 +4,143 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"github.com/google/go-cmp/cmp"
 	"github.com/gyrospectre/squyre/pkg/squyre"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
-
-// MockClient is the mock client
-type MockClient struct {
-	DoFunc func(req *http.Request) (*http.Response, error)
-}
 
 var (
-	// GetDoFunc fetches the mock client's `Do` func
-	GetDoFunc func(req *http.Request) (*http.Response, error)
+	mockResponse string
+	TestAlert    squyre.Alert
+	ctx          context.Context
 )
 
-// Do is the mock client's `Do` func
-func (m *MockClient) Do(req *http.Request) (*http.Response, error) {
-	return GetDoFunc(req)
+func mockInitClient() (*apiClient, error) {
+	return &apiClient{
+		baseURL: strings.TrimSuffix(baseURL, "/"),
+		httpClient: &http.Client{
+			Timeout: time.Second * 30,
+		},
+	}, nil
 }
 
-// tests GetSecret return an expected value
-func TestHandlerSuccess(t *testing.T) {
-	Client = &MockClient{}
-
-	// build response JSON
-	gnResp := greynoiseResponse{
-		IP:      "8.8.8.8",
-		Noise:   false,
-		Riot:    false,
-		Message: "IP not observed scanning the internet or contained in RIOT data set.",
+func mockIPInfo(c *apiClient, ipv4 string) (*http.Response, error) {
+	// 4.4.4.4 is bad, all other IPs good
+	var gnResp greynoiseResponse
+	if ipv4 == "4.4.4.4" {
+		gnResp = greynoiseResponse{
+			IP:             "4.4.4.4",
+			Noise:          true,
+			Riot:           false,
+			Classification: "malicious",
+			Link:           "http://localhost",
+			Message:        "Success",
+		}
+	} else {
+		gnResp = greynoiseResponse{
+			IP:      "8.8.8.8",
+			Noise:   false,
+			Riot:    false,
+			Message: "IP not observed scanning the internet or contained in RIOT data set.",
+		}
 	}
-	respJSON, _ := json.Marshal(gnResp)
+	gnRespJson, _ := json.Marshal(gnResp)
+	mockResponse = string(gnRespJson)
 
-	// create a new reader with that JSON
-	r := ioutil.NopCloser(bytes.NewReader([]byte(respJSON)))
-	GetDoFunc = func(*http.Request) (*http.Response, error) {
-		return &http.Response{
-			StatusCode: 200,
-			Body:       r,
-		}, nil
-	}
+	return &http.Response{
+		Body: ioutil.NopCloser(bytes.NewReader([]byte(mockResponse))),
+	}, nil
+}
 
-	alert := squyre.Alert{
+func setup() {
+	GetIPInfo = mockIPInfo
+	InitClient = mockInitClient
+	OnlyLogMatches = false
+	TestAlert = squyre.Alert{
 		RawMessage: "Testing",
 		ID:         "1234-1234",
 		Name:       "Test Search",
 		URL:        "https://127.0.0.1/test.html",
 		Timestamp:  "2022-12-12 18:00:00",
 	}
-	alert.Subjects = []squyre.Subject{
+}
+
+func TestHandlerNonMatchNonIgnore(t *testing.T) {
+	setup()
+
+	TestAlert.Subjects = []squyre.Subject{
 		{
 			Type:  "ipv4",
 			Value: "8.8.8.8",
 		},
 	}
-	var ctx context.Context
-	output, err := handleRequest(ctx, alert)
+	output, _ := handleRequest(ctx, TestAlert)
 
-	if err != nil {
-		t.Fatalf("unexpected error %s", err)
-	}
+	var response squyre.Alert
+	json.Unmarshal([]byte(output), &response)
 
-	prettyresponse := messageFromResponse(gnResp)
+	have := response.Results[0].Message
+	json.Unmarshal([]byte(mockResponse), &responseObject)
+	want := messageFromResponse(responseObject)
 
-	expected, _ := json.Marshal(squyre.Alert{
-		RawMessage: "Testing",
-		ID:         "1234-1234",
-		Name:       "Test Search",
-		URL:        "https://127.0.0.1/test.html",
-		Timestamp:  "2022-12-12 18:00:00",
-		Subjects: []squyre.Subject{
-			{
-				Type:  "ipv4",
-				Value: "8.8.8.8",
-			},
-		},
-		Results: []squyre.Result{
-			{
-				Source:         "GreyNoise",
-				AttributeValue: "8.8.8.8",
-				Message:        string(prettyresponse),
-				Success:        true,
-			},
-		},
-	})
-
-	if !cmp.Equal(string(expected), output) {
-		t.Fatalf("expected value %s, got %s", expected, output)
+	if have != want {
+		t.Errorf("Expected '%s', got '%s'", want, have)
 	}
 }
 
-func TestHandlerError(t *testing.T) {
-	Client = &MockClient{}
-	GetDoFunc = func(*http.Request) (*http.Response, error) {
-		return nil, errors.New("Greynoise failed")
-	}
+func TestHandlerNonMatchIgnore(t *testing.T) {
+	setup()
+	OnlyLogMatches = true
 
-	alert := squyre.Alert{}
-	alert.Subjects = []squyre.Subject{
+	TestAlert.Subjects = []squyre.Subject{
 		{
 			Type:  "ipv4",
 			Value: "8.8.8.8",
 		},
 	}
+	output, _ := handleRequest(ctx, TestAlert)
 
-	var ctx context.Context
-	_, err := handleRequest(ctx, alert)
+	var response squyre.Alert
+	json.Unmarshal([]byte(output), &response)
 
-	if err == nil {
-		t.Fatalf("unexpected non error")
+	have := len(response.Results)
+	want := 0
+
+	if have != want {
+		t.Errorf("Expected %x results, got %x", want, have)
+	}
+}
+
+func TestHandlerMatch(t *testing.T) {
+	setup()
+
+	TestAlert.Subjects = []squyre.Subject{
+		{
+			Type:  "ipv4",
+			Value: "8.8.8.8",
+		},
+	}
+	output, _ := handleRequest(ctx, TestAlert)
+
+	var response squyre.Alert
+	json.Unmarshal([]byte(output), &response)
+
+	have := response.Results[0].Message
+	json.Unmarshal([]byte(mockResponse), &responseObject)
+	want := messageFromResponse(responseObject)
+
+	if have != want {
+		t.Errorf("Expected '%s', got '%s'", want, have)
 	}
 }
 
 func TestMultiSubject(t *testing.T) {
-	Client = &MockClient{}
+	setup()
 
-	GetDoFunc = func(req *http.Request) (*http.Response, error) {
-		var respJSON []byte
-		if strings.HasSuffix(req.URL.Path, "4.4.4.4") {
-			respJSON = []byte(`{"ip":"4.4.4.4","noise":false,"riot":false,"classification":"malicious","message":"Bad!","link":"https://viz.greynoise.io/ip/4.4.4.4"}`)
-		} else {
-			respJSON = []byte(`{"ip":"8.8.8.8","noise":false,"riot":false,"message":"IP not observed scanning the internet or contained in RIOT data set."}`)
-		}
-
-		r := ioutil.NopCloser(bytes.NewReader([]byte(respJSON)))
-
-		return &http.Response{
-			StatusCode: 200,
-			Body:       r,
-		}, nil
-	}
-
-	alert := squyre.Alert{
-		RawMessage: "Testing",
-		ID:         "1234-1234",
-		Name:       "Test Search",
-		URL:        "https://127.0.0.1/test.html",
-		Timestamp:  "2022-12-12 18:00:00",
-	}
-	alert.Subjects = []squyre.Subject{
+	TestAlert.Subjects = []squyre.Subject{
 		{
 			Type:  "ipv4",
 			Value: "4.4.4.4",
@@ -157,8 +150,8 @@ func TestMultiSubject(t *testing.T) {
 			Value: "8.8.8.8",
 		},
 	}
-	var ctx context.Context
-	output, _ := handleRequest(ctx, alert)
+	output, _ := handleRequest(ctx, TestAlert)
+
 	var respAlert squyre.Alert
 	json.Unmarshal([]byte(output), &respAlert)
 

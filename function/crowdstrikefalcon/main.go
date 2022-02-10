@@ -46,6 +46,7 @@ Threat Types: %s
 Targets: %s
 
 More information at: https://falcon.crowdstrike.com/search/?term=_all:~'%s'
+
 `
 
 var templateHost = `
@@ -62,6 +63,7 @@ Policies:
 - %s
 
 More information at: https://falcon.crowdstrike.com/hosts/hosts?filter=_all:~'%s'
+
 `
 
 type apiKeySecret struct {

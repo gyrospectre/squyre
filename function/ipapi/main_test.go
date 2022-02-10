@@ -63,9 +63,11 @@ func TestHandlerSuccess(t *testing.T) {
 	json.Unmarshal([]byte(output), &response)
 
 	have := response.Results[0].Message
-	want := "IP API result for 8.8.8.8:\n\nCountry: Atlantis\nCity: Okayville, \n"
+
+	json.Unmarshal([]byte(mockResponse), &responseObject)
+	want := messageFromResponse(responseObject)
 
 	if have != want {
-		t.Errorf("Expected '%s', got '%s'", have, want)
+		t.Errorf("Expected '%s', got '%s'", want, have)
 	}
 }

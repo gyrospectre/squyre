@@ -29,10 +29,12 @@ var (
 	InitClient     = initIPAPIClient
 )
 
-var template = `IP API result for %s:
+var template = `
+IP API result for %s:
 
 Country: %s
 City: %s, %s
+
 `
 
 type apiKeySecret struct {

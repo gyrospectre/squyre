@@ -43,6 +43,9 @@ Resources:
       CodeUri: function/greynoise
       Handler: greynoise
       Runtime: go1.x
+      Environment:
+        Variables:
+          ONLY_LOG_MATCHES: true
 
   IPAPIFunction:
     Type: AWS::Serverless::Function

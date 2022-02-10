@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -21,9 +24,11 @@ const (
 )
 
 var (
-	// Client defines an abstracted HTTP client to allow for tests
-	Client         HTTPClient
-	responseObject greynoiseResponse
+	// GetIPInfo abstracts this function to allow for tests
+	GetIPInfo         = getIPInfo
+	responseObject    greynoiseResponse
+	InitClient        = initGreynoiseClient
+	OnlyLogMatches, _ = strconv.ParseBool(os.Getenv("ONLY_LOG_MATCHES"))
 )
 
 var template = `
@@ -34,15 +39,12 @@ In the RIOT database? %t
 Last seen %s.
 
 More information at: %s
+
 `
 
-func init() {
-	Client = &http.Client{}
-}
-
-// HTTPClient interface
-type HTTPClient interface {
-	Do(req *http.Request) (*http.Response, error)
+type apiClient struct {
+	httpClient *http.Client
+	baseURL    string
 }
 
 type greynoiseResponse struct {
@@ -56,8 +58,43 @@ type greynoiseResponse struct {
 	Message        string `json:"message"`
 }
 
+func initGreynoiseClient() (*apiClient, error) {
+	client := &apiClient{
+		baseURL: strings.TrimSuffix(baseURL, "/"),
+		httpClient: &http.Client{
+			Timeout: time.Second * 30,
+		},
+	}
+
+	return client, nil
+}
+
+func getIPInfo(c *apiClient, ipv4 string) (*http.Response, error) {
+	request, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/%s", c.baseURL, ipv4),
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return c.httpClient.Do(request)
+}
+
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	log.Infof("Starting %s run for alert %s", provider, alert.ID)
+	log.Infof("OnlyLogMatches is set to %t", OnlyLogMatches)
+
+	if len(alert.Subjects) == 0 {
+		log.Info("Alert has no subjects to process.")
+		finalJSON, _ := json.Marshal(alert)
+		return string(finalJSON), nil
+	}
+
+	client, err := InitClient()
+	if err != nil {
+		return "Failed to initialise client", err
+	}
 
 	// Process each subject in the alert we were passed
 	for _, subject := range alert.Subjects {
@@ -70,8 +107,7 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				Success:        false,
 			}
 
-			request, _ := http.NewRequest("GET", fmt.Sprintf("%s/%s", strings.TrimSuffix(baseURL, "/"), subject.Value), nil)
-			response, err := Client.Do(request)
+			response, err := GetIPInfo(client, subject.Value)
 
 			if err != nil {
 				log.Errorf("Failed to fetch data from %s", provider)
@@ -84,8 +120,23 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 
 				json.Unmarshal(responseData, &responseObject)
 
-				result.Success = true
-				result.Message = messageFromResponse(responseObject)
+				if responseObject.Classification != "" {
+					// A blank classification means nothing was found
+					result.Success = true
+				} else {
+					result.Success = false
+				}
+
+				if !result.Success && OnlyLogMatches {
+					log.Infof("Skipping non match for %s", subject.Value)
+				} else {
+					// Match found. Add the enriched details back to the results
+					result.Message = messageFromResponse(responseObject)
+					alert.Results = append(alert.Results, result)
+					log.Infof("Added %s to result set", subject.Value)
+				}
+
+				// Clear results ready for next cycle
 				responseObject.Classification = ""
 				responseObject.Name = ""
 				responseObject.Link = ""
@@ -94,9 +145,7 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
 				return "Error decoding response from API!", err
 			}
-			// Add the enriched details back to the results
-			alert.Results = append(alert.Results, result)
-			log.Infof("Added %s to result set", subject.Value)
+
 		} else {
 			log.Info("Subject not supported by this provider. Skipping.")
 		}
