@@ -27,4 +27,4 @@ More information at: https://viz.greynoise.io/ip/127.0.0.1
 No setup required.
 
 ### Environment Variables
-`ONLY_LOG_MATCHES` : Set to true (in template.yaml) to only decorate an alert if the indicator was found in Greynoise. Default = `false`.
+`ONLY_LOG_MATCHES` : Set to `true` (in template.yaml) to only decorate an alert if the indicator was found in Greynoise. Default=`false`.

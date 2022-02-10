@@ -44,4 +44,4 @@ More information at: https://falcon.crowdstrike.com/search/?term=_all:~'127.0.0.
 ```
 
 ### Environment Variables
-`ONLY_LOG_MATCHES` : Set to true (in template.yaml) to only decorate an alert if the indicator was found in Greynoise. Default = `false`.
+`ONLY_LOG_MATCHES` : Set to `true` (in template.yaml) to only decorate an alert if the indicator was found in Falcon. Default=`false`.
