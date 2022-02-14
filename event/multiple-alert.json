@@ -20,10 +20,6 @@
       {
         "Type": "sha256",
         "Value": "ee6703b5a3b8a9af292f6dac4edcc36ec050e045c4e9445498a888f6ef637ba9"
-      },
-      {
-        "Type": "hostname",
-        "Value": "ATH-C02YR0PTLVDN"
       }
     ],
     "Results": null
