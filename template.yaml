@@ -47,6 +47,17 @@ Resources:
         Variables:
           ONLY_LOG_MATCHES: true
 
+  AlienvaultOTXFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-AlienvaultOTXFunction'
+      CodeUri: function/alienvaultotx
+      Handler: alienvaultotx
+      Runtime: go1.x
+      Environment:
+        Variables:
+          ONLY_LOG_MATCHES: true
+
   IPAPIFunction:
     Type: AWS::Serverless::Function
     Properties:

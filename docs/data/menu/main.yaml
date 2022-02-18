@@ -21,6 +21,8 @@ main:
       ref: "/architecture/state.md"
   - name: Functions
     sub:
+    - name: Alienvault OTX
+      ref: "/functions/alienvaultotx"
     - name: CrowdStrike Falcon
       ref: "/functions/crowdstrike"
     - name: GreyNoise
