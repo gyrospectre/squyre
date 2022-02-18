@@ -57,6 +57,8 @@ var templateHost = `
 Found host %s in Falcon:
 
 Last seen: %s
+Recent (non service acct) logins:
+%s
 
 Type: %s %s
 Serial: %s
@@ -131,7 +133,7 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				Success:        false,
 			}
 			if subject.Type == "hostname" {
-				hostDetail, err := getHost(falconClient, subject.Value)
+				hostDetail, hostLogins, err := getHost(falconClient, subject.Value)
 				if err != nil {
 					return "Error fetching data from API!", err
 				}
@@ -139,11 +141,11 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 
 				if hostDetail != nil {
 					log.Infof("Received %s response for %s", provider, subject.Value)
-					result.Message = messageFromHostDetail(hostDetail)
+					result.Message = messageFromHostDetail(hostDetail, hostLogins)
 
 				} else {
 					log.Infof("Host %s not found in %s", subject.Value, provider)
-					result.Message = fmt.Sprintf("Host '%s' not found in Falcon X.", subject.Value)
+					result.Message = fmt.Sprintf("Host '%s' not found in Falcon. Agent not installed?", subject.Value)
 				}
 
 				// Add the enriched details back to the results
@@ -214,7 +216,7 @@ func messageFromIndicator(indicator *models.DomainPublicIndicatorV3) string {
 	return string(message)
 }
 
-func messageFromHostDetail(host *models.DomainDeviceSwagger) string {
+func messageFromHostDetail(host *models.DomainDeviceSwagger, logins *models.DeviceapiLoginDetailV1) string {
 	var policies []string
 	var state string
 	for _, policy := range host.Policies {
@@ -226,9 +228,20 @@ func messageFromHostDetail(host *models.DomainDeviceSwagger) string {
 		policies = append(policies, state)
 	}
 
+	var loginlist []string
+	for _, login := range logins.RecentLogins {
+		if !strings.HasPrefix(login.UserName, "_") {
+			shortName := strings.Join(strings.Split(login.UserName, "\\")[1:], "\\")
+
+			logindeets := fmt.Sprintf("'%s' (%s)", shortName, login.LoginTime)
+			loginlist = append(loginlist, logindeets)
+		}
+	}
+
 	message := fmt.Sprintf(templateHost,
 		host.Hostname,
 		host.LastSeen,
+		strings.Join(loginlist, ","),
 		host.SystemManufacturer,
 		host.SystemProductName,
 		host.SerialNumber,
@@ -263,28 +276,37 @@ func getFalconIndicator(client *client.CrowdStrikeAPISpecification, name string)
 	return nil, nil
 }
 
-func getHost(client *client.CrowdStrikeAPISpecification, name string) (*models.DomainDeviceSwagger, error) {
+func getHost(client *client.CrowdStrikeAPISpecification, name string) (*models.DomainDeviceSwagger, *models.DeviceapiLoginDetailV1, error) {
 	filter := fmt.Sprintf("hostname:'%s'", name)
 
 	var hostDetailBatch []*models.DomainDeviceSwagger
+	var hostLoginsBatch []*models.DeviceapiLoginDetailV1
+
 	hostIDs, err := getHostIds(client, &filter)
 	if err != nil {
 		log.Error(falcon.ErrorExplain(err))
-		return nil, err
+		return nil, nil, err
 	}
 
 	for hostIDBatch := range hostIDs {
 		if len(hostIDBatch) == 0 {
-			return nil, nil
+			return nil, nil, nil
 		}
+
 		hostDetailBatch, err = getHostsDetails(client, hostIDBatch)
 		if err != nil {
 			log.Error(falcon.ErrorExplain(err))
-			return nil, err
+			return nil, nil, err
+		}
+
+		hostLoginsBatch, err = getHostsLoginDetails(client, hostIDBatch)
+		if err != nil {
+			log.Error(falcon.ErrorExplain(err))
+			return nil, nil, err
 		}
 		break
 	}
-	return hostDetailBatch[0], nil
+	return hostDetailBatch[0], hostLoginsBatch[0], nil
 }
 
 func queryIntelIndicators(client *client.CrowdStrikeAPISpecification, filter, sort *string) (<-chan *models.DomainPublicIndicatorV3, <-chan error) {
@@ -331,6 +353,27 @@ func getHostsDetails(client *client.CrowdStrikeAPISpecification, hostIds []strin
 		Ids:     hostIds,
 		Context: context.Background(),
 	})
+	if err != nil {
+		log.Error(falcon.ErrorExplain(err))
+		return nil, err
+	}
+	if err = falcon.AssertNoError(response.Payload.Errors); err != nil {
+		log.Error(falcon.ErrorExplain(err))
+		return nil, err
+	}
+
+	return response.Payload.Resources, nil
+}
+
+func getHostsLoginDetails(client *client.CrowdStrikeAPISpecification, hostIds []string) ([]*models.DeviceapiLoginDetailV1, error) {
+	response, err := client.Hosts.QueryDeviceLoginHistory(&hosts.QueryDeviceLoginHistoryParams{
+		Body: &models.MsaIdsRequest{
+			Ids: hostIds,
+		},
+		Context: context.Background(),
+	})
+	// returns a QueryDeviceLoginHistoryOK with Payload *models.DeviceapiLoginHistoryResponseV1
+	// In this Payload, Resources []*DeviceapiLoginDetailV1 `json:"resources"`
 	if err != nil {
 		log.Error(falcon.ErrorExplain(err))
 		return nil, err
