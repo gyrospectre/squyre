@@ -4,9 +4,9 @@ go 1.17
 
 require (
 	github.com/aws/aws-lambda-go v1.28.0
-	github.com/aws/aws-sdk-go v1.42.47
+	github.com/aws/aws-sdk-go v1.42.52
 	github.com/crowdstrike/gofalcon v0.2.17
-	github.com/gyrospectre/squyre/pkg/squyre v0.0.0-20220207013324-aa8c8ca57a78
+	github.com/gyrospectre/squyre/pkg/squyre v0.0.0-20220210100309-fe1b0645352a
 	github.com/sirupsen/logrus v1.8.1
 )
 
@@ -36,7 +36,7 @@ require (
 	go.mongodb.org/mongo-driver v1.8.3 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
-	golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a // indirect
+	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
