@@ -13,4 +13,5 @@ require (
 require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a // indirect
+	mvdan.cc/xurls/v2 v2.4.0 // indirect
 )

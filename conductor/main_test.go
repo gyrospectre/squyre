@@ -290,3 +290,31 @@ func TestNoIgnoreDomain(t *testing.T) {
 		t.Fatalf("Unexpected behaviour when ignore domain missing.\n Got: %s", subjects)
 	}
 }
+
+func TestUrlExtraction(t *testing.T) {
+	setup()
+	url1 := "http://google.com/test/awesome?test"
+	url2 := "https://github.com/gyrospectre/squyre"
+
+	str1 := "ABC 12345"
+	str2 := "ABC " + url1
+	str3 := url2
+
+	message := str1 + " " + " [" + str2 + ", " + str3 + "] " + str2 + "}"
+	subjects := extractUrls(message)
+
+	have := len(subjects)
+
+	want := 2
+	if have != want {
+		t.Fatalf("Unexpected number of Urls. \nHave: %x\nWant: %x", have, want)
+	}
+
+	if subjects[0].Value != url1 {
+		t.Fatalf("Unxpected first Url. \nHave: %s\nWant: %s", subjects[0].Value, url1)
+	}
+
+	if subjects[1].Value != url2 {
+		t.Fatalf("Unxpected second Url. \nHave: %s\nWant: %s", subjects[1].Value, url2)
+	}
+}
