@@ -1,0 +1,77 @@
+{
+  "Comment": "Performs lookups on a given subjects",
+  "StartAt": "Enrich",
+  "States": {
+    "Enrich": {
+      "Type": "Parallel",
+      "Next": "Output Results",
+      "Branches": [
+        {
+          "StartAt": "Enrich Multipurpose",
+          "States": {
+            "Enrich Multipurpose": {
+              "Type": "Parallel",
+              "Comment": "Always run multi functions",
+              "Branches": [
+                  {{ .MultiTasks }}
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "IPv4s to process?",
+          "States": {
+            "IPv4s to process?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.Scope",
+                  "StringMatches": "*ipv4*",
+                  "Next": "Enrich by IPv4"
+                }
+              ],
+              "Default": "Don't process IPv4s",
+              "Comment": "Only run ipv4 functions if we have IPv4s to process."
+            },
+            "Don't process IPv4s": {
+              "Type": "Pass",
+              "End": true,
+              "Result": []
+            },
+            "Enrich by IPv4": {
+              "Type": "Parallel",
+              "Branches": [
+                  {{ .IPv4Tasks }}
+              ],
+              "End": true
+            }
+          }
+        }
+      ]
+    },
+    "Output Results": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 10,
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${OutputFunctionArn}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    }
+  }
+}

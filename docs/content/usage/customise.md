@@ -8,9 +8,16 @@ There are a couple of features which can be customised for your environment.
 
 ## Enrichment Functions
 
-You can modify `statemachine/enrich.asl.json` to change which enrichment functions run. Don't have CrowdStrike? No problem, just remove that component from the state machine. If you want, you can also remove unnecessary functions from `template.yaml` to cut down what gets deployed to AWS.
+You can modify `statemachine/enrich.asl.json` to change which enrichment functions run. The easiest way to do this is to use the included helper script, which provides a nice wizard to select functions.
 
-The easiest way to change the state machine definition is to edit it from the [AWS Step Functions Workflow Studio](https://aws.amazon.com/blogs/aws/new-aws-step-functions-workflow-studio-a-low-code-visual-tool-for-building-state-machines/) in the AWS Console, then export as JSON back into `statemachine/enrich.asl.json`.
+```
+make setup
+```
+Then run the deploy again to save your changes to AWS.
+
+Don't have CrowdStrike? No problem, just remove that function! If you want, you can also remove unnecessary functions from `template.yaml` to cut down what gets deployed to AWS. If you save the new definition to a filename other than `statemachine/enrich.asl.json`, then don't forget to update `template.yaml` accordingly.
+
+If you're `\m/` hardcore `\m/`, you can also edit the state machine definition from the [AWS Step Functions Workflow Studio](https://aws.amazon.com/blogs/aws/new-aws-step-functions-workflow-studio-a-low-code-visual-tool-for-building-state-machines/) in the AWS Console, then export as JSON back into `statemachine/enrich.asl.json`.
 
 ## Hostname Enrichment
 

@@ -12,6 +12,10 @@ test:
 	@echo "go test all packages"
 	@for DIR in $(GODIRS); do cd $$DIR; go test ${TEST_TIMEOUT} -cover -v -count=1; cd - > /dev/null ; done;
 
+setup:
+	@echo "run state machine setup"
+	@cd scripts/bootstrap; go run main.go; cd -
+
 .PHONY: lint
 lint:
 	@echo "go lint all packages"

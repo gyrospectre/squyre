@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	provider       = "Crowdstrike Falcon"
+	provider       = "CrowdStrike Falcon"
 	baseURL        = "https://api.crowdstrike.com"
 	supports       = "ipv4,domain,sha256,hostname"
 	secretLocation = "CrowdstrikeAPI"

@@ -17,5 +17,5 @@ It's easy to add enrichment functions, and more will be added over time. Feel fr
 Currently supported:
 - Alienvault OTX (https://otx.alienvault.com/) : Open Threat Exchange is the neighborhood watch of the global intelligence community. (Indicator types: ipv4, domain, url)
 - Greynoise (https://www.greynoise.io/) : Tells security analysts what not to worry about. (Indicator types: ipv4)
-- IP API (https://ip-api.com/) : IP address geolocation information. (Indicator types: ipv4)
+- IP API (https://ipapi.com/) : IP address geolocation information. (Indicator types: ipv4)
 - CrowdStrike Falcon (https://www.crowdstrike.com/endpoint-security-products/falcon-platform/) : Primarily utilising Falcon X for threat intelligence. (Indicator types: ipv4, domain, sha256, hostname)
