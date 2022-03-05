@@ -1,0 +1,9 @@
+                {
+                    "StartAt": "Pass - {{ .Type}}",
+                    "States": {
+                    "Pass - {{ .Type}}": {
+                        "Type": "Pass",
+                        "End": true
+                    }
+                  }
+                },
