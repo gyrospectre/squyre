@@ -23,6 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sfn/sfniface"
 	"github.com/gyrospectre/squyre/pkg/squyre"
 	"golang.org/x/net/publicsuffix"
+	"mvdan.cc/xurls/v2"
 )
 
 var (
@@ -261,6 +262,23 @@ func extractDomains(details string) []squyre.Subject {
 	return subjectList
 }
 
+func extractUrls(details string) []squyre.Subject {
+	var subjectList []squyre.Subject
+
+	rxStrict := xurls.Strict()
+	submatchall := rxStrict.FindAllString(details, -1)
+	submatchall = removeDuplicateTrimmedStr(submatchall)
+
+	for _, url := range submatchall {
+		var subject = squyre.Subject{
+			Type:  "url",
+			Value: url,
+		}
+		subjectList = append(subjectList, subject)
+	}
+	return subjectList
+}
+
 func convertSplunkAlert(alertBody string) squyre.Alert {
 	var messageObject squyre.SplunkAlert
 	json.Unmarshal([]byte(alertBody), &messageObject)
@@ -372,6 +390,22 @@ func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error
 				"alert": alert.ID,
 			}).Infof("Extracted %d hosts from the alert message", len(hostSubjects))
 			scope = append(scope, "hostname")
+		}
+
+		// Urls
+		urlSubjects := extractUrls(alert.RawMessage)
+		if len(urlSubjects) == 0 {
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			}).Info("No urls found to process")
+		} else {
+			for _, sub := range urlSubjects {
+				alert.Subjects = append(alert.Subjects, sub)
+			}
+			log.WithFields(log.Fields{
+				"alert": alert.ID,
+			}).Infof("Extracted %d urls from the alert message", len(urlSubjects))
+			scope = append(scope, "url")
 		}
 
 		// Have finished adding the extracted subjects to our alert
