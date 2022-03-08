@@ -84,7 +84,10 @@ func getOTXIndictatorInfo(c *apiClient, indicator string, indicatorType string) 
 		return getOTXIPInfo(c, indicator)
 	} else if indicatorType == "domain" {
 		return getOTXDomainInfo(c, indicator)
+	} else if indicatorType == "url" {
+		return getOTXUrlInfo(c, indicator)
 	}
+
 	return nil, errors.New("Unknown indicator type")
 }
 
@@ -109,6 +112,19 @@ func getOTXDomainInfo(c *apiClient, domain string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	return c.httpClient.Do(request)
+}
+
+func getOTXUrlInfo(c *apiClient, url string) (*http.Response, error) {
+	request, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/indicators/url/%s/general", c.baseURL, url),
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	return c.httpClient.Do(request)
 }
 
