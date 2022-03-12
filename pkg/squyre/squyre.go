@@ -2,6 +2,7 @@ package squyre
 
 import (
 	"encoding/json"
+	"strings"
 )
 
 // Subject defines attributes about a thing that we want to know about
@@ -89,6 +90,32 @@ func (alert OpsGenieAlert) Normaliser() Alert {
 		Name:       alert.Alert.Message,
 		Timestamp:  alert.Alert.CreatedAt,
 		URL:        alert.Alert.Details.ResultsLink,
+	}
+}
+
+// SumoLogicAlert defines the standard format alerts come to us from Sumo
+// See https://help.sumologic.com/Manage/Connections-and-Integrations/Webhook-Connections/Set_Up_Webhook_Connections#Webhook_payload_variables
+type SumoLogicAlert struct {
+	AlertID     string   `json:"id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	EventType   string   `json:"event_type"`
+	Client      string   `json:"client"`
+	ClientURL   string   `json:"client_url"`
+	TimeRange   string   `json:"time_range"`
+	TimeTrigger string   `json:"time_trigger"`
+	NumResults  int      `json:"num_results"`
+	Results     []string `json:"results"`
+}
+
+// Normaliser comverts a Sumo Logic alert to our standard form
+func (alert SumoLogicAlert) Normaliser() Alert {
+	return Alert{
+		RawMessage: strings.Join(alert.Results, ","),
+		ID:         alert.AlertID,
+		Name:       alert.Name,
+		Timestamp:  alert.TimeTrigger,
+		URL:        alert.ClientURL,
 	}
 }
 
