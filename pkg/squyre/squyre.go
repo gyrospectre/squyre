@@ -103,7 +103,7 @@ type SumoLogicAlert struct {
 	ClientURL   string `json:"client_url"`
 	TimeRange   string `json:"time_range"`
 	TimeTrigger string `json:"time_trigger"`
-	NumResults  int    `json:"num_results"`
+	NumResults  string `json:"num_results"`
 	Results     string `json:"results"`
 }
 
