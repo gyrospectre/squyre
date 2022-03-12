@@ -11,8 +11,6 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
@@ -22,6 +20,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/aws/aws-sdk-go/service/sfn/sfniface"
 	"github.com/gyrospectre/squyre/pkg/squyre"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/publicsuffix"
 	"mvdan.cc/xurls/v2"
 )
@@ -293,6 +292,13 @@ func convertOpsGenieAlert(alertBody string) squyre.Alert {
 	return messageObject.Normaliser()
 }
 
+func convertSumoAlert(alertBody string) squyre.Alert {
+	var messageObject squyre.SumoLogicAlert
+	json.Unmarshal([]byte(alertBody), &messageObject)
+
+	return messageObject.Normaliser()
+}
+
 // BuildStateMachine builds a connection to the Step Function at the provided arn
 func BuildStateMachine(arn string) StateMachine {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -324,22 +330,44 @@ func sendAlertToSfn(alert squyre.Alert, sfnName string) error {
 	return err
 }
 
-func handleRequest(ctx context.Context, snsEvent events.SNSEvent) (string, error) {
-	if len(snsEvent.Records) == 0 {
-		return "Aborted", errors.New("No records in SNS event to process")
-	}
-	var scope []string
-	for _, record := range snsEvent.Records {
-		snsRecord := record.SNS
-		var alert squyre.Alert
-		log.Infof("Processing message %s\n", snsRecord.MessageID)
+func handleRequest(ctx context.Context, event map[string]interface{}) (string, error) {
+	eventStr, _ := json.Marshal(event)
 
-		if strings.Contains(snsRecord.Message, "search_name") {
+	var snsEvent events.SNSEvent
+	var apiEvent events.APIGatewayProxyRequest
+	var messages []string
+	if strings.Contains(string(eventStr), "\"EventSource\":\"aws:sns\"") {
+		log.Info("Detected SNS source.")
+		json.Unmarshal(eventStr, &snsEvent)
+		if len(snsEvent.Records) == 0 {
+			return "Aborted", errors.New("No records in SNS event to process")
+		}
+		for _, record := range snsEvent.Records {
+			snsRecord := record.SNS
+			log.Infof("Processing message %s\n", snsRecord.MessageID)
+			messages = append(messages, snsRecord.Message)
+		}
+	} else if strings.Contains(string(eventStr), "apiId") {
+		log.Info("Detected API GW source.")
+		json.Unmarshal(eventStr, &apiEvent)
+		messages = append(messages, apiEvent.Body)
+	} else {
+		return "Aborted", errors.New("Invocation service not supported. Can only use SNS or API GW!")
+	}
+
+	var scope []string
+	for _, message := range messages {
+		var alert squyre.Alert
+
+		if strings.Contains(message, "search_name") {
 			log.Info("Auto detected Splunk alert")
-			alert = convertSplunkAlert(snsRecord.Message)
-		} else if strings.Contains(snsRecord.Message, "integrationName") {
+			alert = convertSplunkAlert(message)
+		} else if strings.Contains(message, "integrationName") {
 			log.Info("Auto detected OpsGenie alert")
-			alert = convertOpsGenieAlert(snsRecord.Message)
+			alert = convertOpsGenieAlert(message)
+		} else if strings.Contains(message, "Sumo Logic") {
+			log.Info("Auto detected Sumo Logic alert")
+			alert = convertSumoAlert(message)
 		} else {
 			return "", errors.New("Could not determine alert type")
 		}

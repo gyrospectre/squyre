@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 	"github.com/aws/aws-sdk-go/service/sfn"
 	"github.com/aws/aws-sdk-go/service/sfn/sfniface"
+	"github.com/fatih/structs"
 	"github.com/gyrospectre/squyre/pkg/squyre"
 	"testing"
 )
@@ -88,9 +89,10 @@ func TestHandlerSuccess(t *testing.T) {
 				Message:   "{\"search_name\": \"Test Alert\", \"results_link\": \"http://127.0.0.1\", \"message\": \"hi 8.8.8.8 172.16.0.1\", \"correlation_id\": \"1234\"}",
 				MessageID: "test-message-id",
 			},
+			EventSource: "aws:sns",
 		},
 	}
-	have, _ := handleRequest(Ctx, event)
+	have, _ := handleRequest(Ctx, structs.Map(event))
 
 	want := "Processed 1 SNS messages."
 

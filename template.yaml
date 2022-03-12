@@ -7,6 +7,15 @@ Globals:
     Timeout: 90
 
 Resources:
+  InvokeApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: squyre
+      Auth:
+        DefaultAuthorizer: AWS_IAM
+      Tags:
+        service: squyre
+
   ConductorFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -20,6 +29,14 @@ Resources:
           STACK_NAME: !Sub '${AWS::StackName}'
           HOST_REGEX: A-[A-Z0-9]{6}
           IGNORE_DOMAIN: your-internal-domain.int
+      Events:
+        ChatEvent:
+          Type: Api
+          Properties:
+            Path: /alert
+            Method: post
+            RestApiId:
+              Ref: InvokeApi
 
   AlertTopic:
     Type: AWS::SNS::Topic
@@ -172,3 +189,8 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:JiraApi-*'
                   - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:OpsGenieAPI-*'
+
+Outputs:
+  WebhookURL:
+      Description: "Webhook API Gateway URL"
+      Value: !Sub "https://${InvokeApi}.execute-api.${AWS::Region}.amazonaws.com/squyre/alert"
