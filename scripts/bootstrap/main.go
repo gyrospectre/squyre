@@ -7,11 +7,18 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
 
 	"github.com/tidwall/pretty"
+)
+
+var (
+	Sources = []string{"OpsGenie", "Splunk", "Sumo Logic"}
+	Outputs = []string{"OpsGenie", "Jira"}
 )
 
 type sqFunc struct {
@@ -29,6 +36,42 @@ type stateTemplate struct {
 }
 
 func main() {
+	//----- Choose the alert source
+	alertSource := promptOptions("Alert source", "Select alert source", Sources)
+
+	topicPolicy, err := ioutil.ReadFile("../../template/opsgenie_sns.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if alertSource == "OpsGenie" {
+		topicPolicy = append([]byte("Resources:\n"), topicPolicy...)
+		replaceInFile("../../template.yaml", []byte("Resources:"), topicPolicy, true)
+	} else {
+		topicPolicy = append(topicPolicy, []byte("\n")...)
+		replaceInFile("../../template.yaml", topicPolicy, []byte(""), true)
+	}
+
+	//----- Choose the output provider
+	output := promptOptions("Output", "Select output destination", Outputs)
+
+	if output == "OpsGenie" {
+		replaceInFile("../../template.yaml", []byte("output/jira"), []byte("output/opsgenie"), false)
+		replaceInFile("../../template.yaml", []byte("Handler: jira"), []byte("Handler: opsgenie"), false)
+		replaceInFile("../../template.yaml", []byte("          PROJECT: .*\n"), []byte("          PROJECT: unused by opsgenie\n"), false)
+		replaceInFile("../../template.yaml", []byte("          BASE_URL: .*\n"), []byte("          BASE_URL: unused by opsgenie\n"), false)
+	} else {
+		replaceInFile("../../template.yaml", []byte("output/opsgenie"), []byte("output/jira"), false)
+		replaceInFile("../../template.yaml", []byte("Handler: opsgenie"), []byte("Handler: jira"), false)
+
+		project := fmt.Sprintf("          PROJECT: %s", promptInput("Configure Jira", "Enter your JIRA project name.", "[A-Z]+"))
+		replaceInFile("../../template.yaml", []byte("          PROJECT: .*\n"), []byte(project), false)
+
+		baseUrl := fmt.Sprintf("          BASE_URL: %s", promptInput("Configure Jira", "Enter your JIRA base URL.", "https://[a-z\\-]+.atlassian.net"))
+		replaceInFile("../../template.yaml", []byte("          BASE_URL: .*\n"), []byte(baseUrl), false)
+	}
+
+	//----- Choose enrichment functions
 	var useFunctions []sqFunc
 
 	files, err := ioutil.ReadDir("../../function")
@@ -148,6 +191,32 @@ func main() {
 	fmt.Println("-+. ok done, bootstrap run complete. woot!!")
 }
 
+func replaceInFile(file string, replace []byte, with []byte, backup bool) {
+	re := regexp.MustCompile(string(replace))
+
+	orig, err := ioutil.ReadFile(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if strings.Contains(string(orig), string(with)) && string(with) != "" {
+		fmt.Print("Replace not necessary. Text already present.")
+		return
+	}
+	output := re.ReplaceAll(orig, with)
+	output = bytes.Replace(orig, replace, with, -1)
+
+	if backup {
+		if err = ioutil.WriteFile(file+".backup", orig, 0644); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if err = ioutil.WriteFile(file, output, 0644); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func cls(header string) {
 	fmt.Print("\033[H\033[2J")
 	fmt.Printf(logo)
@@ -228,6 +297,43 @@ func promptYesNo(prompt string) bool {
 	}
 
 	return true
+}
+
+func promptOptions(heading string, prompt string, options []string) string {
+	var answer int
+	reader := bufio.NewReader(os.Stdin)
+
+	for !(answer > 0 && answer < len(options)+1) {
+		cls(heading)
+		index := 1
+		for _, option := range options {
+			fmt.Printf("%x. %s\n", index, option)
+			index += 1
+		}
+		fmt.Println("")
+
+		fmt.Printf("\r%s [1 - %x]: ", prompt, len(options))
+		resp, _ := reader.ReadString('\n')
+		answer, _ = strconv.Atoi(strings.TrimSuffix(resp, "\n"))
+	}
+
+	return options[answer-1]
+}
+
+func promptInput(heading string, prompt string, validRegex string) string {
+	var answer string
+	match := false
+
+	reader := bufio.NewReader(os.Stdin)
+
+	for !match {
+		cls(heading)
+		fmt.Printf("\r%s Must match regex '%s'!\n: ", prompt, validRegex)
+		answer, _ = reader.ReadString('\n')
+		match, _ = regexp.MatchString(validRegex, answer)
+	}
+
+	return answer
 }
 
 var logo = `
