@@ -7,10 +7,14 @@ main:
       - name: Getting started
         ref: "/usage/getting_started"
         sub:
-          - name: Direct
-            ref: "/usage/direct"
-          - name: Opsgenie
-            ref: "/usage/incidentmgmt"
+          - name: Jira
+            ref: "/usage/jira"
+          - name: OpsGenie
+            ref: "/usage/opsgenie"
+          - name: Splunk
+            ref: "/usage/splunk"
+          - name: Sumo Logic
+            ref: "/usage/sumologic"
       - name: Customising
         ref: "/usage/customise"          
   - name: How it works

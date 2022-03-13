@@ -14,37 +14,9 @@
               "Comment": "Always run multi functions",
               "Branches": [
                 {
-                  "StartAt": "CrowdStrike Falcon - Multipurpose",
+                  "StartAt": "Alienvault OTX - multipurpose",
                   "States": {
-                    "CrowdStrike Falcon - Multipurpose": {
-                      "Type": "Task",
-                      "Resource": "arn:aws:states:::lambda:invoke",
-                      "TimeoutSeconds": 10,
-                      "OutputPath": "$.Payload",
-                      "Parameters": {
-                        "Payload.$": "$",
-                        "FunctionName": "${CrowdStrikeFalconFunctionArn}"
-                      },
-                      "Retry": [
-                        {
-                          "ErrorEquals": [
-                            "Lambda.ServiceException",
-                            "Lambda.AWSLambdaException",
-                            "Lambda.SdkClientException"
-                          ],
-                          "IntervalSeconds": 2,
-                          "MaxAttempts": 6,
-                          "BackoffRate": 2
-                        }
-                      ],
-                      "End": true
-                    }
-                  }
-                },
-                {
-                  "StartAt": "Alienvault OTX - Multipurpose",
-                  "States": {
-                    "Alienvault OTX - Multipurpose": {
+                    "Alienvault OTX - multipurpose": {
                       "Type": "Task",
                       "Resource": "arn:aws:states:::lambda:invoke",
                       "TimeoutSeconds": 10,
@@ -98,44 +70,16 @@
               "Type": "Parallel",
               "Branches": [
                 {
-                  "StartAt": "Greynoise - IPv4",
+                  "StartAt": "GreyNoise - ipv4",
                   "States": {
-                    "Greynoise - IPv4": {
+                    "GreyNoise - ipv4": {
                       "Type": "Task",
                       "Resource": "arn:aws:states:::lambda:invoke",
                       "TimeoutSeconds": 10,
                       "OutputPath": "$.Payload",
                       "Parameters": {
-                        "FunctionName": "${GreynoiseFunctionArn}",
-                        "Payload.$": "$"
-                      },
-                      "Retry": [
-                        {
-                          "ErrorEquals": [
-                            "Lambda.ServiceException",
-                            "Lambda.AWSLambdaException",
-                            "Lambda.SdkClientException"
-                          ],
-                          "IntervalSeconds": 2,
-                          "MaxAttempts": 6,
-                          "BackoffRate": 2
-                        }
-                      ],
-                      "End": true
-                    }
-                  }
-                },
-                {
-                  "StartAt": "IP API - IPv4",
-                  "States": {
-                    "IP API - IPv4": {
-                      "Type": "Task",
-                      "Resource": "arn:aws:states:::lambda:invoke",
-                      "TimeoutSeconds": 10,
-                      "OutputPath": "$.Payload",
-                      "Parameters": {
-                        "FunctionName": "${IPAPIFunctionArn}",
-                        "Payload.$": "$"
+                        "Payload.$": "$",
+                        "FunctionName": "${GreyNoiseFunctionArn}"
                       },
                       "Retry": [
                         {

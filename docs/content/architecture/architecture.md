@@ -4,9 +4,9 @@ date: 2022-02-05T14:16:07+11:00
 draft: false
 ---
 
-Squyre is serverless, and uses AWS services SNS, Lambda and Step Functions to do it's thing.
+Squyre is serverless, and uses AWS services SNS, API Gateway, Lambda and Step Functions to do it's thing.
 
-Alerts are sent to the SNS topic, which triggers the first Lambda function, `conductor`. This function take the alert body, extracts IP addresses, domain names and hostnames, and then starts the step function with this information.
+Alerts are sent in via SNS or Webhook, which triggers the first Lambda function, `conductor`. This function takes the alert body, extracts IP addresses, domain names, URLs and hostnames, and then starts the step function with this information.
 
 The step function (or state machine) then invokes enrichment functions depending on what sort of info was in the alert. There are currently two categories of functions:
 

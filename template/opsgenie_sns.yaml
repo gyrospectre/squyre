@@ -1,0 +1,15 @@
+  AlertTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Id: AlertTopicPolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: OpsGenie-Publish
+            Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::089311581210:root
+            Action: sns:Publish
+            Resource: "*"
+      Topics:
+        - !Ref AlertTopic

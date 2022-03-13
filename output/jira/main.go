@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 
 	log "github.com/sirupsen/logrus"
@@ -15,12 +16,13 @@ import (
 
 const (
 	secretLocation = "JiraApi"
-	baseURL        = "https://your-jira.atlassian.net"
-	project        = "SECURITY"
 	ticketType     = "Task"
 )
 
 var (
+	baseURL = os.Getenv("BASE_URL")
+	project = os.Getenv("PROJECT")
+
 	// CreateTicketForAlert abstracts this function to allow for tests
 	CreateTicketForAlert = CreateJiraIssueForAlert
 	// InitClient abstracts this function to allow for tests

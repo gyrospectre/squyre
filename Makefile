@@ -8,12 +8,22 @@ GODIRS := $(shell find . -name '*.go' | xargs dirname | sort -u)
 build:
 	sam build
 
+.PHONY: deploy
+deploy:
+	@echo "Redeploy to AWS"
+	@sam deploy --stack-name squyre --capabilities "CAPABILITY_NAMED_IAM"
+
+.PHONY: deploy-guided
+deploy-guided:
+	@echo "First time deploy to AWS"
+	@sam deploy --stack-name squyre --capabilities "CAPABILITY_NAMED_IAM" --guided
+
 test:
 	@echo "go test all packages"
 	@for DIR in $(GODIRS); do cd $$DIR; go test ${TEST_TIMEOUT} -cover -v -count=1; cd - > /dev/null ; done;
 
 setup:
-	@echo "run state machine setup"
+	@echo "run Squyre setup"
 	@cd scripts/bootstrap; go run main.go; cd -
 
 .PHONY: lint

@@ -95,10 +95,14 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${AWS::StackName}-Output'
-      CodeUri: output/opsgenie
+      CodeUri: output/jira
       Handler: jira
       Runtime: go1.x
       Role: !GetAtt OutputRole.Arn
+      Environment:
+        Variables:
+          PROJECT: SECURITY
+          BASE_URL: https://test-squyre.atlassian.net
 
   EnrichStateMachine:
     Type: AWS::Serverless::StateMachine
