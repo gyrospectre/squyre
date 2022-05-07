@@ -22,6 +22,7 @@ const (
 	provider = "Alienvault OTX"
 	baseURL  = "https://otx.alienvault.com/api/v1/"
 	supports = "ipv4,domain,url"
+	retries  = 3
 )
 
 var (
@@ -154,13 +155,23 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				AttributeValue: subject.Value,
 				Success:        false,
 			}
-
-			response, err := GetIndictatorInfo(client, subject.Value, subject.Type)
-
+			var response *http.Response
+			var err error
+			var attempt int
+			for attempt = 1; attempt <= retries; attempt++ {
+				log.Infof("Get indicator attempt number %d", attempt)
+				response, err = GetIndictatorInfo(client, subject.Value, subject.Type)
+				// log.Infof("res: %s", response)
+				if err == nil {
+					break
+				}
+			}
 			if err != nil {
-				log.Errorf("Failed to fetch data from %s", provider)
+				log.Errorf("Failed to fetch data from %s after %d attempts", provider, attempt-1)
 				return "Error fetching data from API!", err
 			}
+			log.Infof("Successfully fetched data from %s after %d attempts.", provider, attempt)
+
 			responseData, err := ioutil.ReadAll(response.Body)
 
 			if err == nil {
@@ -210,7 +221,7 @@ func removeDuplicates(strSlice []string) []string {
 
 func messageFromResponse(response otxResponse) string {
 	if response.PulseInfo.Count == 0 {
-		return "Indictor not found in Alienvault OTX."
+		return "Indicator not found in Alienvault OTX."
 	}
 
 	var pulses []string
