@@ -19,10 +19,11 @@ import (
 )
 
 const (
-	provider = "Alienvault OTX"
-	baseURL  = "https://otx.alienvault.com/api/v1/"
-	supports = "ipv4,domain,url"
-	retries  = 3
+	provider    = "Alienvault OTX"
+	baseURL     = "https://otx.alienvault.com/api/v1/"
+	supports    = "ipv4,domain,url"
+	retries     = 3
+	timeoutSecs = 10
 )
 
 var (
@@ -73,7 +74,7 @@ func initOTXClient() (*apiClient, error) {
 	client := &apiClient{
 		baseURL: strings.TrimSuffix(baseURL, "/"),
 		httpClient: &http.Client{
-			Timeout: time.Second * 30,
+			Timeout: time.Second * timeoutSecs,
 		},
 	}
 
