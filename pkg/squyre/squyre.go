@@ -12,10 +12,11 @@ type Subject struct {
 
 // Result holds enrichment results, and where they came from
 type Result struct {
-	Source         string
-	AttributeValue string
-	Message        string
-	Success        bool
+	Source         string // The service the result came from
+	AttributeValue string // The attribute used to search
+	Message        string // The response from the service
+	Success        bool   // Whether the lookup succeeded or not i.e. an error was encountered
+	MatchFound     bool   // Whether we found a match for this attribute on this service
 }
 
 // Alert holds information about an incoming alert
