@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	//"fmt"
 	"encoding/json"
+	"errors"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/crowdstrike/gofalcon/falcon/client"
 	"github.com/crowdstrike/gofalcon/falcon/models"
@@ -46,6 +46,8 @@ func mockGetFalconIndicator(client *client.CrowdStrikeAPISpecification, name str
 			LastUpdated:         &epoch,
 		}
 		return indicator, nil
+	} else if name == "9.9.9.9" {
+		return nil, errors.New("Error!")
 	}
 
 	return nil, nil
@@ -155,5 +157,38 @@ func TestAlertWithSubjectsIgnore(t *testing.T) {
 
 	if have != want {
 		t.Errorf("Expected %x results, got %x", want, have)
+	}
+}
+
+func TestAlertFailedLookup(t *testing.T) {
+	setup()
+
+	alert, _ := makeTestAlert()
+	alert.Subjects = []squyre.Subject{
+		{
+			Type:  "ipv4",
+			Value: "9.9.9.9",
+		},
+	}
+
+	output, err := handleRequest(Ctx, alert)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err)
+	}
+
+	var response squyre.Alert
+	json.Unmarshal([]byte(output), &response)
+
+	have := string(response.Results[0].Message)
+	want := "Error!"
+	if have != want {
+		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)
+	}
+
+	have2 := response.Results[0].Success
+	want2 := false
+
+	if have2 != want2 {
+		t.Fatalf("Unexpected output. \nHave: %t\nWant: %t", have2, want2)
 	}
 }

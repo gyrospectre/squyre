@@ -271,6 +271,8 @@ github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
 github.com/gyrospectre/squyre/pkg/squyre v0.0.0-20220210100309-fe1b0645352a h1:Ao7mWC3913vPkaKL1c913G6h596jbxLRPrdxi2fvtSs=
 github.com/gyrospectre/squyre/pkg/squyre v0.0.0-20220210100309-fe1b0645352a/go.mod h1:JDiAG6vpfyzrO28kC2V4cQJEX3OPUyhai86ypTuamk8=
+github.com/gyrospectre/squyre/pkg/squyre v0.0.0-20220608032638-70ad083ae635 h1:PCZBJkk7kzsajZRJwG8VkuWyPWEmZpmZfSklG3esPuQ=
+github.com/gyrospectre/squyre/pkg/squyre v0.0.0-20220608032638-70ad083ae635/go.mod h1:JDiAG6vpfyzrO28kC2V4cQJEX3OPUyhai86ypTuamk8=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=

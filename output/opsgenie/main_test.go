@@ -12,8 +12,9 @@ import (
 
 var (
 	// MockTicket is a fake ticket for tests
-	MockTicket int
-	Ctx        context.Context
+	MockTicket  int
+	Ctx         context.Context
+	LastComment string
 )
 
 func setup() {
@@ -37,10 +38,11 @@ func mockGetSecret(location string) (secretsmanager.GetSecretValueOutput, error)
 }
 
 func mockAddComment(client *OpsGenieClient, note *opsgenieNote, id string) error {
+	LastComment = note.Note
 	return nil
 }
 
-func makeTestAlerts(number int, groups int, prefix string, includeResults bool, sameID bool) ([][]string, []string) {
+func makeTestAlerts(number int, groups int, prefix string, includeResults bool, sameID bool, success bool) ([][]string, []string) {
 	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
@@ -50,7 +52,7 @@ func makeTestAlerts(number int, groups int, prefix string, includeResults bool, 
 				Source:         "Gyro",
 				AttributeValue: "127.0.0.1",
 				Message:        "Test",
-				Success:        true,
+				Success:        success,
 			},
 		}
 	}
@@ -82,7 +84,7 @@ func TestHandlerSuccess(t *testing.T) {
 	numgroups := 2
 	numalerts := 5
 
-	alerts, alertList := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, false)
+	alerts, alertList := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, false, true)
 
 	output, err := handleRequest(Ctx, alerts)
 	if err != nil {
@@ -105,7 +107,7 @@ func TestHandlerNoResults(t *testing.T) {
 	numgroups := 1
 	numalerts := 3
 
-	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", false, false)
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", false, false, true)
 
 	output, err := handleRequest(Ctx, alerts)
 
@@ -127,7 +129,7 @@ func TestHandlerSameIds(t *testing.T) {
 	numgroups := 1
 	numalerts := 3
 
-	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, true)
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, true, true)
 
 	output, err := handleRequest(Ctx, alerts)
 
@@ -140,6 +142,27 @@ func TestHandlerSameIds(t *testing.T) {
 	have := string(output)
 
 	want := fmt.Sprintf("Success: 1 alerts processed (%d groups). Updated alerts: %s", numgroups, alertList)
+
+	if have != want {
+		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)
+	}
+}
+
+func TestHandlerSuccessFailedLookup(t *testing.T) {
+	setup()
+
+	numgroups := 1
+	numalerts := 1
+
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, true, false)
+
+	_, err := handleRequest(Ctx, alerts)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err)
+	}
+
+	have := LastComment
+	want := "Error looking up 127.0.0.1 on Gyro!\nError: Test"
 
 	if have != want {
 		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)

@@ -11,6 +11,8 @@ Squyre will help you deal with threats more effectively, decorating your securit
 
 Check out the docs at https://gyrospectre.github.io/squyre/ for more information on the problem it solves and how it can work for you.
 
+You can also check out the following generic overview, over at Medium! https://v22bis.medium.com/avoiding-security-alert-hell-introducing-squyre-b8add502e3c6
+
 ## Enrichment Functions
 It's easy to add enrichment functions, and more will be added over time. Feel free to PR and contribute!
 

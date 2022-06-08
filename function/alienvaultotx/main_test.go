@@ -55,6 +55,8 @@ func mockInfo(c *apiClient, indicator string, indicatorType string) (*http.Respo
 				Name: "test2",
 			},
 		}
+	} else if indicator == "2.2.2.2" {
+		return nil, errors.New("(Client.Timeout exceeded while awaiting headers)")
 	} else {
 		otxResp.PulseInfo.Count = 0
 	}
@@ -209,5 +211,34 @@ func TestTempTimeout(t *testing.T) {
 
 	if attempt-1 != 3 {
 		t.Errorf("Expected 3 attempts, got %d", attempt-1)
+	}
+}
+
+func TestTimeout(t *testing.T) {
+	setup()
+
+	TestAlert.Subjects = []squyre.Subject{
+		{
+			Type:  "ipv4",
+			Value: "2.2.2.2",
+		},
+	}
+	output, _ := handleRequest(ctx, TestAlert)
+
+	var response squyre.Alert
+	json.Unmarshal([]byte(output), &response)
+
+	have := response.Results[0].Message
+	want := "(Client.Timeout exceeded while awaiting headers)"
+
+	if have != want {
+		t.Errorf("Expected '%s', got '%s'", want, have)
+	}
+
+	have2 := response.Results[0].Success
+	want2 := false
+
+	if have2 != want2 {
+		t.Fatalf("Unexpected output. \nHave: %t\nWant: %t", have2, want2)
 	}
 }

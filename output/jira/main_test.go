@@ -13,8 +13,9 @@ import (
 
 var (
 	// MockTicket is a fake ticket for tests
-	MockTicket int
-	Ctx        context.Context
+	MockTicket  int
+	Ctx         context.Context
+	LastComment string
 )
 
 func setup() {
@@ -48,10 +49,11 @@ func mockCreateTicketForAlert(client *jira.Client, alert squyre.Alert) (string, 
 }
 
 func mockAddComment(client *jira.Client, ticket string, rawComment string) error {
+	LastComment = rawComment
 	return nil
 }
 
-func makeTestAlerts(number int, groups int, prefix string, includeResults bool, sameID bool) ([][]string, []string) {
+func makeTestAlerts(number int, groups int, prefix string, includeResults bool, sameID bool, success bool) ([][]string, []string) {
 	alert := squyre.Alert{
 		RawMessage: "Testing",
 	}
@@ -61,7 +63,7 @@ func makeTestAlerts(number int, groups int, prefix string, includeResults bool, 
 				Source:         "Gyro",
 				AttributeValue: "127.0.0.1",
 				Message:        "Test",
-				Success:        true,
+				Success:        success,
 			},
 		}
 	}
@@ -92,7 +94,7 @@ func TestHandlerCreateSuccess(t *testing.T) {
 	numgroups := 2
 	numalerts := 5
 
-	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, false)
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, false, true)
 
 	output, err := handleRequest(Ctx, alerts)
 	if err != nil {
@@ -120,7 +122,7 @@ func TestHandlerNoCreateSuccess(t *testing.T) {
 	numgroups := 1
 	numalerts := 3
 
-	alerts, alertlist := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, false)
+	alerts, alertlist := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, false, true)
 
 	output, err := handleRequest(Ctx, alerts)
 	if err != nil {
@@ -141,7 +143,7 @@ func TestHandlerNoResults(t *testing.T) {
 	numgroups := 1
 	numalerts := 3
 
-	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", false, false)
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", false, false, true)
 
 	output, err := handleRequest(Ctx, alerts)
 	if err != nil {
@@ -162,7 +164,7 @@ func TestHandlerCreateSameIds(t *testing.T) {
 	numgroups := 1
 	numalerts := 5
 
-	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, true)
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, true, true)
 
 	output, err := handleRequest(Ctx, alerts)
 
@@ -175,6 +177,27 @@ func TestHandlerCreateSameIds(t *testing.T) {
 	have := string(output)
 
 	want := fmt.Sprintf("Success: 1 alerts processed (%d groups). Created alerts: %s", numgroups, alertList)
+
+	if have != want {
+		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)
+	}
+}
+
+func TestHandlerSuccessFailedLookup(t *testing.T) {
+	setup()
+
+	numgroups := 1
+	numalerts := 1
+
+	alerts, _ := makeTestAlerts(numalerts, numgroups, "EXISTING-", true, true, false)
+
+	_, err := handleRequest(Ctx, alerts)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err)
+	}
+
+	have := LastComment
+	want := "Error looking up 127.0.0.1 on Gyro!\nError: Test"
 
 	if have != want {
 		t.Fatalf("Unexpected output. \nHave: %s\nWant: %s", have, want)
