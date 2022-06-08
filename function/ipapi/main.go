@@ -122,6 +122,7 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 			var result = squyre.Result{
 				Source:         provider,
 				AttributeValue: subject.Value,
+				MatchFound:     false,
 				Success:        false,
 			}
 
@@ -129,24 +130,28 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 
 			if err != nil {
 				log.Errorf("Failed to fetch data from %s", provider)
-				return "Error fetching data from API!", err
-			}
-			responseData, err := ioutil.ReadAll(response.Body)
-
-			if err == nil {
-				log.Infof("Received %s response for %s", provider, subject.Value)
-
-				json.Unmarshal(responseData, &responseObject)
-
-				result.Success = true
-				result.Message = messageFromResponse(responseObject)
+				result.Success = false
+				result.Message = err.Error()
+				alert.Results = append(alert.Results, result)
 			} else {
-				log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
-				return "Error decoding response from API!", err
+				result.Success = true
+				responseData, err := ioutil.ReadAll(response.Body)
+
+				if err == nil {
+					log.Infof("Received %s response for %s", provider, subject.Value)
+
+					json.Unmarshal(responseData, &responseObject)
+
+					result.Success = true
+					result.Message = messageFromResponse(responseObject)
+				} else {
+					log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
+					return "Error decoding response from API!", err
+				}
+				// Add the enriched details back to the results
+				alert.Results = append(alert.Results, result)
+				log.Infof("Added %s to result set", subject.Value)
 			}
-			// Add the enriched details back to the results
-			alert.Results = append(alert.Results, result)
-			log.Infof("Added %s to result set", subject.Value)
 		} else {
 			log.Info("Subject not supported by this provider. Skipping.")
 		}

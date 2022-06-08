@@ -104,6 +104,7 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 			var result = squyre.Result{
 				Source:         provider,
 				AttributeValue: subject.Value,
+				MatchFound:     false,
 				Success:        false,
 			}
 
@@ -111,41 +112,44 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 
 			if err != nil {
 				log.Errorf("Failed to fetch data from %s", provider)
-				return "Error fetching data from API!", err
-			}
-			responseData, err := ioutil.ReadAll(response.Body)
-
-			if err == nil {
-				log.Infof("Received %s response for %s", provider, subject.Value)
-
-				json.Unmarshal(responseData, &responseObject)
-
-				if responseObject.Classification != "" {
-					// A blank classification means nothing was found
-					result.Success = true
-				} else {
-					result.Success = false
-				}
-
-				if !result.Success && OnlyLogMatches {
-					log.Infof("Skipping non match for %s", subject.Value)
-				} else {
-					// Match found. Add the enriched details back to the results
-					result.Message = messageFromResponse(responseObject)
-					alert.Results = append(alert.Results, result)
-					log.Infof("Added %s to result set", subject.Value)
-				}
-
-				// Clear results ready for next cycle
-				responseObject.Classification = ""
-				responseObject.Name = ""
-				responseObject.Link = ""
-				responseObject.LastSeen = ""
+				result.Success = false
+				result.Message = err.Error()
+				alert.Results = append(alert.Results, result)
 			} else {
-				log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
-				return "Error decoding response from API!", err
-			}
+				result.Success = true
+				responseData, err := ioutil.ReadAll(response.Body)
 
+				if err == nil {
+					log.Infof("Received %s response for %s", provider, subject.Value)
+
+					json.Unmarshal(responseData, &responseObject)
+
+					if responseObject.Classification != "" {
+						// A blank classification means nothing was found
+						result.MatchFound = true
+					} else {
+						result.MatchFound = false
+					}
+
+					if !result.MatchFound && OnlyLogMatches {
+						log.Infof("Skipping non match for %s", subject.Value)
+					} else {
+						// Match found. Add the enriched details back to the results
+						result.Message = messageFromResponse(responseObject)
+						alert.Results = append(alert.Results, result)
+						log.Infof("Added %s to result set", subject.Value)
+					}
+
+					// Clear results ready for next cycle
+					responseObject.Classification = ""
+					responseObject.Name = ""
+					responseObject.Link = ""
+					responseObject.LastSeen = ""
+				} else {
+					log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
+					return "Error decoding response from API!", err
+				}
+			}
 		} else {
 			log.Info("Subject not supported by this provider. Skipping.")
 		}

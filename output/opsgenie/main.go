@@ -114,10 +114,9 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 			return "No results found to process", nil
 		}
 
-		log.Infof("Sending results of successful enrichment for alert %s", alert.ID)
+		log.Infof("Sending results of enrichment for alert %s", alert.ID)
 
 		for _, result := range alert.Results {
-			// Only send the output of successful enrichments
 			if result.Success {
 				note := &opsgenieNote{
 					User:   "Squyre",
@@ -130,10 +129,20 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 					log.Errorf("Failed to add comment to alert '%s'", alert.ID)
 					return "Failed to add comment to alert", err
 				}
-				log.Info("Successfully adding note to OpsGenie")
 			} else {
-				log.Errorf("Skipping failed enrichment from %s for alert %s", result.Source, alert.ID)
+				note := &opsgenieNote{
+					User:   "Squyre",
+					Source: result.Source,
+					Note:   fmt.Sprintf("Error looking up %s on %s!\nError: %s", result.AttributeValue, result.Source, result.Message),
+				}
+
+				err := AddComment(client, note, alert.ID)
+				if err != nil {
+					log.Errorf("Failed to add comment to alert '%s'", alert.ID)
+					return "Failed to add comment to alert", err
+				}
 			}
+			log.Info("Successfully added note to OpsGenie")
 
 		}
 		alerts = append(alerts, alert.ID)

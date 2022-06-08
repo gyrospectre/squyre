@@ -131,10 +131,9 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 			return "No results found to process", nil
 		}
 
-		log.Infof("Sending results of successful enrichments to %s", ticketnumber)
+		log.Infof("Sending results of enrichment to %s", ticketnumber)
 
 		for _, result := range alert.Results {
-			// Only send the output of successful enrichments
 			if result.Success {
 				err = AddComment(jiraClient, ticketnumber, fmt.Sprintf("Additional information on %s from %s:\n\n%s", result.AttributeValue, result.Source, result.Message))
 				if err != nil {
@@ -142,7 +141,11 @@ func handleRequest(ctx context.Context, rawAlerts [][]string) (string, error) {
 					return "Failed to add comment to ticket", err
 				}
 			} else {
-				log.Errorf("Skipping failed enrichment from %s for alert %s", result.Source, alert.ID)
+				err = AddComment(jiraClient, ticketnumber, fmt.Sprintf("Error looking up %s on %s!\nError: %s", result.AttributeValue, result.Source, result.Message))
+				if err != nil {
+					log.Errorf("Failed to add comment to ticket %s", ticketnumber)
+					return "Failed to add comment to ticket", err
+				}
 			}
 		}
 		ticketnumbers = append(ticketnumbers, ticketnumber)

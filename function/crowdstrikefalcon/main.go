@@ -130,24 +130,28 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 			var result = squyre.Result{
 				Source:         provider,
 				AttributeValue: subject.Value,
+				MatchFound:     false,
 				Success:        false,
 			}
 			if subject.Type == "hostname" {
 				hostDetail, hostLogins, err := getHost(falconClient, subject.Value)
 				if err != nil {
-					return "Error fetching data from API!", err
-				}
-				result.Success = true
-
-				if hostDetail != nil {
-					log.Infof("Received %s response for %s", provider, subject.Value)
-					result.Message = messageFromHostDetail(hostDetail, hostLogins)
-
+					log.Errorf("Failed to fetch data from %s", provider)
+					result.Success = false
+					result.Message = err.Error()
 				} else {
-					log.Infof("Host %s not found in %s", subject.Value, provider)
-					result.Message = fmt.Sprintf("Host '%s' not found in Falcon. Agent not installed?", subject.Value)
-				}
+					result.Success = true
 
+					if hostDetail != nil {
+						log.Infof("Received %s response for %s", provider, subject.Value)
+						result.Message = messageFromHostDetail(hostDetail, hostLogins)
+						result.MatchFound = true
+					} else {
+						log.Infof("Host %s not found in %s", subject.Value, provider)
+						result.Message = fmt.Sprintf("Host '%s' not found in Falcon. Agent not installed?", subject.Value)
+						result.MatchFound = false
+					}
+				}
 				// Add the enriched details back to the results
 				alert.Results = append(alert.Results, result)
 				log.Infof("Added %s to result set", subject.Value)
@@ -155,27 +159,30 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 				var indicator *models.DomainPublicIndicatorV3
 				indicator, err = getIndicator(falconClient, subject.Value)
 				if err != nil {
-					log.Error("Error fetching data from API!")
-					return "Error fetching data from API!", err
-				}
-				result.Success = true
-				if indicator != nil {
-					log.Infof("Received %s response for %s", provider, subject.Value)
-					result.Success = true
-				} else {
+					log.Errorf("Failed to fetch data from %s", provider)
 					result.Success = false
-				}
-
-				if !result.Success && OnlyLogMatches {
-					log.Infof("Skipping non match for %s", subject.Value)
-				} else {
-					if !result.Success {
-						result.Message = "Indicator not found in Falcon X."
-					} else {
-						result.Message = messageFromIndicator(indicator)
-					}
+					result.Message = err.Error()
 					alert.Results = append(alert.Results, result)
-					log.Infof("Added %s to result set", subject.Value)
+				} else {
+					result.Success = true
+					if indicator != nil {
+						log.Infof("Received %s response for %s", provider, subject.Value)
+						result.MatchFound = true
+					} else {
+						result.MatchFound = false
+					}
+
+					if !result.MatchFound && OnlyLogMatches {
+						log.Infof("Skipping non match for %s", subject.Value)
+					} else {
+						if !result.MatchFound {
+							result.Message = "Indicator not found in Falcon X."
+						} else {
+							result.Message = messageFromIndicator(indicator)
+						}
+						alert.Results = append(alert.Results, result)
+						log.Infof("Added %s to result set", subject.Value)
+					}
 				}
 			}
 		}

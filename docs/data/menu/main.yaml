@@ -23,6 +23,8 @@ main:
       ref: "/architecture/architecture"
     - name: State Machine
       ref: "/architecture/state.md"
+    - name: Regarding Error Handling
+      ref: "/architecture/errors.md"
   - name: Functions
     sub:
     - name: Alienvault OTX
