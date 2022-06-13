@@ -297,17 +297,19 @@ func TestUrlExtraction(t *testing.T) {
 	setup()
 	url1 := "http://google.com/test/awesome?test"
 	url2 := "https://github.com/gyrospectre/squyre"
+	url3 := "https://apc04.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdocs.testsite.int%2Ffile%2Fim0w22da6434202ce486e98ae85196b5ccc76&data=02%7C01%7Cwoot.woot%40test.com%7C2990160b578248181f4008d79461f071%7C4f4f4c56a772461a967e7890c3960b3a%7C1%7C1%7C637141020687342499&sdata=MNYejoOQbAVPTD1ijNbwMIfl8LV8E4JlP396Pm4470E%3D&reserved=0"
 
 	str1 := "ABC 12345"
 	str2 := "ABC " + url1
 	str3 := url2
+	str4 := url3
 
-	message := str1 + " " + " [" + str2 + ", " + str3 + "] " + str2 + "}"
+	message := str1 + " " + " [" + str2 + ", " + str3 + "] " + str2 + "} " + str4
 	subjects := extractUrls(message)
 
 	have := len(subjects)
 
-	want := 2
+	want := 3
 	if have != want {
 		t.Fatalf("Unexpected number of Urls. \nHave: %x\nWant: %x", have, want)
 	}
@@ -318,5 +320,41 @@ func TestUrlExtraction(t *testing.T) {
 
 	if subjects[1].Value != url2 {
 		t.Fatalf("Unxpected second Url. \nHave: %s\nWant: %s", subjects[1].Value, url2)
+	}
+
+	wantUrl := "https://docs.testsite.int/file/im0w22da6434202ce486e98ae85196b5ccc76"
+	if subjects[2].Value != wantUrl {
+		t.Fatalf("Unxpected third Url. \nHave: %s\nWant: %s", subjects[2].Value, wantUrl)
+	}
+}
+
+func TestMalformedATPUrl(t *testing.T) {
+	setup()
+	url1 := "https://apc04.safelinks.protection.outlook.com/?rl=https%3A%2F%2Fdocs.testsite.int%2Ffile%2Fim0w22da6434202ce486e98ae85196b5ccc76"
+	url2 := "https://apc04.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdocs.testsite.int%2Ffile%2Fim0w22da6434202ce486e98ae85196b5ccc76data=02%7C01%7Cwoot.woot%40test.com%7C2990160b578248181f4008d79461f071%7C4f4f4c56a772461a967e7890c3960b3a%7C1%7C1%7C637141020687342499sdata=MNYejoOQbAVPTD1ijNbwMIfl8LV8E4JlP396Pm4470E%3Dreserved=0"
+	url3 := "https://apc04.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdocs.testsite.int%2Ffile%2Fim0w22da6434202ce486e98ae85196b5ccc76&data=02%7C01%7Cwoot.woot%40test.com%7C2990160b578248181f4008d79461f071%7C4f4f4c56a772461a967e7890c3960b3a%7C1%7C1%7C637141020687342499&sdata=MNYejoOQbAVPTD1ijNbwMIfl8LV8E4JlP396Pm4470E%3D&reserved=0"
+
+	message := "ABC " + url1 + ": " + url2 + " { " + url3
+
+	subjects := extractUrls(message)
+
+	have := len(subjects)
+	want := 3
+
+	if have != want {
+		t.Fatalf("Unexpected number of Urls. \nHave: %x\nWant: %x", have, want)
+	}
+
+	if subjects[0].Value != url1 {
+		t.Fatalf("Unxpected first Url. \nHave: %s\nWant: %s", subjects[0].Value, url1)
+	}
+
+	if subjects[1].Value != url2 {
+		t.Fatalf("Unxpected second Url. \nHave: %s\nWant: %s", subjects[1].Value, url2)
+	}
+
+	wantUrl := "https://docs.testsite.int/file/im0w22da6434202ce486e98ae85196b5ccc76"
+	if subjects[2].Value != wantUrl {
+		t.Fatalf("Unxpected third Url. \nHave: %s\nWant: %s", subjects[2].Value, wantUrl)
 	}
 }

@@ -14,10 +14,4 @@ Check out the docs at https://gyrospectre.github.io/squyre/ for more information
 You can also check out the following generic overview, over at Medium! https://v22bis.medium.com/avoiding-security-alert-hell-introducing-squyre-b8add502e3c6
 
 ## Enrichment Functions
-It's easy to add enrichment functions, and more will be added over time. Feel free to PR and contribute!
-
-Currently supported:
-- Alienvault OTX (https://otx.alienvault.com/) : Open Threat Exchange is the neighborhood watch of the global intelligence community. (Indicator types: ipv4, domain, url)
-- Greynoise (https://www.greynoise.io/) : Tells security analysts what not to worry about. (Indicator types: ipv4)
-- IP API (https://ipapi.com/) : IP address geolocation information. (Indicator types: ipv4)
-- CrowdStrike Falcon (https://www.crowdstrike.com/endpoint-security-products/falcon-platform/) : Primarily utilising Falcon X for threat intelligence. (Indicator types: ipv4, domain, sha256, hostname)
+It's easy to add enrichment functions, and more will be added over time. See https://gyrospectre.github.io/squyre/functions/ for a list of current providers.

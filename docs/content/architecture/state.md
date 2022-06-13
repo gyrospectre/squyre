@@ -8,6 +8,6 @@ The main state machine is called `EnrichStateMachine`, because it, uh enriches, 
 
 It is defined by `statemachine/enrich.asl.json` in the [AWS ASL language](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html).
 
-Layout is straightforward, nested parallel branches run the enrichment tasks which are sent to the output function at the end to update alerts/tickets.
+Layout is straightforward; nested parallel branches run the enrichment tasks which are sent to the output function at the end to update alerts/tickets.
 
 <img src="/squyre/media/statemachine.png" alt="Enrich State Machine" width="75%" />

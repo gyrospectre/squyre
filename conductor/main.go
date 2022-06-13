@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -269,13 +270,42 @@ func extractUrls(details string) []squyre.Subject {
 	submatchall = removeDuplicateTrimmedStr(submatchall)
 
 	for _, url := range submatchall {
+		if strings.Contains(url, "safelinks.protection.outlook.com") {
+			url = normaliseAtpSafeLink(url)
+		}
+
 		var subject = squyre.Subject{
 			Type:  "url",
 			Value: url,
 		}
+
 		subjectList = append(subjectList, subject)
 	}
 	return subjectList
+}
+
+// normaliseAtpSafeLink extracts the target Url from a M365 ATP safe link. It will return the raw safe link if parsing fails for any reason.
+func normaliseAtpSafeLink(safeurl string) string {
+	splitUrl := strings.Split(safeurl, "?url=")
+	if len(splitUrl) < 2 {
+		log.Error("Could not parse ATP Safe Link! URL missing.")
+		return safeurl
+	}
+	encodedUrl := splitUrl[1]
+	decodedUrl, err := url.PathUnescape(encodedUrl)
+	if err != nil {
+		log.Errorf("Could not parse ATP Safe Link!: %s", err)
+		return safeurl
+	}
+
+	splitUrl = strings.Split(decodedUrl, "&")
+
+	if len(splitUrl) == 1 {
+		log.Error("Could not parse ATP Safe Link! Data missing.")
+		return safeurl
+	}
+
+	return splitUrl[0]
 }
 
 func convertSplunkAlert(alertBody string) squyre.Alert {

@@ -145,7 +145,6 @@ func main() {
 	}
 
 	if state.MultiTasks == "" {
-		fmt.Println("here-multi")
 		buf := new(bytes.Buffer)
 		err = pass.Execute(buf, &sqFunc{
 			Type: "multipurpose",
@@ -157,7 +156,6 @@ func main() {
 	}
 
 	if state.IPv4Tasks == "" {
-		fmt.Println("here-ipv4")
 		buf := new(bytes.Buffer)
 		err = pass.Execute(buf, &sqFunc{
 			Type: "ipv4",
