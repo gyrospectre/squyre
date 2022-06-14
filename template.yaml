@@ -30,7 +30,7 @@ Resources:
           HOST_REGEX: A-[A-Z0-9]{6}
           IGNORE_DOMAIN: your-internal-domain.int
       Events:
-        ChatEvent:
+        AlertEvent:
           Type: Api
           Properties:
             Path: /alert
@@ -53,10 +53,10 @@ Resources:
       FunctionName: !Ref ConductorFunction
       Principal: sns.amazonaws.com
 
-  GreynoiseFunction:
+  GreyNoiseFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${AWS::StackName}-Greynoise'
+      FunctionName: !Sub '${AWS::StackName}-GreyNoise'
       CodeUri: function/greynoise
       Handler: greynoise
       Runtime: go1.x
@@ -91,6 +91,14 @@ Resources:
       Handler: crowdstrikefalcon
       Runtime: go1.x
 
+  ExoneraTorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-ExoneraTor'
+      CodeUri: function/exonerator
+      Handler: exonerator
+      Runtime: go1.x
+
   OutputFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -110,20 +118,26 @@ Resources:
       Name: !Sub '${AWS::StackName}-Enrich'
       DefinitionUri: statemachine/enrich.asl.json
       DefinitionSubstitutions:
-        GreynoiseFunctionArn: !GetAtt GreynoiseFunction.Arn
+        GreyNoiseFunctionArn: !GetAtt GreyNoiseFunction.Arn
+        AlienvaultOTXFunctionArn: !GetAtt AlienvaultOTXFunction.Arn
         IPAPIFunctionArn: !GetAtt IPAPIFunction.Arn
         OutputFunctionArn: !GetAtt OutputFunction.Arn
         CrowdStrikeFalconFunctionArn: !GetAtt CrowdStrikeFalconFunction.Arn
+        ExoneraTorFunctionArn: !GetAtt ExoneraTorFunction.Arn
 
       Policies:
         - LambdaInvokePolicy:
-            FunctionName: !Ref GreynoiseFunction
+            FunctionName: !Ref AlienvaultOTXFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref GreyNoiseFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref CrowdStrikeFalconFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref IPAPIFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref OutputFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref ExoneraTorFunction
 
   ConductorRole:
       Type: 'AWS::IAM::Role'

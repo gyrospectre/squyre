@@ -40,6 +40,34 @@
                       "End": true
                     }
                   }
+                },
+                {
+                  "StartAt": "CrowdStrike Falcon - multipurpose",
+                  "States": {
+                    "CrowdStrike Falcon - multipurpose": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "TimeoutSeconds": 10,
+                      "OutputPath": "$.Payload",
+                      "Parameters": {
+                        "Payload.$": "$",
+                        "FunctionName": "${CrowdStrikeFalconFunctionArn}"
+                      },
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException"
+                          ],
+                          "IntervalSeconds": 2,
+                          "MaxAttempts": 6,
+                          "BackoffRate": 2
+                        }
+                      ],
+                      "End": true
+                    }
+                  }
                 }
               ],
               "End": true
@@ -70,6 +98,34 @@
               "Type": "Parallel",
               "Branches": [
                 {
+                  "StartAt": "ExoneraTor - ipv4",
+                  "States": {
+                    "ExoneraTor - ipv4": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "TimeoutSeconds": 10,
+                      "OutputPath": "$.Payload",
+                      "Parameters": {
+                        "Payload.$": "$",
+                        "FunctionName": "${ExoneraTorFunctionArn}"
+                      },
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException"
+                          ],
+                          "IntervalSeconds": 2,
+                          "MaxAttempts": 6,
+                          "BackoffRate": 2
+                        }
+                      ],
+                      "End": true
+                    }
+                  }
+                },
+                {
                   "StartAt": "GreyNoise - ipv4",
                   "States": {
                     "GreyNoise - ipv4": {
@@ -80,6 +136,34 @@
                       "Parameters": {
                         "Payload.$": "$",
                         "FunctionName": "${GreyNoiseFunctionArn}"
+                      },
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException"
+                          ],
+                          "IntervalSeconds": 2,
+                          "MaxAttempts": 6,
+                          "BackoffRate": 2
+                        }
+                      ],
+                      "End": true
+                    }
+                  }
+                },
+                {
+                  "StartAt": "IP API - ipv4",
+                  "States": {
+                    "IP API - ipv4": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "TimeoutSeconds": 10,
+                      "OutputPath": "$.Payload",
+                      "Parameters": {
+                        "Payload.$": "$",
+                        "FunctionName": "${IPAPIFunctionArn}"
                       },
                       "Retry": [
                         {

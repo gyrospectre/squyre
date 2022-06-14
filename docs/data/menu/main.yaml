@@ -26,11 +26,14 @@ main:
     - name: Regarding Error Handling
       ref: "/architecture/errors.md"
   - name: Functions
+    ref: "/functions/list"
     sub:
     - name: Alienvault OTX
       ref: "/functions/alienvaultotx"
     - name: CrowdStrike Falcon
       ref: "/functions/crowdstrike"
+    - name: ExoneraTor
+      ref: "/functions/exonerator"
     - name: GreyNoise
       ref: "/functions/greynoise"
     - name: IP API
