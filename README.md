@@ -14,4 +14,4 @@ Check out the docs at https://gyrospectre.github.io/squyre/ for more information
 You can also check out the following generic overview, over at Medium! https://v22bis.medium.com/avoiding-security-alert-hell-introducing-squyre-b8add502e3c6
 
 ## Enrichment Functions
-It's easy to add enrichment functions, and more will be added over time. See https://gyrospectre.github.io/squyre/functions/ for a list of current providers.
+It's easy to add enrichment functions, and more will be added over time. See https://gyrospectre.github.io/squyre/functions/list/ for a list of current providers.
