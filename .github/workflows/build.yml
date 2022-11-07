@@ -40,4 +40,4 @@ jobs:
       uses: CycloneDX/gh-gomod-generate-sbom@v1
       with:
         version: v1
-        args: mod -licenses -json -output .pkg/squyre/sbom.json ./pkg/squyre/
+        args: mod -licenses -json -output ./pkg/squyre/sbom.json ./pkg/squyre/
