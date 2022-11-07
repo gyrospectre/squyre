@@ -29,7 +29,7 @@ setup:
 dep-scan:
 	@echo "Scan OSV for known security vulnerabilities in our dependencies"
 	@go install github.com/google/osv.dev/tools/osv-scanner/cmd/osv-scanner@latest
-	@for DIR in $(GODIRS); do ${HOME}/go/bin/osv-scanner --lockfile=$$DIR/go.mod ; done;
+	@for DIR in $(GODIRS); do ${HOME}/go/bin/osv-scanner --json --lockfile=$$DIR/go.mod ; done;
 
 .PHONY: lint
 lint:
