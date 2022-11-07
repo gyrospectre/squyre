@@ -35,3 +35,9 @@ jobs:
             echo "Please run: go mod tidy"
             exit 1
         fi
+
+    - name: Generate SBOM
+      uses: CycloneDX/gh-gomod-generate-sbom@v1
+      with:
+        version: v1
+        args: mod -licenses -json -output bom.json
