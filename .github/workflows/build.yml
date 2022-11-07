@@ -36,8 +36,8 @@ jobs:
             exit 1
         fi
 
-    - name: Generate SBOM
+    - name: Generate SBOM (Main Package)
       uses: CycloneDX/gh-gomod-generate-sbom@v1
       with:
         version: v1
-        args: mod -licenses -json -output bom.json
+        args: mod -licenses -json -output .pkg/squyre/sbom.json ./pkg/squyre/
