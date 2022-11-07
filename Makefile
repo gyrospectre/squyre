@@ -26,6 +26,11 @@ setup:
 	@echo "run Squyre setup"
 	@cd scripts/bootstrap; go run main.go; cd -
 
+dep-scan:
+	@echo "Scan OSV for known security vulnerabilities in our dependencies"
+	@go install github.com/google/osv.dev/tools/osv-scanner/cmd/osv-scanner@latest
+	@for DIR in $(GODIRS); do ${HOME}/go/bin/osv-scanner --lockfile=$$DIR/go.mod ; done;
+
 .PHONY: lint
 lint:
 	@echo "go lint all packages"
