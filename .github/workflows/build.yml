@@ -22,7 +22,7 @@ jobs:
         go-version: 1.17
 
     - name: Build
-      run: sam build -u
+      run: make build
 
     - name: Unit tests
       run: make test
