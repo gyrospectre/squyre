@@ -223,7 +223,7 @@ func messageFromIndicator(indicator *models.DomainPublicIndicatorV3) string {
 	return string(message)
 }
 
-func messageFromHostDetail(host *models.DomainDeviceSwagger, logins *models.DeviceapiLoginDetailV1) string {
+func messageFromHostDetail(host *models.DeviceapiDeviceSwagger, logins *models.DeviceapiLoginDetailV1) string {
 	var policies []string
 	var state string
 	for _, policy := range host.Policies {
@@ -283,10 +283,10 @@ func getFalconIndicator(client *client.CrowdStrikeAPISpecification, name string)
 	return nil, nil
 }
 
-func getHost(client *client.CrowdStrikeAPISpecification, name string) (*models.DomainDeviceSwagger, *models.DeviceapiLoginDetailV1, error) {
+func getHost(client *client.CrowdStrikeAPISpecification, name string) (*models.DeviceapiDeviceSwagger, *models.DeviceapiLoginDetailV1, error) {
 	filter := fmt.Sprintf("hostname:'%s'", name)
 
-	var hostDetailBatch []*models.DomainDeviceSwagger
+	var hostDetailBatch []*models.DeviceapiDeviceSwagger
 	var hostLoginsBatch []*models.DeviceapiLoginDetailV1
 
 	hostIDs, err := getHostIds(client, &filter)
@@ -355,9 +355,9 @@ func queryIntelIndicators(client *client.CrowdStrikeAPISpecification, filter, so
 	return indicatorsChannel, errorChannel
 }
 
-func getHostsDetails(client *client.CrowdStrikeAPISpecification, hostIds []string) ([]*models.DomainDeviceSwagger, error) {
-	response, err := client.Hosts.GetDeviceDetails(&hosts.GetDeviceDetailsParams{
-		Ids:     hostIds,
+func getHostsDetails(client *client.CrowdStrikeAPISpecification, hostIds []string) ([]*models.DeviceapiDeviceSwagger, error) {
+	response, err := client.Hosts.PostDeviceDetailsV2(&hosts.PostDeviceDetailsV2Params{
+		Body:    &models.MsaIdsRequest{Ids: hostIds},
 		Context: context.Background(),
 	})
 	if err != nil {
@@ -400,8 +400,8 @@ func getHostIds(client *client.CrowdStrikeAPISpecification, filter *string) (<-c
 	err = nil
 	go func() {
 		limit := int64(500)
-		for offset := int64(0); ; {
-			response, err := client.Hosts.QueryDevicesByFilter(&hosts.QueryDevicesByFilterParams{
+		for offset := ""; ; {
+			response, err := client.Hosts.QueryDevicesByFilterScroll(&hosts.QueryDevicesByFilterScrollParams{
 				Limit:   &limit,
 				Offset:  &offset,
 				Filter:  filter,
@@ -416,10 +416,12 @@ func getHostIds(client *client.CrowdStrikeAPISpecification, filter *string) (<-c
 
 			hosts := response.Payload.Resources
 			hostIds <- hosts
-			offset = offset + int64(len(hosts))
-			if offset >= *response.Payload.Meta.Pagination.Total {
-				break
+
+			if *response.Payload.Meta.Pagination.Offset == "" || int64(len(hosts)) < limit {
+				break // no more next page indicates we are done
 			}
+
+			offset = *response.Payload.Meta.Pagination.Offset
 		}
 		close(hostIds)
 	}()
