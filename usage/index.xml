@@ -1,16 +1,109 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Usage on Squyre Documentation</title><link>https://gyrospectre.github.io/squyre/usage/</link><description>Recent content in Usage on Squyre Documentation</description><generator>Hugo</generator><language>en</language><lastBuildDate>Sun, 13 Mar 2022 21:28:23 +1100</lastBuildDate><atom:link href="https://gyrospectre.github.io/squyre/usage/index.xml" rel="self" type="application/rss+xml"/><item><title>Customising for your environment</title><link>https://gyrospectre.github.io/squyre/usage/customise/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/customise/</guid><description>There are a couple of features which can be customised for your environment.
-Enrichment Functions You can modify statemachine/enrich.asl.json to change which enrichment functions run. The easiest way to do this is to use the included helper script, which provides a nice wizard to select functions.
-make setup Then run the deploy again to save your changes to AWS.
-Don&amp;rsquo;t have CrowdStrike? No problem, just remove that function! If you want, you can also remove unnecessary functions from template.</description></item><item><title>Getting started</title><link>https://gyrospectre.github.io/squyre/usage/getting_started/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/getting_started/</guid><description>There are a couple of ways you can deploy, either directly between your alert source and ticketing system (pattern 1), or using an incident management platform like Opsgenie (pattern 2).
-Pattern 1 is the out of the box configuration as it&amp;rsquo;s the most generic. If you don&amp;rsquo;t already have something in place to create tickets automatically when alerts fire, then this is for you. We currently support Splunk and Sumo Logic for alert sources.</description></item><item><title>Getting Started: Jira Setup</title><link>https://gyrospectre.github.io/squyre/usage/jira/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/jira/</guid><description> Create a Jira API key.
-In AWS, create a new Secrets Manager secret called JiraApi in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type Other type of secret.
-{ &amp;#34;apikey&amp;#34;: &amp;lt;the API key you just created&amp;gt;, &amp;#34;user&amp;#34;: &amp;lt;the email address of the Jira account the key is associated with&amp;gt; }</description></item><item><title>Getting Started: OpsGenie Setup</title><link>https://gyrospectre.github.io/squyre/usage/opsgenie/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/opsgenie/</guid><description> Create an OpsGenie integration API key.
-In AWS, create a new Secrets Manager secret called OpsGenieAPI in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type Other type of secret.
-{ &amp;#34;apikey&amp;#34;: &amp;lt;the API key you just created&amp;gt; } Setup OpsGenie to send SNS messages to topic squyre-Alert on alert creation only.</description></item><item><title>Getting Started: Splunk Setup</title><link>https://gyrospectre.github.io/squyre/usage/splunk/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/splunk/</guid><description>On Splunk, install the Splunk Add-on for AWS, which adds the ability to send alerts to SNS.
-Configure the app with some AWS credentials. The IAM user or role must have SNS Publish/Get/List perms to SNS topic squyre-Alert.
-Update one of your Splunk saved searches, adding a strcat at the end to combine all the fields you think are of use to a new field called interesting.
-&amp;lt;awesome detection logic&amp;gt; | stats values(src_ip) as src_ip by dest_user | eval Detection=&amp;quot;A test alert&amp;quot; | strcat src_ip &amp;quot;,&amp;quot; dest_user interesting</description></item><item><title>Getting Started: Sumo Logic Setup</title><link>https://gyrospectre.github.io/squyre/usage/sumologic/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/sumologic/</guid><description>In Sumo, create a new Webhook connection under Manage Data &amp;gt; Monitoring &amp;gt; Connections. See the official guide here.
-Use the following spec for the Payload. This matches the definition in Squyre, so that we can parse all the details correctly.
-{ &amp;#34;event_type&amp;#34;: &amp;#34;trigger&amp;#34;, &amp;#34;description&amp;#34;: &amp;#34;{{Description}}&amp;#34;, &amp;#34;client&amp;#34;: &amp;#34;Sumo Logic&amp;#34;, &amp;#34;client_url&amp;#34;: &amp;#34;{{SearchQueryUrl}}&amp;#34;, &amp;#34;name&amp;#34;: &amp;#34;{{Name}}&amp;#34;, &amp;#34;time_range&amp;#34;: &amp;#34;{{TimeRange}}&amp;#34;, &amp;#34;time_trigger&amp;#34;: &amp;#34;{{FireTime}}&amp;#34;, &amp;#34;num_results&amp;#34;: &amp;#34;{{NumQueryResults}}&amp;#34;, &amp;#34;results&amp;#34;: &amp;#34;{{ResultsJson}}&amp;#34;, &amp;#34;id&amp;#34;: &amp;#34;{{Id}}&amp;#34; } Create a new scheduled search, and configure it to send notifications to the webhook you configured above.</description></item><item><title>Requirements</title><link>https://gyrospectre.github.io/squyre/usage/requirements/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/requirements/</guid><description>You will need 3 things in place in order to use Squyre.
-You must have an AWS account to host it. It runs solely in AWS using serverless services (lambdas and step functions). If you don&amp;rsquo;t have one, don&amp;rsquo;t be too concerned with signing up - if you&amp;rsquo;re only running a few test alerts through Squyre AWS &amp;ldquo;Free Tier&amp;rdquo; should mean the cost is negligible (if not completely free).
-You need something that is generating security alerts for you.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Usage on Squyre Documentation</title><link>https://gyrospectre.github.io/squyre/usage/</link><description>Recent content in Usage on Squyre Documentation</description><generator>Hugo</generator><language>en</language><lastBuildDate>Sun, 13 Mar 2022 21:28:23 +1100</lastBuildDate><atom:link href="https://gyrospectre.github.io/squyre/usage/index.xml" rel="self" type="application/rss+xml"/><item><title>Customising for your environment</title><link>https://gyrospectre.github.io/squyre/usage/customise/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/customise/</guid><description>&lt;p>There are a couple of features which can be customised for your environment.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h2 id="enrichment-functions"
+ >
+ Enrichment Functions
+ &lt;/h2>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/usage/customise/#enrichment-functions" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Enrichment Functions" aria-label="Anchor to: Enrichment Functions" href="#enrichment-functions">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>You can modify &lt;code>statemachine/enrich.asl.json&lt;/code> to change which enrichment functions run. The easiest way to do this is to use the included helper script, which provides a nice wizard to select functions.&lt;/p>
+&lt;pre tabindex="0">&lt;code>make setup
+&lt;/code>&lt;/pre>&lt;p>Then run the deploy again to save your changes to AWS.&lt;/p></description></item><item><title>Getting started</title><link>https://gyrospectre.github.io/squyre/usage/getting_started/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/getting_started/</guid><description>&lt;img src="https://gyrospectre.github.io/squyre/squyre/media/deploypatterns.png" alt="patterns" width="550" align="right" />
+&lt;p>There are a couple of ways you can deploy, either directly between your alert source and ticketing system (pattern 1), or using an incident management platform like Opsgenie (pattern 2).&lt;/p>
+&lt;p>Pattern 1 is the out of the box configuration as it&amp;rsquo;s the most generic. If you don&amp;rsquo;t already have something in place to create tickets automatically when alerts fire, then this is for you. We currently support Splunk and Sumo Logic for alert sources. Jira is the only supported ticket management system right now.&lt;/p></description></item><item><title>Getting Started: Jira Setup</title><link>https://gyrospectre.github.io/squyre/usage/jira/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/jira/</guid><description>&lt;ol>
+&lt;li>
+&lt;p>&lt;a
+ class="gdoc-markdown__link"
+ href="https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/"
+>Create a Jira API key&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>In AWS, &lt;a
+ class="gdoc-markdown__link"
+ href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/manage_create-basic-secret.html"
+>create a new Secrets Manager secret&lt;/a> called &lt;code>JiraApi&lt;/code> in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type &lt;code>Other type of secret&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;pre tabindex="0">&lt;code>{
+ &amp;#34;apikey&amp;#34;: &amp;lt;the API key you just created&amp;gt;,
+ &amp;#34;user&amp;#34;: &amp;lt;the email address of the Jira account the key is associated with&amp;gt;
+}
+&lt;/code>&lt;/pre></description></item><item><title>Getting Started: OpsGenie Setup</title><link>https://gyrospectre.github.io/squyre/usage/opsgenie/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/opsgenie/</guid><description>&lt;ol>
+&lt;li>
+&lt;p>&lt;a
+ class="gdoc-markdown__link"
+ href="https://support.atlassian.com/opsgenie/docs/create-a-default-api-integration/"
+>Create an OpsGenie integration API key&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>In AWS, &lt;a
+ class="gdoc-markdown__link"
+ href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/manage_create-basic-secret.html"
+>create a new Secrets Manager secret&lt;/a> called &lt;code>OpsGenieAPI&lt;/code> in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type &lt;code>Other type of secret&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;pre tabindex="0">&lt;code>{
+ &amp;#34;apikey&amp;#34;: &amp;lt;the API key you just created&amp;gt;
+}
+&lt;/code>&lt;/pre>&lt;ol start="3">
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://support.atlassian.com/opsgenie/docs/integrate-opsgenie-with-outgoing-amazon-sns/"
+>Setup OpsGenie to send SNS messages&lt;/a> to topic &lt;code>squyre-Alert&lt;/code> on alert creation only.&lt;/li>
+&lt;/ol></description></item><item><title>Getting Started: Splunk Setup</title><link>https://gyrospectre.github.io/squyre/usage/splunk/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/splunk/</guid><description>&lt;ol>
+&lt;li>
+&lt;p>On Splunk, install the &lt;a
+ class="gdoc-markdown__link"
+ href="https://splunkbase.splunk.com/app/1876/"
+>Splunk Add-on for AWS&lt;/a>, which adds the ability to send alerts to SNS.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a
+ class="gdoc-markdown__link"
+ href="https://docs.splunk.com/Documentation/AddOns/released/AWS/Setuptheadd-on"
+>Configure the app with some AWS credentials&lt;/a>. The IAM user or role must have SNS Publish/Get/List perms to SNS topic &lt;code>squyre-Alert&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Update one of your Splunk saved searches, adding a &lt;code>strcat&lt;/code> at the end to combine all the fields you think are of use to a new field called &lt;code>interesting&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>&lt;code>&amp;lt;awesome detection logic&amp;gt; | stats values(src_ip) as src_ip by dest_user | eval Detection=&amp;quot;A test alert&amp;quot; | strcat src_ip &amp;quot;,&amp;quot; dest_user interesting&lt;/code>&lt;/p></description></item><item><title>Getting Started: Sumo Logic Setup</title><link>https://gyrospectre.github.io/squyre/usage/sumologic/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/sumologic/</guid><description>&lt;ol>
+&lt;li>
+&lt;p>In Sumo, create a new Webhook connection under Manage Data &amp;gt; Monitoring &amp;gt; Connections. See &lt;a
+ class="gdoc-markdown__link"
+ href="https://help.sumologic.com/Manage/Connections-and-Integrations/Webhook-Connections/Webhook_Connection_for_AWS_Lambda"
+>the official guide here&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Use the following spec for the Payload. This matches the definition in Squyre, so that we can parse all the details correctly.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;pre tabindex="0">&lt;code>{
+	&amp;#34;event_type&amp;#34;: &amp;#34;trigger&amp;#34;,
+	&amp;#34;description&amp;#34;: &amp;#34;{{Description}}&amp;#34;,
+	&amp;#34;client&amp;#34;: &amp;#34;Sumo Logic&amp;#34;,
+	&amp;#34;client_url&amp;#34;: &amp;#34;{{SearchQueryUrl}}&amp;#34;,
+	&amp;#34;name&amp;#34;: &amp;#34;{{Name}}&amp;#34;,
+	&amp;#34;time_range&amp;#34;: &amp;#34;{{TimeRange}}&amp;#34;,
+ 	&amp;#34;time_trigger&amp;#34;: &amp;#34;{{FireTime}}&amp;#34;,
+	&amp;#34;num_results&amp;#34;: &amp;#34;{{NumQueryResults}}&amp;#34;,
+	&amp;#34;results&amp;#34;: &amp;#34;{{ResultsJson}}&amp;#34;,
+ 	&amp;#34;id&amp;#34;: &amp;#34;{{Id}}&amp;#34;
+}
+&lt;/code>&lt;/pre>&lt;ol start="3">
+&lt;li>Create a &lt;a
+ class="gdoc-markdown__link"
+ href="https://help.sumologic.com/Visualizations-and-Alerts/Alerts/Scheduled-Searches/Schedule_a_Search"
+>new scheduled search&lt;/a>, and configure it to send notifications to the webhook you configured above.&lt;/li>
+&lt;/ol></description></item><item><title>Requirements</title><link>https://gyrospectre.github.io/squyre/usage/requirements/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/requirements/</guid><description>&lt;p>You will need 3 things in place in order to use Squyre.&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>You must have an AWS account to host it&lt;/strong>. It runs solely in AWS using serverless services (lambdas and step functions). If you don&amp;rsquo;t have one, don&amp;rsquo;t be too concerned with signing up - if you&amp;rsquo;re only running a few test alerts through Squyre &lt;a
+ class="gdoc-markdown__link"
+ href="https://aws.amazon.com/free/"
+>AWS &amp;ldquo;Free Tier&amp;rdquo;&lt;/a> should mean the cost is negligible (if not completely free).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>You need something that is generating security alerts for you&lt;/strong>. Well, obviously! Currently, we support Splunk or Opsgenie as alert sources, but we also have experimental support for Sumo Logic. If you don&amp;rsquo;t use any of these, but your platform supports sending alerts to AWS SNS or a Webhook, raise an issue and we can look at adding support - should be fairly easy!&lt;/p></description></item></channel></rss>

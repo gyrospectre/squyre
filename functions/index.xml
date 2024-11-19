@@ -1,17 +1,236 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Functions on Squyre Documentation</title><link>https://gyrospectre.github.io/squyre/functions/</link><description>Recent content in Functions on Squyre Documentation</description><generator>Hugo</generator><language>en</language><lastBuildDate>Wed, 15 Jun 2022 09:47:58 +1000</lastBuildDate><atom:link href="https://gyrospectre.github.io/squyre/functions/index.xml" rel="self" type="application/rss+xml"/><item><title>CrowdStrike Falcon</title><link>https://gyrospectre.github.io/squyre/functions/crowdstrike/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/crowdstrike/</guid><description>Summary Indicator context from the CrowdStrike Falcon threat intelligence database. Also provides information on corporate hosts running the Falcon agent.
-Requires a paid Falcon Insight and Falcon X license.
-Supports ipv4, domain, sha256, hostname
-Example Result Found Falcon X indicator for 127.0.0.1: Malicious confidence: &amp;#39;High&amp;#39;. Added: 2022-01-01 00:00:00 +0000 UTC Updated: 2022-01-01 00:00:10 +0000 UTC Labels: Killchain/C2,Malware/CobaltStrike Kill Chains: C2 Malware Families: CobaltStrike Vulnerabilities: Threat Types: Commodity,Criminal,RAT Targets: More information at: https://falcon.</description></item><item><title>ExoneraTor</title><link>https://gyrospectre.github.io/squyre/functions/exonerator/</link><pubDate>Wed, 15 Jun 2022 08:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/exonerator/</guid><description>Summary ExoneraTor is a handy service from the Tor Project, which tells you if an IP was a Tor relay on a given date. For more information, check out https://metrics.torproject.org/exonerator.html. If an alert sourced from a Tor exit node (relay), this can be an interesting piece of information when triaging.
-No API key is required.
-Supports ipv4
-Example Result ExoneraTor believes 127.0.0.1 was recently a Tor relay. More information at: https://metrics.</description></item><item><title>Functions</title><link>https://gyrospectre.github.io/squyre/functions/list/</link><pubDate>Wed, 15 Jun 2022 08:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/list/</guid><description> AlienVault OTX CrowdStrike Falcon ExoneraTor GreyNoise IP-API.com</description></item><item><title>Alienvault OTX</title><link>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</guid><description>Summary Indicator context from the Alienvault OTX threat intelligence community.
-No API key is required for lookups.
-Supports ipv4, domain, url
-Example Result Alienvault OTX has 1 matches for &amp;#39;127.0.0.1&amp;#39;, in the following pulses: IPQS Abusive IP List More information at: https://otx.alienvault.com/browse/global/pulses?q=127.0.0.1 Setup No setup required.
-Environment Variables ONLY_LOG_MATCHES : Set to true (in template.yaml) to only decorate an alert if the indicator was found in Alienvault OTX. Default=false.</description></item><item><title>Greynoise</title><link>https://gyrospectre.github.io/squyre/functions/greynoise/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/greynoise/</guid><description>Summary Data on IP addresses associated with opportunistic internet scanning or common business services, not targeted threats. For more information, check out https://www.greynoise.io/.
-This function uses the free community API, so no key is required.
-Supports ipv4
-Example Result Greynoise believes 127.0.0.1 is malicious. Noise? true In the RIOT database? false Last seen 2022-02-06. More information at: https://viz.greynoise.io/ip/127.0.0.1 Setup No setup required.
-Environment Variables ONLY_LOG_MATCHES : Set to true (in template.</description></item><item><title>IP API</title><link>https://gyrospectre.github.io/squyre/functions/ipapi/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/ipapi/</guid><description>Summary Geolocation data on IP addresses from https://ip-api.com/. This service is free for non-commercial use, which is the only form currently supported by this function. If you find IP API useful and would like to use it in a commercial environment, I&amp;rsquo;d encourage you to subscribe.
-Supports ipv4
-Example Result IP API result for 127.0.0.1 (Dynamic distribution IPs for broadband services): Country: Russia City: Baltiysk, Kaliningrad Oblast ISP: Rostelecom networks Setup No setup required.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Functions on Squyre Documentation</title><link>https://gyrospectre.github.io/squyre/functions/</link><description>Recent content in Functions on Squyre Documentation</description><generator>Hugo</generator><language>en</language><lastBuildDate>Wed, 15 Jun 2022 09:47:58 +1000</lastBuildDate><atom:link href="https://gyrospectre.github.io/squyre/functions/index.xml" rel="self" type="application/rss+xml"/><item><title>CrowdStrike Falcon</title><link>https://gyrospectre.github.io/squyre/functions/crowdstrike/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/crowdstrike/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>Indicator context from the &lt;a
+ class="gdoc-markdown__link"
+ href="https://www.crowdstrike.com/endpoint-security-products/falcon-x-threat-intelligence/"
+>CrowdStrike Falcon &lt;/a> threat intelligence database. Also provides information on corporate hosts running the Falcon agent.&lt;/p>
+&lt;p>Requires a paid Falcon Insight and Falcon X license.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="supports"
+ >
+ Supports
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#supports" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Supports" aria-label="Anchor to: Supports" href="#supports">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ipv4&lt;/code>, &lt;code>domain&lt;/code>, &lt;code>sha256&lt;/code>, &lt;code>hostname&lt;/code>&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="example-result"
+ >
+ Example Result
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#example-result" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Example Result" aria-label="Anchor to: Example Result" href="#example-result">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;pre tabindex="0">&lt;code>Found Falcon X indicator for 127.0.0.1:
+
+Malicious confidence: &amp;#39;High&amp;#39;.
+Added: 2022-01-01 00:00:00 +0000 UTC
+Updated: 2022-01-01 00:00:10 +0000 UTC
+
+Labels: Killchain/C2,Malware/CobaltStrike
+Kill Chains: C2
+Malware Families: CobaltStrike
+Vulnerabilities:
+Threat Types: Commodity,Criminal,RAT
+Targets:
+
+More information at: https://falcon.crowdstrike.com/search/?term=_all:~&amp;#39;127.0.0.1&amp;#39;
+&lt;/code>&lt;/pre>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="setup"
+ >
+ Setup
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#setup" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Setup" aria-label="Anchor to: Setup" href="#setup">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;ol>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://help.falcon.io/hc/en-us/articles/360027409272-Getting-Access-to-Falcon-APIs"
+>Create a Falcon API key&lt;/a>&lt;/li>
+&lt;li>In AWS, &lt;a
+ class="gdoc-markdown__link"
+ href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/manage_create-basic-secret.html"
+>create a new Secrets Manager secret&lt;/a> called &lt;code>CrowdstrikeAPI&lt;/code> in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type &lt;code>Other type of secret&lt;/code>.&lt;/li>
+&lt;/ol>
+&lt;pre tabindex="0">&lt;code>{
+ &amp;#34;ClientID&amp;#34;: &amp;lt;the Client ID of the API key you just created&amp;gt;,
+ &amp;#34;ClientSecret&amp;#34;: &amp;lt;the Client Secret of the key&amp;gt;,
+ &amp;#34;FalconCloud&amp;#34;: &amp;lt;the Falcon Cloud region your account uses e.g. us-1, us-2, eu-1, us-gov-1&amp;gt;
+}
+&lt;/code>&lt;/pre>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="environment-variables"
+ >
+ Environment Variables
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#environment-variables" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Environment Variables" aria-label="Anchor to: Environment Variables" href="#environment-variables">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ONLY_LOG_MATCHES&lt;/code> : Set to &lt;code>true&lt;/code> (in template.yaml) to only decorate an alert if the indicator was found in Falcon. Default=&lt;code>false&lt;/code>.&lt;/p></description></item><item><title>ExoneraTor</title><link>https://gyrospectre.github.io/squyre/functions/exonerator/</link><pubDate>Wed, 15 Jun 2022 08:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/exonerator/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/exonerator/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>ExoneraTor is a handy service from the Tor Project, which tells you if an IP was a Tor relay on a given date. For more information, check out &lt;a
+ class="gdoc-markdown__link"
+ href="https://metrics.torproject.org/exonerator.html"
+>https://metrics.torproject.org/exonerator.html&lt;/a>. If an alert sourced from a Tor exit node (relay), this can be an interesting piece of information when triaging.&lt;/p>
+&lt;p>No API key is required.&lt;/p></description></item><item><title>Functions</title><link>https://gyrospectre.github.io/squyre/functions/list/</link><pubDate>Wed, 15 Jun 2022 08:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/list/</guid><description>&lt;ul>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/alienvaultotx/"
+>AlienVault OTX&lt;/a>&lt;/li>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/crowdstrike/"
+>CrowdStrike Falcon&lt;/a>&lt;/li>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/exonerator/"
+>ExoneraTor&lt;/a>&lt;/li>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/greynoise/"
+>GreyNoise&lt;/a>&lt;/li>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/ipapi/"
+>IP-API.com&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>Alienvault OTX</title><link>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/alienvaultotx/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>Indicator context from the &lt;a
+ class="gdoc-markdown__link"
+ href="https://otx.alienvault.com/"
+>Alienvault OTX&lt;/a> threat intelligence community.&lt;/p>
+&lt;p>No API key is required for lookups.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="supports"
+ >
+ Supports
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/alienvaultotx/#supports" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Supports" aria-label="Anchor to: Supports" href="#supports">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ipv4&lt;/code>, &lt;code>domain&lt;/code>, &lt;code>url&lt;/code>&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="example-result"
+ >
+ Example Result
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/alienvaultotx/#example-result" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Example Result" aria-label="Anchor to: Example Result" href="#example-result">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;pre tabindex="0">&lt;code>Alienvault OTX has 1 matches for &amp;#39;127.0.0.1&amp;#39;, in the following pulses:
+IPQS Abusive IP List
+
+More information at: https://otx.alienvault.com/browse/global/pulses?q=127.0.0.1
+&lt;/code>&lt;/pre>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="setup"
+ >
+ Setup
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/alienvaultotx/#setup" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Setup" aria-label="Anchor to: Setup" href="#setup">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>No setup required.&lt;/p></description></item><item><title>Greynoise</title><link>https://gyrospectre.github.io/squyre/functions/greynoise/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/greynoise/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/greynoise/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>Data on IP addresses associated with opportunistic internet scanning or common business services, not targeted threats. For more information, check out &lt;a
+ class="gdoc-markdown__link"
+ href="https://www.greynoise.io/"
+>https://www.greynoise.io/&lt;/a>.&lt;/p>
+&lt;p>This function uses the free community API, so no key is required.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="supports"
+ >
+ Supports
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/greynoise/#supports" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Supports" aria-label="Anchor to: Supports" href="#supports">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ipv4&lt;/code>&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="example-result"
+ >
+ Example Result
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/greynoise/#example-result" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Example Result" aria-label="Anchor to: Example Result" href="#example-result">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;pre tabindex="0">&lt;code>Greynoise believes 127.0.0.1 is malicious.
+
+Noise? true
+In the RIOT database? false
+Last seen 2022-02-06.
+
+More information at: https://viz.greynoise.io/ip/127.0.0.1
+&lt;/code>&lt;/pre>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="setup"
+ >
+ Setup
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/greynoise/#setup" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Setup" aria-label="Anchor to: Setup" href="#setup">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>No setup required.&lt;/p></description></item><item><title>IP API</title><link>https://gyrospectre.github.io/squyre/functions/ipapi/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/ipapi/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/ipapi/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>Geolocation data on IP addresses from &lt;a
+ class="gdoc-markdown__link"
+ href="https://ip-api.com/"
+>https://ip-api.com/&lt;/a>.
+This service is free for non-commercial use, which is the only form currently supported by this function. If you find IP API useful and would like to use it in a commercial environment, I&amp;rsquo;d encourage you to &lt;a
+ class="gdoc-markdown__link"
+ href="https://members.ip-api.com/"
+>subscribe&lt;/a>.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="supports"
+ >
+ Supports
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/ipapi/#supports" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Supports" aria-label="Anchor to: Supports" href="#supports">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ipv4&lt;/code>&lt;/p></description></item></channel></rss>

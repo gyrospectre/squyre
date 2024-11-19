@@ -1,38 +1,362 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Squyre on Squyre Documentation</title><link>https://gyrospectre.github.io/squyre/</link><description>Recent content in Squyre on Squyre Documentation</description><generator>Hugo</generator><language>en</language><atom:link href="https://gyrospectre.github.io/squyre/index.xml" rel="self" type="application/rss+xml"/><item><title>CrowdStrike Falcon</title><link>https://gyrospectre.github.io/squyre/functions/crowdstrike/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/crowdstrike/</guid><description>Summary Indicator context from the CrowdStrike Falcon threat intelligence database. Also provides information on corporate hosts running the Falcon agent.
-Requires a paid Falcon Insight and Falcon X license.
-Supports ipv4, domain, sha256, hostname
-Example Result Found Falcon X indicator for 127.0.0.1: Malicious confidence: &amp;#39;High&amp;#39;. Added: 2022-01-01 00:00:00 +0000 UTC Updated: 2022-01-01 00:00:10 +0000 UTC Labels: Killchain/C2,Malware/CobaltStrike Kill Chains: C2 Malware Families: CobaltStrike Vulnerabilities: Threat Types: Commodity,Criminal,RAT Targets: More information at: https://falcon.</description></item><item><title>ExoneraTor</title><link>https://gyrospectre.github.io/squyre/functions/exonerator/</link><pubDate>Wed, 15 Jun 2022 08:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/exonerator/</guid><description>Summary ExoneraTor is a handy service from the Tor Project, which tells you if an IP was a Tor relay on a given date. For more information, check out https://metrics.torproject.org/exonerator.html. If an alert sourced from a Tor exit node (relay), this can be an interesting piece of information when triaging.
-No API key is required.
-Supports ipv4
-Example Result ExoneraTor believes 127.0.0.1 was recently a Tor relay. More information at: https://metrics.</description></item><item><title>Functions</title><link>https://gyrospectre.github.io/squyre/functions/list/</link><pubDate>Wed, 15 Jun 2022 08:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/list/</guid><description> AlienVault OTX CrowdStrike Falcon ExoneraTor GreyNoise IP-API.com</description></item><item><title>A Note On Error Handling</title><link>https://gyrospectre.github.io/squyre/architecture/errors/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/architecture/errors/</guid><description>Because of the way Squyre is used, we&amp;rsquo;re looking for short and sharp lookups for which failures are not the end of the world.
-For example; if an alert fires for suspicious activity and we&amp;rsquo;re not able to get additional information from Greynoise, this doesn&amp;rsquo;t stop the analyst from getting on with things, it&amp;rsquo;s just that some manual work might be needed to do what Squyre would otherwise had done!</description></item><item><title>Architecture</title><link>https://gyrospectre.github.io/squyre/architecture/architecture/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/architecture/architecture/</guid><description>Squyre is serverless, and uses AWS services SNS, API Gateway, Lambda and Step Functions to do it&amp;rsquo;s thing.
-Alerts are sent in via SNS or Webhook, which triggers the first Lambda function, conductor. This function takes the alert body, extracts IP addresses, domain names, URLs and hostnames, and then starts the step function with this information. Note that any Microsoft 365 ATP Safe Links are also converted into their original URLs at this stage.</description></item><item><title>Customising for your environment</title><link>https://gyrospectre.github.io/squyre/usage/customise/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/customise/</guid><description>There are a couple of features which can be customised for your environment.
-Enrichment Functions You can modify statemachine/enrich.asl.json to change which enrichment functions run. The easiest way to do this is to use the included helper script, which provides a nice wizard to select functions.
-make setup Then run the deploy again to save your changes to AWS.
-Don&amp;rsquo;t have CrowdStrike? No problem, just remove that function! If you want, you can also remove unnecessary functions from template.</description></item><item><title>Getting started</title><link>https://gyrospectre.github.io/squyre/usage/getting_started/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/getting_started/</guid><description>There are a couple of ways you can deploy, either directly between your alert source and ticketing system (pattern 1), or using an incident management platform like Opsgenie (pattern 2).
-Pattern 1 is the out of the box configuration as it&amp;rsquo;s the most generic. If you don&amp;rsquo;t already have something in place to create tickets automatically when alerts fire, then this is for you. We currently support Splunk and Sumo Logic for alert sources.</description></item><item><title>Getting Started: Jira Setup</title><link>https://gyrospectre.github.io/squyre/usage/jira/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/jira/</guid><description> Create a Jira API key.
-In AWS, create a new Secrets Manager secret called JiraApi in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type Other type of secret.
-{ &amp;#34;apikey&amp;#34;: &amp;lt;the API key you just created&amp;gt;, &amp;#34;user&amp;#34;: &amp;lt;the email address of the Jira account the key is associated with&amp;gt; }</description></item><item><title>Getting Started: OpsGenie Setup</title><link>https://gyrospectre.github.io/squyre/usage/opsgenie/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/opsgenie/</guid><description> Create an OpsGenie integration API key.
-In AWS, create a new Secrets Manager secret called OpsGenieAPI in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type Other type of secret.
-{ &amp;#34;apikey&amp;#34;: &amp;lt;the API key you just created&amp;gt; } Setup OpsGenie to send SNS messages to topic squyre-Alert on alert creation only.</description></item><item><title>Getting Started: Splunk Setup</title><link>https://gyrospectre.github.io/squyre/usage/splunk/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/splunk/</guid><description>On Splunk, install the Splunk Add-on for AWS, which adds the ability to send alerts to SNS.
-Configure the app with some AWS credentials. The IAM user or role must have SNS Publish/Get/List perms to SNS topic squyre-Alert.
-Update one of your Splunk saved searches, adding a strcat at the end to combine all the fields you think are of use to a new field called interesting.
-&amp;lt;awesome detection logic&amp;gt; | stats values(src_ip) as src_ip by dest_user | eval Detection=&amp;quot;A test alert&amp;quot; | strcat src_ip &amp;quot;,&amp;quot; dest_user interesting</description></item><item><title>Getting Started: Sumo Logic Setup</title><link>https://gyrospectre.github.io/squyre/usage/sumologic/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/sumologic/</guid><description>In Sumo, create a new Webhook connection under Manage Data &amp;gt; Monitoring &amp;gt; Connections. See the official guide here.
-Use the following spec for the Payload. This matches the definition in Squyre, so that we can parse all the details correctly.
-{ &amp;#34;event_type&amp;#34;: &amp;#34;trigger&amp;#34;, &amp;#34;description&amp;#34;: &amp;#34;{{Description}}&amp;#34;, &amp;#34;client&amp;#34;: &amp;#34;Sumo Logic&amp;#34;, &amp;#34;client_url&amp;#34;: &amp;#34;{{SearchQueryUrl}}&amp;#34;, &amp;#34;name&amp;#34;: &amp;#34;{{Name}}&amp;#34;, &amp;#34;time_range&amp;#34;: &amp;#34;{{TimeRange}}&amp;#34;, &amp;#34;time_trigger&amp;#34;: &amp;#34;{{FireTime}}&amp;#34;, &amp;#34;num_results&amp;#34;: &amp;#34;{{NumQueryResults}}&amp;#34;, &amp;#34;results&amp;#34;: &amp;#34;{{ResultsJson}}&amp;#34;, &amp;#34;id&amp;#34;: &amp;#34;{{Id}}&amp;#34; } Create a new scheduled search, and configure it to send notifications to the webhook you configured above.</description></item><item><title>Requirements</title><link>https://gyrospectre.github.io/squyre/usage/requirements/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/requirements/</guid><description>You will need 3 things in place in order to use Squyre.
-You must have an AWS account to host it. It runs solely in AWS using serverless services (lambdas and step functions). If you don&amp;rsquo;t have one, don&amp;rsquo;t be too concerned with signing up - if you&amp;rsquo;re only running a few test alerts through Squyre AWS &amp;ldquo;Free Tier&amp;rdquo; should mean the cost is negligible (if not completely free).
-You need something that is generating security alerts for you.</description></item><item><title>State Machine</title><link>https://gyrospectre.github.io/squyre/architecture/state/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/architecture/state/</guid><description>The main state machine is called EnrichStateMachine, because it, uh enriches, and it&amp;rsquo;s a state machine.
-It is defined by statemachine/enrich.asl.json in the AWS ASL language.
-Layout is straightforward; nested parallel branches run the enrichment tasks which are sent to the output function at the end to update alerts/tickets.</description></item><item><title>Alienvault OTX</title><link>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</guid><description>Summary Indicator context from the Alienvault OTX threat intelligence community.
-No API key is required for lookups.
-Supports ipv4, domain, url
-Example Result Alienvault OTX has 1 matches for &amp;#39;127.0.0.1&amp;#39;, in the following pulses: IPQS Abusive IP List More information at: https://otx.alienvault.com/browse/global/pulses?q=127.0.0.1 Setup No setup required.
-Environment Variables ONLY_LOG_MATCHES : Set to true (in template.yaml) to only decorate an alert if the indicator was found in Alienvault OTX. Default=false.</description></item><item><title>Greynoise</title><link>https://gyrospectre.github.io/squyre/functions/greynoise/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/greynoise/</guid><description>Summary Data on IP addresses associated with opportunistic internet scanning or common business services, not targeted threats. For more information, check out https://www.greynoise.io/.
-This function uses the free community API, so no key is required.
-Supports ipv4
-Example Result Greynoise believes 127.0.0.1 is malicious. Noise? true In the RIOT database? false Last seen 2022-02-06. More information at: https://viz.greynoise.io/ip/127.0.0.1 Setup No setup required.
-Environment Variables ONLY_LOG_MATCHES : Set to true (in template.</description></item><item><title>IP API</title><link>https://gyrospectre.github.io/squyre/functions/ipapi/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/ipapi/</guid><description>Summary Geolocation data on IP addresses from https://ip-api.com/. This service is free for non-commercial use, which is the only form currently supported by this function. If you find IP API useful and would like to use it in a commercial environment, I&amp;rsquo;d encourage you to subscribe.
-Supports ipv4
-Example Result IP API result for 127.0.0.1 (Dynamic distribution IPs for broadband services): Country: Russia City: Baltiysk, Kaliningrad Oblast ISP: Rostelecom networks Setup No setup required.</description></item><item><title>Developing</title><link>https://gyrospectre.github.io/squyre/contrib/</link><pubDate>Sat, 05 Feb 2022 14:03:08 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/contrib/</guid><description>Data Structures squyre.Alert - The main data structure used by Squyre. It encapsulates everything about an alert, it&amp;rsquo;s details and the enrichment results. Alerts are the standard way data is passed around between components.
-squyre.Subject - Any collection of data points which can be used for enrichment. At the time of writing, either an IP address or a domain name. Subjects are stored within Alerts.
-squyre.Result - Stores enrichment results, the subject used, and the source of the data.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Squyre on Squyre Documentation</title><link>https://gyrospectre.github.io/squyre/</link><description>Recent content in Squyre on Squyre Documentation</description><generator>Hugo</generator><language>en</language><atom:link href="https://gyrospectre.github.io/squyre/index.xml" rel="self" type="application/rss+xml"/><item><title>CrowdStrike Falcon</title><link>https://gyrospectre.github.io/squyre/functions/crowdstrike/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/crowdstrike/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>Indicator context from the &lt;a
+ class="gdoc-markdown__link"
+ href="https://www.crowdstrike.com/endpoint-security-products/falcon-x-threat-intelligence/"
+>CrowdStrike Falcon &lt;/a> threat intelligence database. Also provides information on corporate hosts running the Falcon agent.&lt;/p>
+&lt;p>Requires a paid Falcon Insight and Falcon X license.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="supports"
+ >
+ Supports
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#supports" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Supports" aria-label="Anchor to: Supports" href="#supports">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ipv4&lt;/code>, &lt;code>domain&lt;/code>, &lt;code>sha256&lt;/code>, &lt;code>hostname&lt;/code>&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="example-result"
+ >
+ Example Result
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#example-result" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Example Result" aria-label="Anchor to: Example Result" href="#example-result">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;pre tabindex="0">&lt;code>Found Falcon X indicator for 127.0.0.1:
+
+Malicious confidence: &amp;#39;High&amp;#39;.
+Added: 2022-01-01 00:00:00 +0000 UTC
+Updated: 2022-01-01 00:00:10 +0000 UTC
+
+Labels: Killchain/C2,Malware/CobaltStrike
+Kill Chains: C2
+Malware Families: CobaltStrike
+Vulnerabilities:
+Threat Types: Commodity,Criminal,RAT
+Targets:
+
+More information at: https://falcon.crowdstrike.com/search/?term=_all:~&amp;#39;127.0.0.1&amp;#39;
+&lt;/code>&lt;/pre>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="setup"
+ >
+ Setup
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#setup" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Setup" aria-label="Anchor to: Setup" href="#setup">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;ol>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://help.falcon.io/hc/en-us/articles/360027409272-Getting-Access-to-Falcon-APIs"
+>Create a Falcon API key&lt;/a>&lt;/li>
+&lt;li>In AWS, &lt;a
+ class="gdoc-markdown__link"
+ href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/manage_create-basic-secret.html"
+>create a new Secrets Manager secret&lt;/a> called &lt;code>CrowdstrikeAPI&lt;/code> in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type &lt;code>Other type of secret&lt;/code>.&lt;/li>
+&lt;/ol>
+&lt;pre tabindex="0">&lt;code>{
+ &amp;#34;ClientID&amp;#34;: &amp;lt;the Client ID of the API key you just created&amp;gt;,
+ &amp;#34;ClientSecret&amp;#34;: &amp;lt;the Client Secret of the key&amp;gt;,
+ &amp;#34;FalconCloud&amp;#34;: &amp;lt;the Falcon Cloud region your account uses e.g. us-1, us-2, eu-1, us-gov-1&amp;gt;
+}
+&lt;/code>&lt;/pre>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="environment-variables"
+ >
+ Environment Variables
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/crowdstrike/#environment-variables" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Environment Variables" aria-label="Anchor to: Environment Variables" href="#environment-variables">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ONLY_LOG_MATCHES&lt;/code> : Set to &lt;code>true&lt;/code> (in template.yaml) to only decorate an alert if the indicator was found in Falcon. Default=&lt;code>false&lt;/code>.&lt;/p></description></item><item><title>ExoneraTor</title><link>https://gyrospectre.github.io/squyre/functions/exonerator/</link><pubDate>Wed, 15 Jun 2022 08:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/exonerator/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/exonerator/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>ExoneraTor is a handy service from the Tor Project, which tells you if an IP was a Tor relay on a given date. For more information, check out &lt;a
+ class="gdoc-markdown__link"
+ href="https://metrics.torproject.org/exonerator.html"
+>https://metrics.torproject.org/exonerator.html&lt;/a>. If an alert sourced from a Tor exit node (relay), this can be an interesting piece of information when triaging.&lt;/p>
+&lt;p>No API key is required.&lt;/p></description></item><item><title>Functions</title><link>https://gyrospectre.github.io/squyre/functions/list/</link><pubDate>Wed, 15 Jun 2022 08:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/list/</guid><description>&lt;ul>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/alienvaultotx/"
+>AlienVault OTX&lt;/a>&lt;/li>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/crowdstrike/"
+>CrowdStrike Falcon&lt;/a>&lt;/li>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/exonerator/"
+>ExoneraTor&lt;/a>&lt;/li>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/greynoise/"
+>GreyNoise&lt;/a>&lt;/li>
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://gyrospectre.github.io/squyre/squyre/functions/ipapi/"
+>IP-API.com&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>A Note On Error Handling</title><link>https://gyrospectre.github.io/squyre/architecture/errors/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/architecture/errors/</guid><description>&lt;p>Because of the way Squyre is used, we&amp;rsquo;re looking for short and sharp lookups for which failures are not the end of the world.&lt;/p>
+&lt;p>For example; if an alert fires for suspicious activity and we&amp;rsquo;re not able to get additional information from Greynoise, this doesn&amp;rsquo;t stop the analyst from getting on with things, it&amp;rsquo;s just that some manual work might be needed to do what Squyre would otherwise had done!&lt;/p></description></item><item><title>Architecture</title><link>https://gyrospectre.github.io/squyre/architecture/architecture/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/architecture/architecture/</guid><description>&lt;p>Squyre is serverless, and uses AWS services SNS, API Gateway, Lambda and Step Functions to do it&amp;rsquo;s thing.&lt;/p>
+&lt;p>Alerts are sent in via SNS or Webhook, which triggers the first Lambda function, &lt;code>conductor&lt;/code>. This function takes the alert body, extracts IP addresses, domain names, URLs and hostnames, and then starts the step function with this information. Note that any Microsoft 365 ATP Safe Links are also converted into their original URLs at this stage.&lt;/p></description></item><item><title>Customising for your environment</title><link>https://gyrospectre.github.io/squyre/usage/customise/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/customise/</guid><description>&lt;p>There are a couple of features which can be customised for your environment.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h2 id="enrichment-functions"
+ >
+ Enrichment Functions
+ &lt;/h2>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/usage/customise/#enrichment-functions" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Enrichment Functions" aria-label="Anchor to: Enrichment Functions" href="#enrichment-functions">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>You can modify &lt;code>statemachine/enrich.asl.json&lt;/code> to change which enrichment functions run. The easiest way to do this is to use the included helper script, which provides a nice wizard to select functions.&lt;/p>
+&lt;pre tabindex="0">&lt;code>make setup
+&lt;/code>&lt;/pre>&lt;p>Then run the deploy again to save your changes to AWS.&lt;/p></description></item><item><title>Getting started</title><link>https://gyrospectre.github.io/squyre/usage/getting_started/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/getting_started/</guid><description>&lt;img src="https://gyrospectre.github.io/squyre/squyre/media/deploypatterns.png" alt="patterns" width="550" align="right" />
+&lt;p>There are a couple of ways you can deploy, either directly between your alert source and ticketing system (pattern 1), or using an incident management platform like Opsgenie (pattern 2).&lt;/p>
+&lt;p>Pattern 1 is the out of the box configuration as it&amp;rsquo;s the most generic. If you don&amp;rsquo;t already have something in place to create tickets automatically when alerts fire, then this is for you. We currently support Splunk and Sumo Logic for alert sources. Jira is the only supported ticket management system right now.&lt;/p></description></item><item><title>Getting Started: Jira Setup</title><link>https://gyrospectre.github.io/squyre/usage/jira/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/jira/</guid><description>&lt;ol>
+&lt;li>
+&lt;p>&lt;a
+ class="gdoc-markdown__link"
+ href="https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/"
+>Create a Jira API key&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>In AWS, &lt;a
+ class="gdoc-markdown__link"
+ href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/manage_create-basic-secret.html"
+>create a new Secrets Manager secret&lt;/a> called &lt;code>JiraApi&lt;/code> in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type &lt;code>Other type of secret&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;pre tabindex="0">&lt;code>{
+ &amp;#34;apikey&amp;#34;: &amp;lt;the API key you just created&amp;gt;,
+ &amp;#34;user&amp;#34;: &amp;lt;the email address of the Jira account the key is associated with&amp;gt;
+}
+&lt;/code>&lt;/pre></description></item><item><title>Getting Started: OpsGenie Setup</title><link>https://gyrospectre.github.io/squyre/usage/opsgenie/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/opsgenie/</guid><description>&lt;ol>
+&lt;li>
+&lt;p>&lt;a
+ class="gdoc-markdown__link"
+ href="https://support.atlassian.com/opsgenie/docs/create-a-default-api-integration/"
+>Create an OpsGenie integration API key&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>In AWS, &lt;a
+ class="gdoc-markdown__link"
+ href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/manage_create-basic-secret.html"
+>create a new Secrets Manager secret&lt;/a> called &lt;code>OpsGenieAPI&lt;/code> in the same account/region as Squyre is deployed. Use the following content, obviously substituting your key and email. The secret should be of type &lt;code>Other type of secret&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;pre tabindex="0">&lt;code>{
+ &amp;#34;apikey&amp;#34;: &amp;lt;the API key you just created&amp;gt;
+}
+&lt;/code>&lt;/pre>&lt;ol start="3">
+&lt;li>&lt;a
+ class="gdoc-markdown__link"
+ href="https://support.atlassian.com/opsgenie/docs/integrate-opsgenie-with-outgoing-amazon-sns/"
+>Setup OpsGenie to send SNS messages&lt;/a> to topic &lt;code>squyre-Alert&lt;/code> on alert creation only.&lt;/li>
+&lt;/ol></description></item><item><title>Getting Started: Splunk Setup</title><link>https://gyrospectre.github.io/squyre/usage/splunk/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/splunk/</guid><description>&lt;ol>
+&lt;li>
+&lt;p>On Splunk, install the &lt;a
+ class="gdoc-markdown__link"
+ href="https://splunkbase.splunk.com/app/1876/"
+>Splunk Add-on for AWS&lt;/a>, which adds the ability to send alerts to SNS.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a
+ class="gdoc-markdown__link"
+ href="https://docs.splunk.com/Documentation/AddOns/released/AWS/Setuptheadd-on"
+>Configure the app with some AWS credentials&lt;/a>. The IAM user or role must have SNS Publish/Get/List perms to SNS topic &lt;code>squyre-Alert&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Update one of your Splunk saved searches, adding a &lt;code>strcat&lt;/code> at the end to combine all the fields you think are of use to a new field called &lt;code>interesting&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>&lt;code>&amp;lt;awesome detection logic&amp;gt; | stats values(src_ip) as src_ip by dest_user | eval Detection=&amp;quot;A test alert&amp;quot; | strcat src_ip &amp;quot;,&amp;quot; dest_user interesting&lt;/code>&lt;/p></description></item><item><title>Getting Started: Sumo Logic Setup</title><link>https://gyrospectre.github.io/squyre/usage/sumologic/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/sumologic/</guid><description>&lt;ol>
+&lt;li>
+&lt;p>In Sumo, create a new Webhook connection under Manage Data &amp;gt; Monitoring &amp;gt; Connections. See &lt;a
+ class="gdoc-markdown__link"
+ href="https://help.sumologic.com/Manage/Connections-and-Integrations/Webhook-Connections/Webhook_Connection_for_AWS_Lambda"
+>the official guide here&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Use the following spec for the Payload. This matches the definition in Squyre, so that we can parse all the details correctly.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;pre tabindex="0">&lt;code>{
+	&amp;#34;event_type&amp;#34;: &amp;#34;trigger&amp;#34;,
+	&amp;#34;description&amp;#34;: &amp;#34;{{Description}}&amp;#34;,
+	&amp;#34;client&amp;#34;: &amp;#34;Sumo Logic&amp;#34;,
+	&amp;#34;client_url&amp;#34;: &amp;#34;{{SearchQueryUrl}}&amp;#34;,
+	&amp;#34;name&amp;#34;: &amp;#34;{{Name}}&amp;#34;,
+	&amp;#34;time_range&amp;#34;: &amp;#34;{{TimeRange}}&amp;#34;,
+ 	&amp;#34;time_trigger&amp;#34;: &amp;#34;{{FireTime}}&amp;#34;,
+	&amp;#34;num_results&amp;#34;: &amp;#34;{{NumQueryResults}}&amp;#34;,
+	&amp;#34;results&amp;#34;: &amp;#34;{{ResultsJson}}&amp;#34;,
+ 	&amp;#34;id&amp;#34;: &amp;#34;{{Id}}&amp;#34;
+}
+&lt;/code>&lt;/pre>&lt;ol start="3">
+&lt;li>Create a &lt;a
+ class="gdoc-markdown__link"
+ href="https://help.sumologic.com/Visualizations-and-Alerts/Alerts/Scheduled-Searches/Schedule_a_Search"
+>new scheduled search&lt;/a>, and configure it to send notifications to the webhook you configured above.&lt;/li>
+&lt;/ol></description></item><item><title>Requirements</title><link>https://gyrospectre.github.io/squyre/usage/requirements/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/requirements/</guid><description>&lt;p>You will need 3 things in place in order to use Squyre.&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>You must have an AWS account to host it&lt;/strong>. It runs solely in AWS using serverless services (lambdas and step functions). If you don&amp;rsquo;t have one, don&amp;rsquo;t be too concerned with signing up - if you&amp;rsquo;re only running a few test alerts through Squyre &lt;a
+ class="gdoc-markdown__link"
+ href="https://aws.amazon.com/free/"
+>AWS &amp;ldquo;Free Tier&amp;rdquo;&lt;/a> should mean the cost is negligible (if not completely free).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>You need something that is generating security alerts for you&lt;/strong>. Well, obviously! Currently, we support Splunk or Opsgenie as alert sources, but we also have experimental support for Sumo Logic. If you don&amp;rsquo;t use any of these, but your platform supports sending alerts to AWS SNS or a Webhook, raise an issue and we can look at adding support - should be fairly easy!&lt;/p></description></item><item><title>State Machine</title><link>https://gyrospectre.github.io/squyre/architecture/state/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/architecture/state/</guid><description>&lt;p>The main state machine is called &lt;code>EnrichStateMachine&lt;/code>, because it, uh enriches, and it&amp;rsquo;s a state machine.&lt;/p>
+&lt;p>It is defined by &lt;code>statemachine/enrich.asl.json&lt;/code> in the &lt;a
+ class="gdoc-markdown__link"
+ href="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html"
+>AWS ASL language&lt;/a>.&lt;/p>
+&lt;p>Layout is straightforward; nested parallel branches run the enrichment tasks which are sent to the output function at the end to update alerts/tickets.&lt;/p>
+&lt;img src="https://gyrospectre.github.io/squyre/squyre/media/statemachine.png" alt="Enrich State Machine" width="75%" /></description></item><item><title>Alienvault OTX</title><link>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/alienvaultotx/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>Indicator context from the &lt;a
+ class="gdoc-markdown__link"
+ href="https://otx.alienvault.com/"
+>Alienvault OTX&lt;/a> threat intelligence community.&lt;/p>
+&lt;p>No API key is required for lookups.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="supports"
+ >
+ Supports
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/alienvaultotx/#supports" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Supports" aria-label="Anchor to: Supports" href="#supports">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ipv4&lt;/code>, &lt;code>domain&lt;/code>, &lt;code>url&lt;/code>&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="example-result"
+ >
+ Example Result
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/alienvaultotx/#example-result" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Example Result" aria-label="Anchor to: Example Result" href="#example-result">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;pre tabindex="0">&lt;code>Alienvault OTX has 1 matches for &amp;#39;127.0.0.1&amp;#39;, in the following pulses:
+IPQS Abusive IP List
+
+More information at: https://otx.alienvault.com/browse/global/pulses?q=127.0.0.1
+&lt;/code>&lt;/pre>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="setup"
+ >
+ Setup
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/alienvaultotx/#setup" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Setup" aria-label="Anchor to: Setup" href="#setup">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>No setup required.&lt;/p></description></item><item><title>Greynoise</title><link>https://gyrospectre.github.io/squyre/functions/greynoise/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/greynoise/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/greynoise/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>Data on IP addresses associated with opportunistic internet scanning or common business services, not targeted threats. For more information, check out &lt;a
+ class="gdoc-markdown__link"
+ href="https://www.greynoise.io/"
+>https://www.greynoise.io/&lt;/a>.&lt;/p>
+&lt;p>This function uses the free community API, so no key is required.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="supports"
+ >
+ Supports
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/greynoise/#supports" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Supports" aria-label="Anchor to: Supports" href="#supports">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ipv4&lt;/code>&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="example-result"
+ >
+ Example Result
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/greynoise/#example-result" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Example Result" aria-label="Anchor to: Example Result" href="#example-result">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;pre tabindex="0">&lt;code>Greynoise believes 127.0.0.1 is malicious.
+
+Noise? true
+In the RIOT database? false
+Last seen 2022-02-06.
+
+More information at: https://viz.greynoise.io/ip/127.0.0.1
+&lt;/code>&lt;/pre>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="setup"
+ >
+ Setup
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/greynoise/#setup" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Setup" aria-label="Anchor to: Setup" href="#setup">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>No setup required.&lt;/p></description></item><item><title>IP API</title><link>https://gyrospectre.github.io/squyre/functions/ipapi/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/ipapi/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="summary"
+ >
+ Summary
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/ipapi/#summary" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Summary" aria-label="Anchor to: Summary" href="#summary">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>Geolocation data on IP addresses from &lt;a
+ class="gdoc-markdown__link"
+ href="https://ip-api.com/"
+>https://ip-api.com/&lt;/a>.
+This service is free for non-commercial use, which is the only form currently supported by this function. If you find IP API useful and would like to use it in a commercial environment, I&amp;rsquo;d encourage you to &lt;a
+ class="gdoc-markdown__link"
+ href="https://members.ip-api.com/"
+>subscribe&lt;/a>.&lt;/p>
+&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="supports"
+ >
+ Supports
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/functions/ipapi/#supports" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Supports" aria-label="Anchor to: Supports" href="#supports">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>ipv4&lt;/code>&lt;/p></description></item><item><title>Developing</title><link>https://gyrospectre.github.io/squyre/contrib/</link><pubDate>Sat, 05 Feb 2022 14:03:08 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/contrib/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+ &lt;h3 id="data-structures"
+ >
+ Data Structures
+ &lt;/h3>
+ &lt;a data-clipboard-text="https://gyrospectre.github.io/squyre/contrib/#data-structures" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Data Structures" aria-label="Anchor to: Data Structures" href="#data-structures">
+ &lt;svg class="gdoc-icon gdoc_link">&lt;use xlink:href="#gdoc_link">&lt;/use>&lt;/svg>
+ &lt;/a>
+&lt;/div>
+&lt;p>&lt;code>squyre.Alert&lt;/code> - The main data structure used by Squyre. It encapsulates everything about an alert, it&amp;rsquo;s details and the enrichment results. &lt;code>Alerts&lt;/code> are the standard way data is passed around between components.&lt;/p>
+&lt;p>&lt;code>squyre.Subject&lt;/code> - Any collection of data points which can be used for enrichment. At the time of writing, either an IP address or a domain name. &lt;code>Subjects&lt;/code> are stored within &lt;code>Alerts&lt;/code>.&lt;/p></description></item></channel></rss>
