@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/crowdstrike/gofalcon/falcon/client"
 	"github.com/crowdstrike/gofalcon/falcon/models"
 	"github.com/gyrospectre/squyre/pkg/squyre"
-	"testing"
-	"time"
 )
 
 var (
