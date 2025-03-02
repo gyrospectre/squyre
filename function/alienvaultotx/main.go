@@ -130,6 +130,59 @@ func getOTXUrlInfo(c *apiClient, url string) (*http.Response, error) {
 	return c.httpClient.Do(request)
 }
 
+func processSubject(client *apiClient, subject squyre.Subject) (*squyre.Result, error) {
+	var (
+		response *http.Response
+		err      error
+		attempt  int
+	)
+	result := &squyre.Result{
+		Source:         provider,
+		AttributeValue: subject.Value,
+	}
+	for attempt = 1; attempt <= retries; attempt++ {
+		log.Infof("Get indicator attempt number %d", attempt)
+		response, err = GetIndictatorInfo(client, subject.Value, subject.Type)
+
+		if err == nil {
+			break
+		}
+	}
+	if err != nil {
+		log.Errorf("Failed to fetch data from %s after %d attempts", provider, attempt-1)
+		result.Message = err.Error()
+		return result, nil
+	}
+	log.Infof("Successfully fetched data from %s after %d attempts.", provider, attempt)
+	result.Success = true
+
+	responseData, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
+		return nil, err
+	}
+	log.Infof("Received %s response for %s", provider, subject.Value)
+
+	json.Unmarshal(responseData, &responseObject)
+
+	if responseObject.PulseInfo.Count == 0 {
+		// Nothing was found
+		result.MatchFound = false
+	} else {
+		result.MatchFound = true
+	}
+
+	if !result.MatchFound && OnlyLogMatches {
+		log.Infof("Skipping non match for %s", subject.Value)
+		return nil, nil
+	}
+	// Match found. Add the enriched details back to the results
+	result.Message = messageFromResponse(responseObject)
+	return result, nil
+
+}
+
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	log.Infof("Starting %s run for alert %s", provider, alert.ID)
 	log.Infof("OnlyLogMatches is set to %t", OnlyLogMatches)
@@ -149,61 +202,14 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	for _, subject := range alert.Subjects {
 		if !strings.Contains(supports, subject.Type) {
 			log.Info("Subject not supported by this provider. Skipping.")
-		} else {
-			// Build a result object to hold our goodies
-			var result = squyre.Result{
-				Source:         provider,
-				AttributeValue: subject.Value,
-				MatchFound:     false,
-				Success:        false,
-			}
-			var response *http.Response
-			var err error
-			var attempt int
-			for attempt = 1; attempt <= retries; attempt++ {
-				log.Infof("Get indicator attempt number %d", attempt)
-				response, err = GetIndictatorInfo(client, subject.Value, subject.Type)
-
-				if err == nil {
-					break
-				}
-			}
-			if err != nil {
-				log.Errorf("Failed to fetch data from %s after %d attempts", provider, attempt-1)
-				result.Success = false
-				result.Message = err.Error()
-				alert.Results = append(alert.Results, result)
-			} else {
-				log.Infof("Successfully fetched data from %s after %d attempts.", provider, attempt)
-				result.Success = true
-
-				responseData, err := ioutil.ReadAll(response.Body)
-
-				if err == nil {
-					log.Infof("Received %s response for %s", provider, subject.Value)
-
-					json.Unmarshal(responseData, &responseObject)
-
-					if responseObject.PulseInfo.Count == 0 {
-						// Nothing was found
-						result.MatchFound = false
-					} else {
-						result.MatchFound = true
-					}
-
-					if !result.MatchFound && OnlyLogMatches {
-						log.Infof("Skipping non match for %s", subject.Value)
-					} else {
-						// Match found. Add the enriched details back to the results
-						result.Message = messageFromResponse(responseObject)
-						alert.Results = append(alert.Results, result)
-						log.Infof("Added %s to result set", subject.Value)
-					}
-				} else {
-					log.Errorf("Unexpected response from %s for %s", provider, subject.Value)
-					return "Error decoding response from API!", err
-				}
-			}
+			continue
+		}
+		result, err := processSubject(client, subject)
+		if err != nil {
+			return "Error decoding response from API!", err
+		}
+		if result != nil {
+			alert.Results = append(alert.Results, *result)
 		}
 	}
 	log.Infof("Finished %s run. Yielded %d results for %d subjects.", provider, len(alert.Results), len(alert.Subjects))

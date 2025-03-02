@@ -30,12 +30,13 @@ func mockInitClient() (*apiClient, error) {
 }
 
 func mockInfo(c *apiClient, indicator string, indicatorType string) (*http.Response, error) {
-	var otxResp otxResponse
-	otxResp = otxResponse{
+	otxResp := otxResponse{
 		Indicator:  indicator,
 		Reputation: 0,
 	}
-	if indicator == "4.4.4.4" {
+
+	switch indicator {
+	case "4.4.4.4":
 		otxResp.PulseInfo.Count = 1
 		otxResp.PulseInfo.Pulses = []otxPulse{
 			{
@@ -43,7 +44,7 @@ func mockInfo(c *apiClient, indicator string, indicatorType string) (*http.Respo
 				Name: "test",
 			},
 		}
-	} else if indicator == "1.1.1.1" {
+	case "1.1.1.1":
 		if attempt < 3 {
 			attempt += 1
 			return nil, errors.New("(Client.Timeout exceeded while awaiting headers)")
@@ -55,9 +56,9 @@ func mockInfo(c *apiClient, indicator string, indicatorType string) (*http.Respo
 				Name: "test2",
 			},
 		}
-	} else if indicator == "2.2.2.2" {
+	case "2.2.2.2":
 		return nil, errors.New("(Client.Timeout exceeded while awaiting headers)")
-	} else {
+	default:
 		otxResp.PulseInfo.Count = 0
 	}
 
@@ -70,7 +71,8 @@ func mockInfo(c *apiClient, indicator string, indicatorType string) (*http.Respo
 	}, nil
 }
 
-func setup() {
+func setup(t *testing.T) {
+	t.Helper()
 	GetIndictatorInfo = mockInfo
 	InitClient = mockInitClient
 	OnlyLogMatches = false
@@ -108,7 +110,7 @@ func TestHandlerNonMatchNonIgnore(t *testing.T) {
 }
 
 func TestHandlerNonMatchIgnore(t *testing.T) {
-	setup()
+	setup(t)
 	OnlyLogMatches = true
 
 	TestAlert.Subjects = []squyre.Subject{
@@ -131,7 +133,7 @@ func TestHandlerNonMatchIgnore(t *testing.T) {
 }
 
 func TestHandlerMatch(t *testing.T) {
-	setup()
+	setup(t)
 
 	TestAlert.Subjects = []squyre.Subject{
 		{
@@ -154,7 +156,7 @@ func TestHandlerMatch(t *testing.T) {
 }
 
 func TestMultiSubject(t *testing.T) {
-	setup()
+	setup(t)
 
 	TestAlert.Subjects = []squyre.Subject{
 		{
@@ -188,7 +190,7 @@ func TestMultiSubject(t *testing.T) {
 
 // Fail lookups the first two attempts, then work on the 3rd
 func TestTempTimeout(t *testing.T) {
-	setup()
+	setup(t)
 
 	TestAlert.Subjects = []squyre.Subject{
 		{
@@ -215,7 +217,7 @@ func TestTempTimeout(t *testing.T) {
 }
 
 func TestTimeout(t *testing.T) {
-	setup()
+	setup(t)
 
 	TestAlert.Subjects = []squyre.Subject{
 		{
