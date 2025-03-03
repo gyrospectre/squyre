@@ -6,4 +6,4 @@
  href="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html"
 >AWS ASL language&lt;/a>.&lt;/p>
 &lt;p>Layout is straightforward; nested parallel branches run the enrichment tasks which are sent to the output function at the end to update alerts/tickets.&lt;/p>
-&lt;img src="https://gyrospectre.github.io/squyre/squyre/media/statemachine.png" alt="Enrich State Machine" width="75%" /></description></item></channel></rss>
+&lt;img src="https://gyrospectre.github.io/squyre/media/statemachine.png" alt="Enrich State Machine" width="75%" /></description></item></channel></rss>

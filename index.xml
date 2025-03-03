@@ -94,23 +94,23 @@ More information at: https://falcon.crowdstrike.com/search/?term=_all:~&amp;#39;
 &lt;p>No API key is required.&lt;/p></description></item><item><title>Functions</title><link>https://gyrospectre.github.io/squyre/functions/list/</link><pubDate>Wed, 15 Jun 2022 08:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/list/</guid><description>&lt;ul>
 &lt;li>&lt;a
  class="gdoc-markdown__link"
- href="https://gyrospectre.github.io/squyre/squyre/functions/alienvaultotx/"
+ href="https://gyrospectre.github.io/squyre/functions/alienvaultotx/"
 >AlienVault OTX&lt;/a>&lt;/li>
 &lt;li>&lt;a
  class="gdoc-markdown__link"
- href="https://gyrospectre.github.io/squyre/squyre/functions/crowdstrike/"
+ href="https://gyrospectre.github.io/squyre/functions/crowdstrike/"
 >CrowdStrike Falcon&lt;/a>&lt;/li>
 &lt;li>&lt;a
  class="gdoc-markdown__link"
- href="https://gyrospectre.github.io/squyre/squyre/functions/exonerator/"
+ href="https://gyrospectre.github.io/squyre/functions/exonerator/"
 >ExoneraTor&lt;/a>&lt;/li>
 &lt;li>&lt;a
  class="gdoc-markdown__link"
- href="https://gyrospectre.github.io/squyre/squyre/functions/greynoise/"
+ href="https://gyrospectre.github.io/squyre/functions/greynoise/"
 >GreyNoise&lt;/a>&lt;/li>
 &lt;li>&lt;a
  class="gdoc-markdown__link"
- href="https://gyrospectre.github.io/squyre/squyre/functions/ipapi/"
+ href="https://gyrospectre.github.io/squyre/functions/ipapi/"
 >IP-API.com&lt;/a>&lt;/li>
 &lt;/ul></description></item><item><title>A Note On Error Handling</title><link>https://gyrospectre.github.io/squyre/architecture/errors/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/architecture/errors/</guid><description>&lt;p>Because of the way Squyre is used, we&amp;rsquo;re looking for short and sharp lookups for which failures are not the end of the world.&lt;/p>
 &lt;p>For example; if an alert fires for suspicious activity and we&amp;rsquo;re not able to get additional information from Greynoise, this doesn&amp;rsquo;t stop the analyst from getting on with things, it&amp;rsquo;s just that some manual work might be needed to do what Squyre would otherwise had done!&lt;/p></description></item><item><title>Architecture</title><link>https://gyrospectre.github.io/squyre/architecture/architecture/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/architecture/architecture/</guid><description>&lt;p>Squyre is serverless, and uses AWS services SNS, API Gateway, Lambda and Step Functions to do it&amp;rsquo;s thing.&lt;/p>
@@ -126,7 +126,7 @@ More information at: https://falcon.crowdstrike.com/search/?term=_all:~&amp;#39;
 &lt;/div>
 &lt;p>You can modify &lt;code>statemachine/enrich.asl.json&lt;/code> to change which enrichment functions run. The easiest way to do this is to use the included helper script, which provides a nice wizard to select functions.&lt;/p>
 &lt;pre tabindex="0">&lt;code>make setup
-&lt;/code>&lt;/pre>&lt;p>Then run the deploy again to save your changes to AWS.&lt;/p></description></item><item><title>Getting started</title><link>https://gyrospectre.github.io/squyre/usage/getting_started/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/getting_started/</guid><description>&lt;img src="https://gyrospectre.github.io/squyre/squyre/media/deploypatterns.png" alt="patterns" width="550" align="right" />
+&lt;/code>&lt;/pre>&lt;p>Then run the deploy again to save your changes to AWS.&lt;/p></description></item><item><title>Getting started</title><link>https://gyrospectre.github.io/squyre/usage/getting_started/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/getting_started/</guid><description>&lt;img src="https://gyrospectre.github.io/squyre/media/deploypatterns.png" alt="patterns" width="550" align="right" />
 &lt;p>There are a couple of ways you can deploy, either directly between your alert source and ticketing system (pattern 1), or using an incident management platform like Opsgenie (pattern 2).&lt;/p>
 &lt;p>Pattern 1 is the out of the box configuration as it&amp;rsquo;s the most generic. If you don&amp;rsquo;t already have something in place to create tickets automatically when alerts fire, then this is for you. We currently support Splunk and Sumo Logic for alert sources. Jira is the only supported ticket management system right now.&lt;/p></description></item><item><title>Getting Started: Jira Setup</title><link>https://gyrospectre.github.io/squyre/usage/jira/</link><pubDate>Sat, 05 Feb 2022 14:16:07 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/usage/jira/</guid><description>&lt;ol>
 &lt;li>
@@ -228,7 +228,7 @@ More information at: https://falcon.crowdstrike.com/search/?term=_all:~&amp;#39;
  href="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html"
 >AWS ASL language&lt;/a>.&lt;/p>
 &lt;p>Layout is straightforward; nested parallel branches run the enrichment tasks which are sent to the output function at the end to update alerts/tickets.&lt;/p>
-&lt;img src="https://gyrospectre.github.io/squyre/squyre/media/statemachine.png" alt="Enrich State Machine" width="75%" /></description></item><item><title>Alienvault OTX</title><link>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
+&lt;img src="https://gyrospectre.github.io/squyre/media/statemachine.png" alt="Enrich State Machine" width="75%" /></description></item><item><title>Alienvault OTX</title><link>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</link><pubDate>Sat, 05 Feb 2022 14:05:25 +1100</pubDate><guid>https://gyrospectre.github.io/squyre/functions/alienvaultotx/</guid><description>&lt;div class="flex align-center gdoc-page__anchorwrap">
  &lt;h3 id="summary"
  >
  Summary
