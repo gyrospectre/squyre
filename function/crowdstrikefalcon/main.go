@@ -105,6 +105,60 @@ func InitFalconClient() (*client.CrowdStrikeAPISpecification, error) {
 	return client, nil
 }
 
+func processSubject(falconClient *client.CrowdStrikeAPISpecification, subject squyre.Subject) *squyre.Result {
+	result := &squyre.Result{
+		Source:         provider,
+		AttributeValue: subject.Value,
+	}
+
+	if subject.Type == "hostname" {
+		hostDetail, hostLogins, err := getHost(falconClient, subject.Value)
+		if err != nil {
+			log.Errorf("Failed to fetch data from %s", provider)
+			result.Message = err.Error()
+			return result
+		}
+		result.Success = true
+
+		if hostDetail != nil {
+			log.Infof("Received %s response for %s", provider, subject.Value)
+			result.Message = messageFromHostDetail(hostDetail, hostLogins)
+			result.MatchFound = true
+		} else {
+			log.Infof("Host %s not found in %s", subject.Value, provider)
+			result.Message = fmt.Sprintf("Host '%s' not found in Falcon. Agent not installed?", subject.Value)
+			result.MatchFound = false
+		}
+		return result
+	}
+
+	indicator, err := getIndicator(falconClient, subject.Value)
+	if err != nil {
+		log.Errorf("Failed to fetch data from %s", provider)
+		result.Message = err.Error()
+		return result
+	}
+	result.Success = true
+	if indicator != nil {
+		log.Infof("Received %s response for %s", provider, subject.Value)
+		result.MatchFound = true
+	} else {
+		result.MatchFound = false
+	}
+
+	if !result.MatchFound && OnlyLogMatches {
+		log.Infof("Skipping non match for %s", subject.Value)
+		return nil
+	}
+
+	if !result.MatchFound {
+		result.Message = "Indicator not found in Falcon X."
+	} else {
+		result.Message = messageFromIndicator(indicator)
+	}
+	return result
+}
+
 func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	log.Infof("Starting %s run for alert %s", provider, alert.ID)
 	log.Infof("OnlyLogMatches is set to %t", OnlyLogMatches)
@@ -125,66 +179,10 @@ func handleRequest(ctx context.Context, alert squyre.Alert) (string, error) {
 	for _, subject := range alert.Subjects {
 		if !strings.Contains(supports, subject.Type) {
 			log.Info("Subject not supported by this provider. Skipping.")
-		} else {
-			// Subject supported. Build a result object to hold our goodies
-			var result = squyre.Result{
-				Source:         provider,
-				AttributeValue: subject.Value,
-				MatchFound:     false,
-				Success:        false,
-			}
-			if subject.Type == "hostname" {
-				hostDetail, hostLogins, err := getHost(falconClient, subject.Value)
-				if err != nil {
-					log.Errorf("Failed to fetch data from %s", provider)
-					result.Success = false
-					result.Message = err.Error()
-				} else {
-					result.Success = true
-
-					if hostDetail != nil {
-						log.Infof("Received %s response for %s", provider, subject.Value)
-						result.Message = messageFromHostDetail(hostDetail, hostLogins)
-						result.MatchFound = true
-					} else {
-						log.Infof("Host %s not found in %s", subject.Value, provider)
-						result.Message = fmt.Sprintf("Host '%s' not found in Falcon. Agent not installed?", subject.Value)
-						result.MatchFound = false
-					}
-				}
-				// Add the enriched details back to the results
-				alert.Results = append(alert.Results, result)
-				log.Infof("Added %s to result set", subject.Value)
-			} else {
-				var indicator *models.DomainPublicIndicatorV3
-				indicator, err = getIndicator(falconClient, subject.Value)
-				if err != nil {
-					log.Errorf("Failed to fetch data from %s", provider)
-					result.Success = false
-					result.Message = err.Error()
-					alert.Results = append(alert.Results, result)
-				} else {
-					result.Success = true
-					if indicator != nil {
-						log.Infof("Received %s response for %s", provider, subject.Value)
-						result.MatchFound = true
-					} else {
-						result.MatchFound = false
-					}
-
-					if !result.MatchFound && OnlyLogMatches {
-						log.Infof("Skipping non match for %s", subject.Value)
-					} else {
-						if !result.MatchFound {
-							result.Message = "Indicator not found in Falcon X."
-						} else {
-							result.Message = messageFromIndicator(indicator)
-						}
-						alert.Results = append(alert.Results, result)
-						log.Infof("Added %s to result set", subject.Value)
-					}
-				}
-			}
+			continue
+		}
+		if result := processSubject(falconClient, subject); result != nil {
+			alert.Results = append(alert.Results, *result)
 		}
 	}
 	log.Infof("Successfully ran %s. Yielded %d results for %d subjects.", provider, len(alert.Results), len(alert.Subjects))
