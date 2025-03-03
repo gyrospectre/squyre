@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/gyrospectre/squyre/pkg/squyre"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gyrospectre/squyre/pkg/squyre"
 )
 
 var (
@@ -87,7 +88,7 @@ func setup(t *testing.T) {
 }
 
 func TestHandlerNonMatchNonIgnore(t *testing.T) {
-	setup()
+	setup(t)
 
 	TestAlert.Subjects = []squyre.Subject{
 		{

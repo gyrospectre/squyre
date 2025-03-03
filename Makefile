@@ -20,7 +20,12 @@ deploy-guided:
 
 test:
 	@echo "go test all packages"
-	@for DIR in $(GODIRS); do cd $$DIR; go test ${TEST_TIMEOUT} -cover -v -count=1; cd - > /dev/null ; done;
+	@for DIR in $(GODIRS); \
+		do cd $$DIR; \
+		go test ${TEST_TIMEOUT} -cover -v -count=1; \
+		if [ $$? -ne 0 ]; then echo "Test failed for $$DIR"; exit 1; fi; \
+		cd - > /dev/null ; \
+	done;
 
 setup:
 	@echo "run Squyre setup"
