@@ -7,7 +7,10 @@ on:
     types:
       - opened
 
-jobs:
+env:
+  SAM_CLI_TELEMETRY: 0
+
+  jobs:
   build:
     runs-on: ubuntu-latest
     steps:
@@ -19,9 +22,6 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: 1.23.2
-
-    - name: Disable Telemetry
-      run: export SAM_CLI_TELEMETRY=0
 
     - name: Build
       run: sam build --use-container --debug
