@@ -6,6 +6,7 @@ on:
   pull_request:
     types:
       - opened
+      - ready_for_review
 
 env:
   SAM_CLI_TELEMETRY: 0
