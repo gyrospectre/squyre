@@ -4,7 +4,8 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
+    types:
+      - opened
 
 jobs:
   build:
@@ -12,15 +13,16 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: aws-actions/setup-sam@v2
-
+      with:
+          use-installer: true
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: 1.23.2
 
     - name: Build
-      run: sam build -u
-  
+      run: sam build --use-container --debug
+
     - name: Unit tests
       run: make test
 
