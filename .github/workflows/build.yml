@@ -9,10 +9,10 @@ on:
       - ready_for_review
       - edited
 
-  env:
-    SAM_CLI_TELEMETRY: 0
+env:
+  SAM_CLI_TELEMETRY: 0
 
-  jobs:
+jobs:
   build:
     runs-on: ubuntu-latest
     steps:
