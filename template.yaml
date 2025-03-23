@@ -18,6 +18,8 @@ Resources:
 
   ConductorFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
     Properties:
       FunctionName: !Sub '${AWS::StackName}-Conductor'
       CodeUri: conductor
@@ -55,6 +57,8 @@ Resources:
 
   GreyNoiseFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
     Properties:
       FunctionName: !Sub '${AWS::StackName}-GreyNoise'
       CodeUri: function/greynoise
@@ -66,6 +70,8 @@ Resources:
 
   AlienvaultOTXFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
     Properties:
       FunctionName: !Sub '${AWS::StackName}-AlienvaultOTXFunction'
       CodeUri: function/alienvaultotx
@@ -77,6 +83,8 @@ Resources:
 
   IPAPIFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
     Properties:
       FunctionName: !Sub '${AWS::StackName}-IPapi'
       CodeUri: function/ipapi
@@ -85,6 +93,8 @@ Resources:
 
   CrowdStrikeFalconFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
     Properties:
       FunctionName: !Sub '${AWS::StackName}-CrowdStrikeFalcon'
       CodeUri: function/crowdstrikefalcon
@@ -93,6 +103,8 @@ Resources:
 
   ExoneraTorFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
     Properties:
       FunctionName: !Sub '${AWS::StackName}-ExoneraTor'
       CodeUri: function/exonerator
@@ -101,6 +113,8 @@ Resources:
 
   OutputFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
     Properties:
       FunctionName: !Sub '${AWS::StackName}-Output'
       CodeUri: output/jira
