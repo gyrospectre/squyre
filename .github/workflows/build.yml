@@ -18,8 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: aws-actions/setup-sam@v2
-      with:
-          use-installer: true
+
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
