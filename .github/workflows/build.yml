@@ -1,6 +1,7 @@
 name: Build CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
@@ -8,7 +9,6 @@ on:
       - opened
       - synchronize
       - edited
-      - workflow_dispatch
 
 env:
   SAM_CLI_TELEMETRY: 0
