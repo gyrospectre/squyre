@@ -22,7 +22,7 @@ Resources:
       FunctionName: !Sub '${AWS::StackName}-Conductor'
       CodeUri: conductor
       Handler: conductor
-      Runtime: go1.x
+      Runtime: provided.al2
       Role: !GetAtt ConductorRole.Arn
       Environment:
         Variables:
@@ -59,7 +59,7 @@ Resources:
       FunctionName: !Sub '${AWS::StackName}-GreyNoise'
       CodeUri: function/greynoise
       Handler: greynoise
-      Runtime: go1.x
+      Runtime: provided.al2
       Environment:
         Variables:
           ONLY_LOG_MATCHES: true
@@ -70,7 +70,7 @@ Resources:
       FunctionName: !Sub '${AWS::StackName}-AlienvaultOTXFunction'
       CodeUri: function/alienvaultotx
       Handler: alienvaultotx
-      Runtime: go1.x
+      Runtime: provided.al2
       Environment:
         Variables:
           ONLY_LOG_MATCHES: true
@@ -81,7 +81,7 @@ Resources:
       FunctionName: !Sub '${AWS::StackName}-IPapi'
       CodeUri: function/ipapi
       Handler: ipapi
-      Runtime: go1.x
+      Runtime: provided.al2
 
   CrowdStrikeFalconFunction:
     Type: AWS::Serverless::Function
@@ -89,7 +89,7 @@ Resources:
       FunctionName: !Sub '${AWS::StackName}-CrowdStrikeFalcon'
       CodeUri: function/crowdstrikefalcon
       Handler: crowdstrikefalcon
-      Runtime: go1.x
+      Runtime: provided.al2
 
   ExoneraTorFunction:
     Type: AWS::Serverless::Function
@@ -97,7 +97,7 @@ Resources:
       FunctionName: !Sub '${AWS::StackName}-ExoneraTor'
       CodeUri: function/exonerator
       Handler: exonerator
-      Runtime: go1.x
+      Runtime: provided.al2
 
   OutputFunction:
     Type: AWS::Serverless::Function
@@ -105,7 +105,7 @@ Resources:
       FunctionName: !Sub '${AWS::StackName}-Output'
       CodeUri: output/jira
       Handler: jira
-      Runtime: go1.x
+      Runtime: provided.al2
       Role: !GetAtt OutputRole.Arn
       Environment:
         Variables:
