@@ -4,7 +4,14 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
+    types:
+      - opened
+      - synchronize
+      - edited
+      - workflow_dispatch
+
+env:
+  SAM_CLI_TELEMETRY: 0
 
 jobs:
   build:
@@ -12,17 +19,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: aws-actions/setup-sam@v2
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
       with:
-        go-version: 1.23.2
+          use-installer: true
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: 1.24
 
-    - name: Build
-      run: sam build -u
-  
     - name: Unit tests
       run: make test
+
+    - name: Build
+      run: sam build --use-container --debug
 
     - name: "Check: go fmt"
       run: |
